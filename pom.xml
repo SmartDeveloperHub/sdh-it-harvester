@@ -60,4 +60,8 @@
 	<!--   BUILD SETTINGS                                                    -->
 	<!-- =================================================================== -->
 
+	<modules>
+		<module>backend</module>
+	</modules>
+
 </project>
