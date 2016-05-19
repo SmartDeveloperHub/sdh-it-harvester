@@ -21,8 +21,8 @@
       See the License for the specific language governing permissions and
       limitations under the License.
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
-      Artifact    : org.smartdeveloperhub.harvesters.it.backend:it-backend-aggregator:0.1.0-SNAPSHOT
-      Bundle      : it-backend-aggregator-0.1.0-SNAPSHOT.pom
+      Artifact    : org.smartdeveloperhub.harvesters.it.backend:it-backend-depchain:0.1.0-SNAPSHOT
+      Bundle      : it-backend-depchain-0.1.0-SNAPSHOT.pom
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
 
 -->
@@ -37,35 +37,54 @@
 	<!-- =================================================================== -->
 
 	<parent>
-		<groupId>org.smartdeveloperhub.harvesters.it</groupId>
-		<artifactId>it-harvester-aggregator</artifactId>
+		<groupId>org.smartdeveloperhub.harvesters.it.backend</groupId>
+		<artifactId>it-backend-aggregator</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>org.smartdeveloperhub.harvesters.it.backend</groupId>
-	<artifactId>it-backend-aggregator</artifactId>
+	<artifactId>it-backend-depchain</artifactId>
 	<packaging>pom</packaging>
 
 	<!-- =================================================================== -->
 	<!--   MODULE INFORMATION                                                -->
 	<!-- =================================================================== -->
 
-	<name>SDH :: ITH :: Backend</name>
+	<name>SDH :: ITH :: Backend :: Dependency Chain</name>
 
-	<description>The Backend of the Issue Tracking Harvester of the Smart Developer Hub project</description>
-
-	<modules>
-		<module>bom</module>	
-		<module>api</module>	
-		<module>testing</module>	
-		<module>core</module>	
-		<module>dist</module>	
-		<module>depchain</module>
-	</modules>
+	<description>Single-POM definition to export the artifacts of the Backend of the Issue Tracking Harvester of the Smart Developer Hub project in the appropriate scope</description>
 
 	<!-- =================================================================== -->
 	<!--   BUILD SETTINGS                                                    -->
 	<!-- =================================================================== -->
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.smartdeveloperhub.harvesters.it.backend</groupId>
+				<artifactId>it-backend-bom</artifactId>
+				<version>${project.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.smartdeveloperhub.harvesters.it.backend</groupId>
+			<artifactId>it-backend-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.smartdeveloperhub.harvesters.it.backend</groupId>
+			<artifactId>it-backend-core</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.smartdeveloperhub.harvesters.it.backend</groupId>
+			<artifactId>it-backend-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
 </project>
