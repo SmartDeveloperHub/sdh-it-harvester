@@ -64,6 +64,7 @@
 		<module>notification</module>
 		<module>backend</module>
 		<module>frontend</module>
+		<module>dist</module>
 	</modules>
 
 </project>
