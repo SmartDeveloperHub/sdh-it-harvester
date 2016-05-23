@@ -29,51 +29,48 @@ package org.smartdeveloperhub.harvesters.it.notification;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smartdeveloperhub.harvesters.it.notification.external.Collector;
-import org.smartdeveloperhub.harvesters.it.notification.external.Enhancer;
-import org.smartdeveloperhub.harvesters.it.notification.external.EnhancerController;
+
+import com.google.common.collect.ImmutableList;
 
 /**
- * Utility class to enable receiving notifications pushed by the Collectors used
- * by a given GitLab Enhancer instance
+ * Utility class to enable receiving notifications pushed by different Collector
+ * instances
  */
 public final class NotificationManager {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(NotificationManager.class);
 
-	private final URI target;
+	private final UUID id;
+	private final ImmutableList<Collector> collectors;
 	private final CollectorAggregator aggregator;
 
-	private NotificationManager(final URI target, final NotificationListener listener) {
-		this.target=target;
-		this.aggregator=CollectorAggregator.newInstance(managerName(target), listener);
+	private NotificationManager(final List<Collector> collectors, final NotificationListener listener) {
+		this.id=UUID.randomUUID();
+		this.collectors=ImmutableList.copyOf(collectors);
+		this.aggregator=CollectorAggregator.newInstance(managerName(this.id),listener);
 	}
 
 	/**
 	 * Start the notification manager. Upon this point, the manager will push to
-	 * the listener any notification sent by the Collectors used by the
-	 * specified GitLab Enhancer instance.
+	 * the listener any notification sent by the specified Collector instances.
 	 *
 	 * @throws IOException
 	 *             if the notification manager cannot connect to the specified
-	 *             GitLab Enhancer instance, or to the brokers used by the
-	 *             Collectors used by the GitLab Enhancer instance
+	 *             to the brokers used by the specified Collectors instances
 	 */
 	public void start() throws IOException {
-		LOGGER.info("Starting notification manager for {}...",this.target);
-		final List<Collector> usedCollectors = getEnhancerCollectorConfiguration();
+		LOGGER.info("Starting notification manager {}...",this.id);
 		try {
-			this.aggregator.connect(usedCollectors);
-			LOGGER.info("Notification manager for {} started",this.target);
+			this.aggregator.connect(this.collectors);
+			LOGGER.info("Notification manager {} started",this.id);
 		} catch (final ControllerException e) {
-			LOGGER.warn("Could not connect to collectors of {}. Full stacktrace follows",this.target,this.target);
-			throw new IOException("Could not connect to collectors of "+this.target,e);
+			LOGGER.warn("Could not connect to collectors of {}. Full stacktrace follows",this.id,e);
+			throw new IOException("Could not connect to collectors of "+this.id,e);
 		}
 	}
 
@@ -82,28 +79,22 @@ public final class NotificationManager {
 	 * receiving notifications.
 	 */
 	public void shutdown() {
-		LOGGER.info("Shutting down notification manager for {}...",this.target);
+		LOGGER.info("Shutting down notification manager {}...",this.id);
 		this.aggregator.disconnect();
-		LOGGER.info("Notification manager for {} shutdown",this.target);
+		LOGGER.info("Notification manager {} shutdown",this.id);
 	}
 
-	private List<Collector> getEnhancerCollectorConfiguration() throws IOException {
-		final EnhancerController controller=new EnhancerController(this.target.toString());
-		final Enhancer enhancer = controller.getEnhancer();
-		return enhancer.getCollectors();
-	}
-
-	private static String managerName(final URI target) {
-		return String.format("manager%s.enhancer.hash%8X",UUID.randomUUID(),target.hashCode());
+	private static String managerName(final UUID id) {
+		return String.format("manager%s",id);
 	}
 
 	/**
-	 * Create a new instance that will interact with the Collectors used by the
-	 * specifed GitLab Enhancer instance and will push the notifications sent by
-	 * these Collectors to the specified NotificationListener
+	 * Create a new instance that will interact with a collection of Collectors
+	 * and will push the notifications sent by these Collectors to the specified
+	 * NotificationListener
 	 *
-	 * @param target
-	 *            the URI of the GitLab Enhancer instance
+	 * @param collectors
+	 *            the Collector instance configuration details
 	 * @param listener
 	 *            the NotificationListener to which the notifications will be
 	 *            pushed
@@ -111,10 +102,10 @@ public final class NotificationManager {
 	 * @throws NullPointerException
 	 *             if any of the parameters is {@code null}
 	 */
-	public static NotificationManager newInstance(final URI target, final NotificationListener listener) {
-		checkNotNull(target,"Target cannot be null");
+	public static NotificationManager newInstance(final List<Collector> collectors, final NotificationListener listener) {
+		checkNotNull(collectors,"Target cannot be null");
 		checkNotNull(listener,"Listener cannot be null");
-		return new NotificationManager(target,listener);
+		return new NotificationManager(collectors,listener);
 	}
 
 }

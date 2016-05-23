@@ -44,7 +44,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.smartdeveloperhub.harvesters.it.notification.event.Event;
 import org.smartdeveloperhub.harvesters.it.notification.event.ProjectCreatedEvent;
-import org.smartdeveloperhub.harvesters.it.notification.external.Collector;
 
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.AMQP.Queue;

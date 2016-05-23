@@ -28,72 +28,38 @@ package org.smartdeveloperhub.harvesters.it.notification;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.smartdeveloperhub.harvesters.it.notification.external.Collector;
-import org.smartdeveloperhub.harvesters.it.notification.external.Enhancer;
-import org.smartdeveloperhub.harvesters.it.notification.external.EnhancerController;
+
+import com.google.common.collect.Lists;
 
 import mockit.Mock;
 import mockit.MockUp;
 import mockit.Mocked;
 import mockit.integration.junit4.JMockit;
 
-/**
- * TODO: Update intialization logic
- */
 @RunWith(JMockit.class)
 public class NotificationManagerTest {
 
-	private static final String ENDPOINT = "http://www.example.org:5000/api";
 	@Mocked NotificationListener listener;
+	@Mocked Collector collector1;
+	@Mocked Collector collector2;
 
-	/**
-	 * TODO: Update intialization logic
-	 */
-	@Test
-	public void testConnectionFailsIfCannotDiscoverTheEnhancerConfiguration() throws Exception {
-		new MockUp<EnhancerController>() {
-			@Mock(invocations=1)
-			void $init(final String target) {
-				assertThat(target,equalTo(ENDPOINT));
-			}
-			@Mock(invocations=1)
-			Enhancer getEnhancer() throws IOException {
-				throw new IOException("Failure");
-			}
-		};
-		final NotificationManager sut = NotificationManager.newInstance(URI.create(ENDPOINT), this.listener);
-		try {
-			sut.start();
-			fail("Should not be able to connect if we cannot discover the enhancer");
-		} catch (final IOException e) {
-			assertThat(e.getMessage(),equalTo("Failure"));
-		}
+	private List<Collector> collectors() {
+		return Lists.newArrayList(this.collector1,this.collector2);
 	}
 
-	/**
-	 * TODO: Update intialization logic
-	 */
 	@Test
-	public void testConnectionFailsIfAggregatorFails() throws Exception {
-		new MockUp<EnhancerController>() {
-			@Mock(invocations=1)
-			void $init(final String target) {
-				assertThat(target,equalTo(ENDPOINT));
-			}
-			@Mock(invocations=1)
-			Enhancer getEnhancer() throws IOException {
-				return new Enhancer();
-			}
-		};
+	public void testAcceptEmptyControllerList() throws Exception {
 		new MockUp<CollectorAggregator>() {
 			@Mock(invocations=1)
 			void $init(final String name,final NotificationListener listener) {
@@ -102,15 +68,33 @@ public class NotificationManagerTest {
 			}
 			@Mock(invocations=1)
 			void connect(final List<Collector> collectors) throws ControllerException {
+				assertThat(collectors,hasSize(0));
+			}
+		};
+		final NotificationManager sut=NotificationManager.newInstance(Collections.<Collector>emptyList(),this.listener);
+		sut.start();
+	}
+
+	@Test
+	public void testConnectionFailsIfAggregatorFails() throws Exception {
+		new MockUp<CollectorAggregator>() {
+			@Mock(invocations=1)
+			void $init(final String name,final NotificationListener listener) {
+				Amqp.validateName(name, "Collector aggregator name");
+				assertThat(listener,equalTo(NotificationManagerTest.this.listener));
+			}
+			@Mock(invocations=1)
+			void connect(final List<Collector> collectors) throws ControllerException {
+				assertThat(collectors,equalTo(collectors()));
 				throw new ControllerException("brokerHost", 12345, "virtualHost", "message", null);
 			}
 		};
-		final NotificationManager sut = NotificationManager.newInstance(URI.create(ENDPOINT), this.listener);
+		final NotificationManager sut = NotificationManager.newInstance(collectors(),this.listener);
 		try {
 			sut.start();
 			fail("Should not be able to connect if we cannot discover the enhancer");
 		} catch (final IOException e) {
-			assertThat(e.getMessage(),equalTo("Could not connect to collectors of "+ENDPOINT));
+			assertThat(e.getMessage(),startsWith("Could not connect to collectors of "));
 			assertThat(e.getCause(),instanceOf(ControllerException.class));
 			final ControllerException c=(ControllerException) e.getCause();
 			assertThat(c.getMessage(),equalTo("message"));
@@ -120,21 +104,8 @@ public class NotificationManagerTest {
 		}
 	}
 
-	/**
-	 * TODO: Update intialization logic
-	 */
 	@Test
 	public void testDisconnectWorksConnected() throws Exception {
-		new MockUp<EnhancerController>() {
-			@Mock(invocations=1)
-			void $init(final String target) {
-				assertThat(target,equalTo(ENDPOINT));
-			}
-			@Mock(invocations=1)
-			Enhancer getEnhancer() throws IOException {
-				return new Enhancer();
-			}
-		};
 		new MockUp<CollectorAggregator>() {
 			@Mock(invocations=1)
 			void $init(final String name,final NotificationListener listener) {
@@ -143,18 +114,16 @@ public class NotificationManagerTest {
 			}
 			@Mock(invocations=1)
 			void connect(final List<Collector> collectors) throws ControllerException {
+				assertThat(collectors,equalTo(collectors()));
 			}
 			@Mock(invocations=1)
 			void disconnect() {}
 		};
-		final NotificationManager sut = NotificationManager.newInstance(URI.create(ENDPOINT), this.listener);
+		final NotificationManager sut = NotificationManager.newInstance(collectors(), this.listener);
 		sut.start();
 		sut.shutdown();
 	}
 
-	/**
-	 * TODO: Update intialization logic
-	 */
 	@Test
 	public void testDisconnectWorksDisconnected() throws Exception {
 		new MockUp<CollectorAggregator>() {
@@ -166,7 +135,7 @@ public class NotificationManagerTest {
 			@Mock(invocations=1)
 			void disconnect() {}
 		};
-		final NotificationManager sut = NotificationManager.newInstance(URI.create(ENDPOINT), this.listener);
+		final NotificationManager sut = NotificationManager.newInstance(collectors(), this.listener);
 		sut.shutdown();
 	}
 

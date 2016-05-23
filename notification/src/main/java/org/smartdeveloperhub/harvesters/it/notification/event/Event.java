@@ -26,9 +26,17 @@
  */
 package org.smartdeveloperhub.harvesters.it.notification.event;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Event extends Extensible {
+public class Event {
 
 	static final String INSTANCE  = "instance";
 	static final String TIMESTAMP = "timestamp";
@@ -38,6 +46,10 @@ public class Event extends Extensible {
 
 	@JsonProperty(TIMESTAMP)
 	private Long timestamp;
+
+	@JsonIgnore
+	private final Map<String, Object> additionalProperties = new HashMap<>();
+
 
 	/**
 	 * Get the identifier of the instance that produced the event
@@ -79,6 +91,21 @@ public class Event extends Extensible {
 	@JsonProperty(TIMESTAMP)
 	public void setTimestamp(final Long timestamp) {
 		this.timestamp = timestamp;
+	}
+
+	@JsonAnyGetter
+	public Map<String, Object> getAdditionalProperties() {
+		return this.additionalProperties;
+	}
+
+	@JsonAnySetter
+	public void setAdditionalProperty(final String name, final Object value) {
+		this.additionalProperties.put(name, value);
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 
 }

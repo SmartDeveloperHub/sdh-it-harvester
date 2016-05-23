@@ -26,8 +26,6 @@
  */
 package org.smartdeveloperhub.harvesters.it.notification;
 
-import org.smartdeveloperhub.harvesters.it.notification.external.Collector;
-
 public class NotificationTestHelper {
 
 	protected static final String CONTENT_TYPE = "Content-Type";

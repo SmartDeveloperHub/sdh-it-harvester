@@ -41,7 +41,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.notification.event.Event;
-import org.smartdeveloperhub.harvesters.it.notification.external.Collector;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;

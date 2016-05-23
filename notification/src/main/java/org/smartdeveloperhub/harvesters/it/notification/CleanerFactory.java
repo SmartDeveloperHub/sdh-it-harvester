@@ -80,7 +80,8 @@ final class CleanerFactory {
 	private CleanerFactory() {
 	}
 
-	static Cleaner queueDelete(final String queueName) {		return new DeleteQueueCleaner(queueName);
+	static Cleaner queueDelete(final String queueName) {
+		return new DeleteQueueCleaner(queueName);
 	}
 
 	static Cleaner queueUnbind(final String exchangeName, final String queueName, final String routingKey) {

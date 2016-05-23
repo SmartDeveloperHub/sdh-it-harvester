@@ -38,7 +38,6 @@ import org.smartdeveloperhub.harvesters.it.notification.event.ContributorDeleted
 import org.smartdeveloperhub.harvesters.it.notification.event.ProjectCreatedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ProjectDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ProjectUpdatedEvent;
-import org.smartdeveloperhub.harvesters.it.notification.external.Collector;
 
 public class CollectorAggregatorITest extends NotificationTestHelper {
 

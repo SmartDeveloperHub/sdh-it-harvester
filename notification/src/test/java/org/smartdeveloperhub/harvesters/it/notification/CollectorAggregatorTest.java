@@ -48,7 +48,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorCreatedEvent;
-import org.smartdeveloperhub.harvesters.it.notification.external.Collector;
 
 import com.google.common.collect.Iterables;
 

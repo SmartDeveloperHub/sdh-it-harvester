@@ -26,12 +26,8 @@
  */
 package org.smartdeveloperhub.harvesters.it.notification;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -51,23 +47,13 @@ import org.smartdeveloperhub.harvesters.it.notification.event.Modification;
 import org.smartdeveloperhub.harvesters.it.notification.event.ProjectCreatedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ProjectDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ProjectUpdatedEvent;
-import org.smartdeveloperhub.harvesters.it.notification.external.Collector;
-import org.smartdeveloperhub.harvesters.it.notification.external.Enhancer;
-import org.smartdeveloperhub.harvesters.it.notification.external.EnhancerController;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import mockit.Deencapsulation;
-import mockit.Mock;
-import mockit.MockUp;
 
-/**
- * TODO: Update intialization logic
- */
 public class NotificationManagerITest {
-
-	private static final String JIRA_COLLECTOR_AGGREGATOR = "http://russell.dia.fi.upm.es:5000/api";
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(NotificationManagerITest.class);
 
@@ -111,23 +97,10 @@ public class NotificationManagerITest {
 					add(collector("http://www.example.org:5000/collector/2", "exchange1")).
 					add(collector("http://www.example.org:5000/collector/3", "exchange2")).
 					build();
-		new MockUp<EnhancerController>() {
-			@Mock(invocations=1)
-			void $init(final String target) {
-				assertThat(target,equalTo(JIRA_COLLECTOR_AGGREGATOR));
-			}
-			@Mock(invocations=1)
-			Enhancer getEnhancer() throws IOException {
-				final Enhancer enhancer = new Enhancer();
-				enhancer.setId(JIRA_COLLECTOR_AGGREGATOR);
-				enhancer.setCollectors(collectors);
-				return enhancer;
-			}
-		};
 		final int rounds = 10;
 		final CountDownLatch expectedNotifications=new CountDownLatch(collectors.size()*rounds*8);
 		final CountingNotificationListener listener = new CountingNotificationListener(expectedNotifications);
-		final NotificationManager sut = NotificationManager.newInstance(URI.create(JIRA_COLLECTOR_AGGREGATOR),listener);
+		final NotificationManager sut = NotificationManager.newInstance(collectors,listener);
 		LOGGER.info("Starting Notitication Manager...");
 		sut.start();
 		try {

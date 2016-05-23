@@ -24,9 +24,9 @@
  *   Bundle      : it-harvester-notification-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.notification.external;
+package org.smartdeveloperhub.harvesters.it.notification;
 
-import org.smartdeveloperhub.harvesters.it.notification.event.Extensible;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -40,7 +40,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 	Collector.VIRTUAL_HOST,
 	Collector.EXCHANGE_NAME
 })
-public class Collector extends Extensible {
+public class Collector {
 
 	static final String INSTANCE = "instance";
 	static final String BROKER_HOST = "brokerHost";
@@ -167,6 +167,11 @@ public class Collector extends Extensible {
 	@JsonProperty(EXCHANGE_NAME)
 	public void setExchangeName(final String exchangeName) {
 		this.exchangeName = exchangeName;
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 
 }
