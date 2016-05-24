@@ -26,16 +26,19 @@
  */
 package org.smartdeveloperhub.harvesters.it.notification;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
-import org.smartdeveloperhub.harvesters.it.notification.event.EventUnitTests;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	EventUnitTests.class,
-	NotificationUnitTests.class,
-	NotificationIntegrationTests.class
-})
-public class NotificationTestsSuite {
+import org.junit.Test;
+import org.ldp4j.commons.testing.Utils;
+
+public class CollectorTest {
+
+	@Test
+	public void hasCustomStringRepresentation() throws Exception {
+		final Collector sut=new Collector();
+		assertThat(sut.toString(),not(equalTo(Utils.defaultToString(sut))));
+	}
+
 }

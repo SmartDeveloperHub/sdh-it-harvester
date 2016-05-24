@@ -24,18 +24,16 @@
  *   Bundle      : it-harvester-notification-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.notification;
+package org.smartdeveloperhub.harvesters.it.notification.event;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
-import org.smartdeveloperhub.harvesters.it.notification.event.EventUnitTests;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	EventUnitTests.class,
-	NotificationUnitTests.class,
-	NotificationIntegrationTests.class
+	ModificationTest.class,
+	ProjectUpdatedEventTest.class
 })
-public class NotificationTestsSuite {
+public class EventUnitTests {
 }

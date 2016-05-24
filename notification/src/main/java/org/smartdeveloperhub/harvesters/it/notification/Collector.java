@@ -26,11 +26,10 @@
  */
 package org.smartdeveloperhub.harvesters.it.notification;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.common.base.MoreObjects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -171,7 +170,16 @@ public class Collector {
 
 	@Override
 	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
+		return
+			MoreObjects.
+				toStringHelper(getClass()).
+					omitNullValues().
+					add("instance",this.instance).
+					add("brokerHost",this.brokerHost).
+					add("brokerPort",this.brokerPort).
+					add("virtualHost",this.virtualHost).
+					add("exchangeName",this.exchangeName).
+					toString();
 	}
 
 }
