@@ -51,10 +51,10 @@ import mockit.integration.junit4.JMockit;
 public class NotificationManagerTest {
 
 	@Mocked NotificationListener listener;
-	@Mocked Collector collector1;
-	@Mocked Collector collector2;
+	@Mocked CollectorConfiguration collector1;
+	@Mocked CollectorConfiguration collector2;
 
-	private List<Collector> collectors() {
+	private List<CollectorConfiguration> collectors() {
 		return Lists.newArrayList(this.collector1,this.collector2);
 	}
 
@@ -67,11 +67,11 @@ public class NotificationManagerTest {
 				assertThat(listener,equalTo(NotificationManagerTest.this.listener));
 			}
 			@Mock(invocations=1)
-			void connect(final List<Collector> collectors) throws ControllerException {
+			void connect(final List<CollectorConfiguration> collectors) throws ControllerException {
 				assertThat(collectors,hasSize(0));
 			}
 		};
-		final NotificationManager sut=NotificationManager.newInstance(Collections.<Collector>emptyList(),this.listener);
+		final NotificationManager sut=NotificationManager.newInstance(Collections.<CollectorConfiguration>emptyList(),this.listener);
 		sut.start();
 	}
 
@@ -84,7 +84,7 @@ public class NotificationManagerTest {
 				assertThat(listener,equalTo(NotificationManagerTest.this.listener));
 			}
 			@Mock(invocations=1)
-			void connect(final List<Collector> collectors) throws ControllerException {
+			void connect(final List<CollectorConfiguration> collectors) throws ControllerException {
 				assertThat(collectors,equalTo(collectors()));
 				throw new ControllerException("brokerHost", 12345, "virtualHost", "message", null);
 			}
@@ -113,7 +113,7 @@ public class NotificationManagerTest {
 				assertThat(listener,equalTo(NotificationManagerTest.this.listener));
 			}
 			@Mock(invocations=1)
-			void connect(final List<Collector> collectors) throws ControllerException {
+			void connect(final List<CollectorConfiguration> collectors) throws ControllerException {
 				assertThat(collectors,equalTo(collectors()));
 			}
 			@Mock(invocations=1)

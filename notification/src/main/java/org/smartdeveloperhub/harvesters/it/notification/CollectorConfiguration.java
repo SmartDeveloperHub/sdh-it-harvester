@@ -26,40 +26,22 @@
  */
 package org.smartdeveloperhub.harvesters.it.notification;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.base.MoreObjects;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-	Collector.INSTANCE,
-	Collector.BROKER_HOST,
-	Collector.BROKER_PORT,
-	Collector.VIRTUAL_HOST,
-	Collector.EXCHANGE_NAME
-})
-public class Collector {
+public final class CollectorConfiguration {
 
-	static final String INSTANCE = "instance";
-	static final String BROKER_HOST = "brokerHost";
-	static final String BROKER_PORT = "brokerPort";
-	static final String VIRTUAL_HOST = "virtualHost";
-	static final String EXCHANGE_NAME = "exchangeName";
+	private static final String DEFAULT_VIRTUAL_HOST = "/";
 
-	@JsonProperty(INSTANCE)
+	private static final int DEFAULT_PORT = 5672;
+
 	private String instance;
 
-	@JsonProperty(BROKER_HOST)
 	private String brokerHost;
 
-	@JsonProperty(BROKER_PORT)
-	private Integer brokerPort = 5672;
+	private Integer brokerPort = DEFAULT_PORT;
 
-	@JsonProperty(VIRTUAL_HOST)
-	private String virtualHost = "/";
+	private String virtualHost = DEFAULT_VIRTUAL_HOST;
 
-	@JsonProperty(EXCHANGE_NAME)
 	private String exchangeName;
 
 	/**
@@ -67,7 +49,6 @@ public class Collector {
 	 *
 	 * @return the instance
 	 */
-	@JsonProperty(INSTANCE)
 	public String getInstance() {
 		return this.instance;
 	}
@@ -78,7 +59,6 @@ public class Collector {
 	 * @param instance
 	 *            the collector's API base endpoint
 	 */
-	@JsonProperty(INSTANCE)
 	public void setInstance(final String instance) {
 		this.instance = instance;
 	}
@@ -89,7 +69,6 @@ public class Collector {
 	 *
 	 * @return the broker host
 	 */
-	@JsonProperty(BROKER_HOST)
 	public String getBrokerHost() {
 		return this.brokerHost;
 	}
@@ -100,7 +79,6 @@ public class Collector {
 	 * @param brokerHost
 	 *            the broker host
 	 */
-	@JsonProperty(BROKER_HOST)
 	public void setBrokerHost(final String brokerHost) {
 		this.brokerHost = brokerHost;
 	}
@@ -110,7 +88,6 @@ public class Collector {
 	 *
 	 * @return the broker port
 	 */
-	@JsonProperty(BROKER_PORT)
 	public Integer getBrokerPort() {
 		return this.brokerPort;
 	}
@@ -121,9 +98,8 @@ public class Collector {
 	 * @param brokerPort
 	 *            the broker port
 	 */
-	@JsonProperty(BROKER_PORT)
 	public void setBrokerPort(final Integer brokerPort) {
-		this.brokerPort = brokerPort;
+		this.brokerPort = brokerPort==null?DEFAULT_PORT:brokerPort;
 	}
 
 	/**
@@ -131,7 +107,6 @@ public class Collector {
 	 *
 	 * @return the virtual host
 	 */
-	@JsonProperty(VIRTUAL_HOST)
 	public String getVirtualHost() {
 		return this.virtualHost;
 	}
@@ -142,9 +117,8 @@ public class Collector {
 	 * @param virtualHost
 	 *            the virtual host
 	 */
-	@JsonProperty(VIRTUAL_HOST)
 	public void setVirtualHost(final String virtualHost) {
-		this.virtualHost = virtualHost;
+		this.virtualHost = virtualHost==null?DEFAULT_VIRTUAL_HOST:virtualHost;
 	}
 
 	/**
@@ -152,7 +126,6 @@ public class Collector {
 	 *
 	 * @return the exchange name used by the collector
 	 */
-	@JsonProperty(EXCHANGE_NAME)
 	public String getExchangeName() {
 		return this.exchangeName;
 	}
@@ -163,7 +136,6 @@ public class Collector {
 	 * @param exchangeName
 	 *            the exchange name
 	 */
-	@JsonProperty(EXCHANGE_NAME)
 	public void setExchangeName(final String exchangeName) {
 		this.exchangeName = exchangeName;
 	}

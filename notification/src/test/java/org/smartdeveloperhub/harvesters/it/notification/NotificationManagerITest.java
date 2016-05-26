@@ -90,9 +90,9 @@ public class NotificationManagerITest {
 	 */
 	@Test
 	public void testMultipleCollectors() throws IOException {
-		final List<Collector> collectors=
+		final List<CollectorConfiguration> collectors=
 			ImmutableList.
-				<Collector>builder().
+				<CollectorConfiguration>builder().
 					add(collector("http://www.example.org:5000/collector/1", "exchange1")).
 					add(collector("http://www.example.org:5000/collector/2", "exchange1")).
 					add(collector("http://www.example.org:5000/collector/3", "exchange2")).
@@ -107,7 +107,7 @@ public class NotificationManagerITest {
 			LOGGER.info("Sending notifications...");
 			final CollectorAggregator aggregator=Deencapsulation.getField(sut,"aggregator");
 			for(int i=0;i<rounds;i++) {
-				for(final Collector collector:collectors) {
+				for(final CollectorConfiguration collector:collectors) {
 					publishEvent(aggregator, createContributors(collector, "cc1"+i,"cc2"+i));
 					publishEvent(aggregator, deleteContributors(collector, "dc1"+i,"dc2"+i));
 					publishEvent(aggregator, createProjects(collector, "r"+i+1,"r"+i+2));
@@ -128,7 +128,7 @@ public class NotificationManagerITest {
 			sut.shutdown();
 		}
 		LOGGER.info("Summary of received notifications:");
-		for(final Collector collector:collectors) {
+		for(final CollectorConfiguration collector:collectors) {
 			LOGGER.info(" + {}:",collector.getInstance());
 			for(final String event:listener.events(collector.getInstance())) {
 				LOGGER.info("  - {} : {}",event,listener.eventCount(collector.getInstance(),event));
@@ -151,7 +151,7 @@ public class NotificationManagerITest {
 		}
 	}
 
-	private ContributorCreatedEvent createContributors(final Collector collector, final String... values) {
+	private ContributorCreatedEvent createContributors(final CollectorConfiguration collector, final String... values) {
 		final ContributorCreatedEvent event = new ContributorCreatedEvent();
 		event.setInstance(collector.getInstance());
 		event.setTimestamp(System.currentTimeMillis());
@@ -159,7 +159,7 @@ public class NotificationManagerITest {
 		return event;
 	}
 
-	private ContributorDeletedEvent deleteContributors(final Collector collector, final String... values) {
+	private ContributorDeletedEvent deleteContributors(final CollectorConfiguration collector, final String... values) {
 		final ContributorDeletedEvent event = new ContributorDeletedEvent();
 		event.setInstance(collector.getInstance());
 		event.setTimestamp(System.currentTimeMillis());
@@ -167,7 +167,7 @@ public class NotificationManagerITest {
 		return event;
 	}
 
-	private ProjectCreatedEvent createProjects(final Collector collector, final String... values) {
+	private ProjectCreatedEvent createProjects(final CollectorConfiguration collector, final String... values) {
 		final ProjectCreatedEvent event = new ProjectCreatedEvent();
 		event.setInstance(collector.getInstance());
 		event.setTimestamp(System.currentTimeMillis());
@@ -175,7 +175,7 @@ public class NotificationManagerITest {
 		return event;
 	}
 
-	private ProjectDeletedEvent deleteProjects(final Collector collector, final String... values) {
+	private ProjectDeletedEvent deleteProjects(final CollectorConfiguration collector, final String... values) {
 		final ProjectDeletedEvent event = new ProjectDeletedEvent();
 		event.setInstance(collector.getInstance());
 		event.setTimestamp(System.currentTimeMillis());
@@ -183,7 +183,7 @@ public class NotificationManagerITest {
 		return event;
 	}
 
-	private ProjectUpdatedEvent createProjectComponents(final Collector collector, final String id, final String... values) {
+	private ProjectUpdatedEvent createProjectComponents(final CollectorConfiguration collector, final String id, final String... values) {
 		final ProjectUpdatedEvent event = new ProjectUpdatedEvent();
 		event.setInstance(collector.getInstance());
 		event.setTimestamp(System.currentTimeMillis());
@@ -194,7 +194,7 @@ public class NotificationManagerITest {
 		return event;
 	}
 
-	private ProjectUpdatedEvent deleteProjectComponents(final Collector collector, final String id, final String... values) {
+	private ProjectUpdatedEvent deleteProjectComponents(final CollectorConfiguration collector, final String id, final String... values) {
 		final ProjectUpdatedEvent event = new ProjectUpdatedEvent();
 		event.setInstance(collector.getInstance());
 		event.setTimestamp(System.currentTimeMillis());
@@ -205,7 +205,7 @@ public class NotificationManagerITest {
 		return event;
 	}
 
-	private ProjectUpdatedEvent createProjectVersions(final Collector collector, final String id, final String... values) {
+	private ProjectUpdatedEvent createProjectVersions(final CollectorConfiguration collector, final String id, final String... values) {
 		final ProjectUpdatedEvent event = new ProjectUpdatedEvent();
 		event.setInstance(collector.getInstance());
 		event.setTimestamp(System.currentTimeMillis());
@@ -216,7 +216,7 @@ public class NotificationManagerITest {
 		return event;
 	}
 
-	private ProjectUpdatedEvent deleteProjectVersions(final Collector collector, final String id, final String... values) {
+	private ProjectUpdatedEvent deleteProjectVersions(final CollectorConfiguration collector, final String id, final String... values) {
 		final ProjectUpdatedEvent event = new ProjectUpdatedEvent();
 		event.setInstance(collector.getInstance());
 		event.setTimestamp(System.currentTimeMillis());
@@ -227,8 +227,8 @@ public class NotificationManagerITest {
 		return event;
 	}
 
-	private Collector collector(final String instance, final String exchangeName) {
-		final Collector collector=new Collector();
+	private CollectorConfiguration collector(final String instance, final String exchangeName) {
+		final CollectorConfiguration collector=new CollectorConfiguration();
 		collector.setInstance(instance);
 		collector.setBrokerHost("localhost");
 		collector.setBrokerPort(5672);

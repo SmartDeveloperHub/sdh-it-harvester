@@ -97,7 +97,7 @@ public class CollectorAggregatorITest extends NotificationTestHelper {
 	public void testLifecycle() throws Exception {
 		final CustomNotificationListener listener=new CustomNotificationListener(false);
 		final CollectorAggregator sut = CollectorAggregator.newInstance("example", listener);
-		final Collector collector=defaultCollector();
+		final CollectorConfiguration collector=defaultCollector();
 		sut.connect(Arrays.asList(collector));
 		final CollectorController controller=sut.controller(collector.getInstance());
 		try {

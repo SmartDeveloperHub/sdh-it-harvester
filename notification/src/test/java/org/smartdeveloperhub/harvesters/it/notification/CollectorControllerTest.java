@@ -103,7 +103,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 
 	@Test
 	public void testCollector() {
-		final Collector defaultCollector = defaultCollector();
+		final CollectorConfiguration defaultCollector = defaultCollector();
 		final CollectorController sut = collectorController(defaultCollector);
 		assertThat(sut.collector(),sameInstance(defaultCollector));
 	}
@@ -133,7 +133,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 	@Test
 	public void testActualQueueName$anonymous() throws ControllerException {
 		final LinkedBlockingQueue<SuspendedNotification> queue = new LinkedBlockingQueue<SuspendedNotification>();
-		final Collector defaultCollector = defaultCollector();
+		final CollectorConfiguration defaultCollector = defaultCollector();
 		final CollectorController sut = CollectorController.createAnonymousReceiver(defaultCollector,queue);
 		try {
 			sut.connect();
@@ -157,7 +157,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 	@Test
 	public void testQueueName$anonymous() throws ControllerException {
 		final LinkedBlockingQueue<SuspendedNotification> queue = new LinkedBlockingQueue<SuspendedNotification>();
-		final Collector defaultCollector = defaultCollector();
+		final CollectorConfiguration defaultCollector = defaultCollector();
 		final CollectorController sut = CollectorController.createAnonymousReceiver(defaultCollector,queue);
 		assertThat(sut.queueName(),nullValue());
 	}
@@ -206,7 +206,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 				return true;
 			}
 		};
-		final Collector defaultCollector = defaultCollector();
+		final CollectorConfiguration defaultCollector = defaultCollector();
 		new Expectations() {{
 			channel.exchangeDeclare(defaultCollector.getExchangeName(), "topic", true);this.result=new IOException("Failure");
 		}};
@@ -238,7 +238,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 				return channel;
 			}
 		};
-		final Collector defaultCollector = defaultCollector();
+		final CollectorConfiguration defaultCollector = defaultCollector();
 		new Expectations() {{
 			channel.exchangeDeclare(defaultCollector.getExchangeName(), "topic", true);this.result=new IOException("Failure");
 		}};
@@ -274,7 +274,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 				return channel;
 			}
 		};
-		final Collector defaultCollector = defaultCollector();
+		final CollectorConfiguration defaultCollector = defaultCollector();
 		new Expectations() {{
 			channel.queueDeclare((String)this.any,true,true,true,(Map<String,Object>)this.any);this.result=new IOException("Failure");
 		}};
@@ -310,7 +310,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 				return channel;
 			}
 		};
-		final Collector defaultCollector = defaultCollector();
+		final CollectorConfiguration defaultCollector = defaultCollector();
 		new Expectations() {{
 			channel.queueDeclare((String)this.any,true,true,true,(Map<String,Object>)this.any);this.result=ok;
 			ok.getQueue();this.result="actualQueueName";
@@ -348,7 +348,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 				return channel;
 			}
 		};
-		final Collector defaultCollector = defaultCollector();
+		final CollectorConfiguration defaultCollector = defaultCollector();
 		new Expectations() {{
 			channel.queueDeclare((String)this.any,true,true,true,(Map<String,Object>)this.any);this.result=ok;
 			ok.getQueue();this.result="actualQueueName";
@@ -424,7 +424,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 				return channel;
 			}
 		};
-		final Collector defaultCollector=defaultCollector();
+		final CollectorConfiguration defaultCollector=defaultCollector();
 		final CollectorController sut = collectorController(defaultCollector);
 		new Expectations() {{
 			channel.queueDeclare((String)this.any,true,true,true,(Map<String,Object>)this.any);this.result=ok;
@@ -444,7 +444,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 				throw new IOException("Failure");
 			}
 		};
-		final Collector collector = defaultCollector();
+		final CollectorConfiguration collector = defaultCollector();
 		final ProjectCreatedEvent event = new ProjectCreatedEvent();
 		final CollectorController sut = CollectorController.createPublisher(collector);
 		sut.connect();
@@ -499,7 +499,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 			void discardChannel() {
 			}
 		};
-		final Collector defaultCollector = defaultCollector();
+		final CollectorConfiguration defaultCollector = defaultCollector();
 		new Expectations() {{
 			channel.
 				basicPublish(
@@ -562,7 +562,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 			void discardChannel() {
 			}
 		};
-		final Collector defaultCollector = defaultCollector();
+		final CollectorConfiguration defaultCollector = defaultCollector();
 		new Expectations() {{
 			channel.
 				basicPublish(
@@ -621,7 +621,7 @@ public class CollectorControllerTest extends NotificationTestHelper {
 			void discardChannel() {
 			}
 		};
-		final Collector defaultCollector = defaultCollector();
+		final CollectorConfiguration defaultCollector = defaultCollector();
 		new Expectations() {{
 			channel.
 				basicPublish(
@@ -654,12 +654,12 @@ public class CollectorControllerTest extends NotificationTestHelper {
 	}
 
 	private CollectorController defaultController() {
-		final Collector defaultCollector = defaultCollector();
+		final CollectorConfiguration defaultCollector = defaultCollector();
 		final CollectorController sut = collectorController(defaultCollector);
 		return sut;
 	}
 
-	private CollectorController collectorController(final Collector defaultCollector) {
+	private CollectorController collectorController(final CollectorConfiguration defaultCollector) {
 		final LinkedBlockingQueue<SuspendedNotification> queue = new LinkedBlockingQueue<SuspendedNotification>();
 		final CollectorController sut = CollectorController.createNamedReceiver(defaultCollector,"name",queue);
 		return sut;

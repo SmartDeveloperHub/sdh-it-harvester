@@ -66,7 +66,7 @@ public class CollectorAggregatorTest extends NotificationTestHelper {
 		final AtomicReference<CollectorController> reference=new AtomicReference<>();
 		new MockUp<CollectorController>() {
 			@Mock(invocations=1)
-			void $init(final Invocation invocation,final Collector aCollector, final String aName, final BlockingQueue<SuspendedNotification> aQueue) {
+			void $init(final Invocation invocation,final CollectorConfiguration aCollector, final String aName, final BlockingQueue<SuspendedNotification> aQueue) {
 				reference.set(invocation.<CollectorController>getInvokedInstance());
 			}
 			@Mock(invocations=1)
@@ -79,10 +79,10 @@ public class CollectorAggregatorTest extends NotificationTestHelper {
 
 	@Test
 	public void testConnect$repeatedInstances(@Mocked final NotificationListener listener) throws Exception {
-		final Collector collector = defaultCollector();
+		final CollectorConfiguration collector = defaultCollector();
 		new MockUp<CollectorController>() {
 			@Mock(invocations=1)
-			void $init(final Collector aCollector, final String aName, final BlockingQueue<SuspendedNotification> aQueue) {
+			void $init(final CollectorConfiguration aCollector, final String aName, final BlockingQueue<SuspendedNotification> aQueue) {
 				assertThat(aCollector,sameInstance(collector));
 				assertThat(aName,not(isEmptyString()));
 				assertThat(aQueue,notNullValue());
@@ -103,10 +103,10 @@ public class CollectorAggregatorTest extends NotificationTestHelper {
 
 	@Test
 	public void testConnect$connectionFailure(@Mocked final NotificationListener listener) throws Exception {
-		final Collector collector = defaultCollector();
+		final CollectorConfiguration collector = defaultCollector();
 		new MockUp<CollectorController>() {
 			@Mock(invocations=1)
-			void $init(final Collector aCollector, final String aName, final BlockingQueue<SuspendedNotification> aQueue) {
+			void $init(final CollectorConfiguration aCollector, final String aName, final BlockingQueue<SuspendedNotification> aQueue) {
 				assertThat(aCollector,sameInstance(collector));
 				assertThat(aName,not(isEmptyString()));
 				assertThat(aQueue,notNullValue());
@@ -198,7 +198,7 @@ public class CollectorAggregatorTest extends NotificationTestHelper {
 							}
 						}
 					});
-		final Collector collector = defaultCollector();
+		final CollectorConfiguration collector = defaultCollector();
 		sut.connect(Arrays.asList(collector));
 		final CollectorController controller = sut.controller(collector.getInstance());
 		final ContributorCreatedEvent event = new ContributorCreatedEvent();
@@ -214,7 +214,7 @@ public class CollectorAggregatorTest extends NotificationTestHelper {
 	@Test
 	public void testDisconnect$isSafe(@Mocked final NotificationListener listener) throws Exception {
 		final CollectorAggregator sut = CollectorAggregator.newInstance("example", listener);
-		sut.connect(Collections.<Collector>emptyList());
+		sut.connect(Collections.<CollectorConfiguration>emptyList());
 		sut.disconnect();
 		sut.disconnect();
 	}

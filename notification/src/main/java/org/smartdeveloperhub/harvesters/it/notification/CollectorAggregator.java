@@ -54,7 +54,7 @@ final class CollectorAggregator {
 	private final String name;
 	private final NotificationListener listener;
 
-	private final Multimap<String,Collector> brokerCollectors;
+	private final Multimap<String,CollectorConfiguration> brokerCollectors;
 	private final Multimap<String,String> brokerInstances;
 	private final Map<String,CollectorController> brokerController;
 	private final Map<String,String> instanceBroker;
@@ -75,10 +75,10 @@ final class CollectorAggregator {
 		this.connectedControllers=Lists.newLinkedList();
 	}
 
-	void connect(final List<Collector> collectors) throws ControllerException {
+	void connect(final List<CollectorConfiguration> collectors) throws ControllerException {
 		LOGGER.info("Setting up collector aggregator for {}...",this.name);
 		startNotificationPump();
-		for(final Collector collector:collectors) {
+		for(final CollectorConfiguration collector:collectors) {
 			verifyCollectorIsNotConfigured(collector);
 			addCollector(collector, queueName(collector));
 		}
@@ -110,7 +110,7 @@ final class CollectorAggregator {
 		LOGGER.info("Collector aggregator for {} disconnected",this.name);
 	}
 
-	private void addCollector(final Collector collector, final String queueName) throws ControllerException {
+	private void addCollector(final CollectorConfiguration collector, final String queueName) throws ControllerException {
 		final boolean isNew=!this.brokerCollectors.containsKey(queueName);
 		this.brokerInstances.put(queueName,collector.getInstance());
 		this.instanceBroker.put(collector.getInstance(),queueName);
@@ -122,14 +122,14 @@ final class CollectorAggregator {
 		}
 	}
 
-	private void verifyCollectorIsNotConfigured(final Collector collector) {
+	private void verifyCollectorIsNotConfigured(final CollectorConfiguration collector) {
 		if(this.brokerInstances.containsValue(collector.getInstance())) {
 			shutdownGracefully();
 			throw new IllegalArgumentException("Multiple configurations found for collector "+collector.getInstance());
 		}
 	}
 
-	private CollectorController startController(final Collector collector, final String queueName) throws ControllerException {
+	private CollectorController startController(final CollectorConfiguration collector, final String queueName) throws ControllerException {
 		final CollectorController controller = CollectorController.createNamedReceiver(collector,queueName,this.notificationQueue);
 		LOGGER.info("Connecting controller for collector {}...",collector.getInstance());
 		try {
@@ -147,7 +147,7 @@ final class CollectorAggregator {
 		this.pump.start();
 	}
 
-	private String queueName(final Collector collector) {
+	private String queueName(final CollectorConfiguration collector) {
 		final Integer hash =
 			Objects.hash(
 				collector.getBrokerHost(),

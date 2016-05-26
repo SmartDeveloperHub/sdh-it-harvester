@@ -46,10 +46,14 @@ public final class NotificationManager {
 	private static final Logger LOGGER=LoggerFactory.getLogger(NotificationManager.class);
 
 	private final UUID id;
-	private final ImmutableList<Collector> collectors;
+	private final ImmutableList<CollectorConfiguration> collectors;
 	private final CollectorAggregator aggregator;
 
-	private NotificationManager(final List<Collector> collectors, final NotificationListener listener) {
+	/**
+	 * TODO: Collector is not immutable, therefore the configuration could be
+	 * externally changed...
+	 */
+	private NotificationManager(final List<CollectorConfiguration> collectors, final NotificationListener listener) {
 		this.id=UUID.randomUUID();
 		this.collectors=ImmutableList.copyOf(collectors);
 		this.aggregator=CollectorAggregator.newInstance(managerName(this.id),listener);
@@ -102,7 +106,7 @@ public final class NotificationManager {
 	 * @throws NullPointerException
 	 *             if any of the parameters is {@code null}
 	 */
-	public static NotificationManager newInstance(final List<Collector> collectors, final NotificationListener listener) {
+	public static NotificationManager newInstance(final List<CollectorConfiguration> collectors, final NotificationListener listener) {
 		checkNotNull(collectors,"Target cannot be null");
 		checkNotNull(listener,"Listener cannot be null");
 		return new NotificationManager(collectors,listener);

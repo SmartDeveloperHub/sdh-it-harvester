@@ -64,7 +64,7 @@ final class CollectorController {
 	private static final String EXCHANGE_TYPE="topic";
 
 	private final String queueName;
-	private final Collector collector;
+	private final CollectorConfiguration collector;
 	private final BlockingQueue<SuspendedNotification> notificationQueue;
 
 	private final Lock write;
@@ -76,7 +76,7 @@ final class CollectorController {
 
 	private final ConnectionManager manager;
 
-	private CollectorController(final Collector collector, final String queueName, final BlockingQueue<SuspendedNotification> notificationQueue) {
+	private CollectorController(final CollectorConfiguration collector, final String queueName, final BlockingQueue<SuspendedNotification> notificationQueue) {
 		checkNotNull(collector,"Collector cannot be null");
 		this.collector=collector;
 		this.manager=new ConnectionManager(collector.getInstance(),collector.getBrokerHost(),collector.getBrokerPort(),collector.getVirtualHost());
@@ -88,7 +88,7 @@ final class CollectorController {
 		this.callbacks=Lists.newArrayList();
 	}
 
-	Collector collector() {
+	CollectorConfiguration collector() {
 		return this.collector;
 	}
 
@@ -297,16 +297,16 @@ final class CollectorController {
 		LOGGER.debug("Broker clean-up completed.",this.cleaners.size());
 	}
 
-	static CollectorController createPublisher(final Collector collector) {
+	static CollectorController createPublisher(final CollectorConfiguration collector) {
 		return new CollectorController(collector,null,null);
 	}
 
-	static CollectorController createAnonymousReceiver(final Collector collector, final BlockingQueue<SuspendedNotification> queue) {
+	static CollectorController createAnonymousReceiver(final CollectorConfiguration collector, final BlockingQueue<SuspendedNotification> queue) {
 		checkNotNull(queue,"Notification queue cannot be null");
 		return new CollectorController(collector,null,queue);
 	}
 
-	static CollectorController createNamedReceiver(final Collector collector, final String queueName, final BlockingQueue<SuspendedNotification> queue) {
+	static CollectorController createNamedReceiver(final CollectorConfiguration collector, final String queueName, final BlockingQueue<SuspendedNotification> queue) {
 		Amqp.validateName(queueName,"Queue name");
 		checkNotNull(queue,"Notification queue cannot be null");
 		return new CollectorController(collector,queueName,queue);

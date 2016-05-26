@@ -34,21 +34,21 @@ public class NotificationTestHelper {
 		super();
 	}
 
-	protected Collector defaultCollector() {
+	protected CollectorConfiguration defaultCollector() {
 		final String instance = "http://russell.dia.fi.upm.es:5000/api";
-		final Collector collector = instanceCollector(instance);
+		final CollectorConfiguration collector = instanceCollector(instance);
 		return collector;
 	}
 
-	protected Collector instanceCollector(final String instance) {
+	protected CollectorConfiguration instanceCollector(final String instance) {
 		final String virtualHost = "/";
 		final String exchangeName = "sdh";
-		final Collector collector = customCollector(instance, virtualHost,exchangeName);
+		final CollectorConfiguration collector = customCollector(instance, virtualHost,exchangeName);
 		return collector;
 	}
 
-	protected Collector customCollector(final String instance, final String virtualHost, final String exchangeName) {
-		final Collector collector=new Collector();
+	protected CollectorConfiguration customCollector(final String instance, final String virtualHost, final String exchangeName) {
+		final CollectorConfiguration collector=new CollectorConfiguration();
 		collector.setInstance(instance);
 		collector.setBrokerHost("localhost");
 		collector.setBrokerPort(5672);
