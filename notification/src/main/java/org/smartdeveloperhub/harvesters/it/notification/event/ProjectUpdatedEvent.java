@@ -76,6 +76,9 @@ public class ProjectUpdatedEvent extends Event {
 		@JsonProperty(AUTHORS)
 		private List<String> authors;
 
+		/**
+		 * Create a new empty change
+		 */
 		public Change() {
 			setAuthors(Lists.<String>newArrayList());
 		}
@@ -85,34 +88,55 @@ public class ProjectUpdatedEvent extends Event {
 			setAuthors(authors);
 		}
 
-		public static Change create(final Action action, final String... authors) {
-			List<String> cAuthors=Lists.newArrayList();
-			if(authors!=null) {
-				cAuthors=ImmutableList.copyOf(Sets.newHashSet(authors));
-			}
-			return new Change(action,cAuthors);
-		}
-
+		/**
+		 * Get the action of this change
+		 *
+		 * @return the action of this change
+		 */
 		public Action getAction() {
 			return this.action;
 		}
 
+		/**
+		 * Set the action of this change
+		 *
+		 * @param action
+		 *            the action for this change
+		 */
 		public void setAction(final Action action) {
 			this.action = action;
 		}
 
+		/**
+		 * Get the authors of this change
+		 *
+		 * @return the identities of the authors of this change
+		 */
 		public List<String> getAuthors() {
 			return this.authors;
 		}
 
+		/**
+		 * Set the authors of this change
+		 *
+		 * @param authors
+		 *            the identities of the authors of this change
+		 */
 		public void setAuthors(final List<String> authors) {
 			this.authors = authors;
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		public int hashCode() {
 			return Objects.hash(this.action,this.authors);
 		}
+
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		public boolean equals(final Object obj) {
 			boolean result = false;
@@ -125,10 +149,27 @@ public class ProjectUpdatedEvent extends Event {
 			return result;
 		}
 
+		/**
+		 * Create a change with the specified action and authors
+		 *
+		 * @param action
+		 *            the action for the change
+		 * @param authors
+		 *            the authors of the change
+		 * @return a populated change instance
+		 */
+		public static Change create(final Action action, final String... authors) {
+			List<String> cAuthors=Lists.newArrayList();
+			if(authors!=null) {
+				cAuthors=ImmutableList.copyOf(Sets.newHashSet(authors));
+			}
+			return new Change(action,cAuthors);
+		}
+
 	}
 
-	static final String PROJECT            = "project";
-	static final String CHANGES            = "changes";
+	static final String PROJECT = "project";
+	static final String CHANGES = "changes";
 
 	@JsonProperty(PROJECT)
 	private String project;
@@ -139,6 +180,9 @@ public class ProjectUpdatedEvent extends Event {
 	@JsonIgnore
 	private int size;
 
+	/**
+	 * Create a new instance with no changes.
+	 */
 	public ProjectUpdatedEvent() {
 		this.size=0;
 		this.changes=Maps.newLinkedHashMap();
@@ -190,16 +234,35 @@ public class ProjectUpdatedEvent extends Event {
 		refreshSize(changes);
 	}
 
+	/**
+	 * Add a new modification to the event.
+	 *
+	 * @param modification
+	 *            the modification to be added
+	 * @return the updated event
+	 */
 	public ProjectUpdatedEvent append(final Modification modification) {
 		modification.attach(this);
 		this.size++;
 		return this;
 	}
 
+	/**
+	 * Returns the number of changes in this event. If the event contains more
+	 * than <tt>Long.MAX_VALUE</tt> elements, returns <tt>Long.MAX_VALUE</tt>.
+	 *
+	 * @return the number of changes in this event
+	 */
 	public long size() {
+		this.changes.size();
 		return this.size;
 	}
 
+	/**
+	 * Returns <tt>true</tt> if this event contains no changes.
+	 *
+	 * @return <tt>true</tt> if this event contains no changes
+	 */
 	public boolean isEmpty() {
 		return this.size==0;
 	}

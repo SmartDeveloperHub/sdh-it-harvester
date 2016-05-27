@@ -191,4 +191,9 @@ public class ProjectUpdatedEventTest {
 		assertThat(one.hashCode(),not(equalTo(other.hashCode())));
 	}
 
+	@Test
+	public void changesCanOnlyBeEqualToChanges() throws Exception {
+		assertThat((Object)new Change(),not(equalTo((Object)"change")));
+	}
+
 }
