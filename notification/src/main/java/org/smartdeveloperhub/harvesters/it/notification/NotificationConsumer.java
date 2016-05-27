@@ -144,9 +144,9 @@ final class NotificationConsumer extends DefaultConsumer {
 
 	}
 
-	private static final class CommitterCreatedNotificationHandler extends CustomNotificationHandler<ContributorCreatedEvent> {
+	private static final class ContributorCreatedNotificationHandler extends CustomNotificationHandler<ContributorCreatedEvent> {
 
-		protected CommitterCreatedNotificationHandler() {
+		protected ContributorCreatedNotificationHandler() {
 			super(ContributorCreatedEvent.class);
 		}
 
@@ -165,9 +165,9 @@ final class NotificationConsumer extends DefaultConsumer {
 
 	}
 
-	private static final class CommitterDeletedNotificationHandler extends CustomNotificationHandler<ContributorDeletedEvent> {
+	private static final class ContributorDeletedNotificationHandler extends CustomNotificationHandler<ContributorDeletedEvent> {
 
-		protected CommitterDeletedNotificationHandler() {
+		protected ContributorDeletedNotificationHandler() {
 			super(ContributorDeletedEvent.class);
 		}
 
@@ -185,9 +185,9 @@ final class NotificationConsumer extends DefaultConsumer {
 		}
 
 	}
-	private static final class RepositoryCreatedNotificationHandler extends CustomNotificationHandler<ProjectCreatedEvent> {
+	private static final class ProjectCreatedNotificationHandler extends CustomNotificationHandler<ProjectCreatedEvent> {
 
-		protected RepositoryCreatedNotificationHandler() {
+		protected ProjectCreatedNotificationHandler() {
 			super(ProjectCreatedEvent.class);
 		}
 
@@ -205,9 +205,9 @@ final class NotificationConsumer extends DefaultConsumer {
 		}
 	}
 
-	private static final class RepositoryDeletedNotificationHandler extends CustomNotificationHandler<ProjectDeletedEvent> {
+	private static final class ProjectDeletedNotificationHandler extends CustomNotificationHandler<ProjectDeletedEvent> {
 
-		protected RepositoryDeletedNotificationHandler() {
+		protected ProjectDeletedNotificationHandler() {
 			super(ProjectDeletedEvent.class);
 		}
 
@@ -225,9 +225,9 @@ final class NotificationConsumer extends DefaultConsumer {
 		}
 	}
 
-	private static final class RepositoryUpdatedNotificationHandler extends CustomNotificationHandler<ProjectUpdatedEvent> {
+	private static final class ProjectUpdatedNotificationHandler extends CustomNotificationHandler<ProjectUpdatedEvent> {
 
-		protected RepositoryUpdatedNotificationHandler() {
+		protected ProjectUpdatedNotificationHandler() {
 			super(ProjectUpdatedEvent.class);
 		}
 
@@ -257,11 +257,11 @@ final class NotificationConsumer extends DefaultConsumer {
 		this.handlers=
 			ImmutableList.
 				<NotificationHandler>builder().
-					add(new CommitterCreatedNotificationHandler()).
-					add(new CommitterDeletedNotificationHandler()).
-					add(new RepositoryCreatedNotificationHandler()).
-					add(new RepositoryDeletedNotificationHandler()).
-					add(new RepositoryUpdatedNotificationHandler()).
+					add(new ContributorCreatedNotificationHandler()).
+					add(new ContributorDeletedNotificationHandler()).
+					add(new ProjectCreatedNotificationHandler()).
+					add(new ProjectDeletedNotificationHandler()).
+					add(new ProjectUpdatedNotificationHandler()).
 					build();
 	}
 
