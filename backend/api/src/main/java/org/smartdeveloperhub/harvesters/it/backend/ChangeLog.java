@@ -114,9 +114,9 @@ public final class ChangeLog extends Entity {
 			protected ToStringHelper stringHelper() {
 				return
 					super.stringHelper().
-						add("timestamp",this.property).
-						add("oldValue",this.oldValue).
-						add("newValue",this.newValue);
+						add(PROPERTY,this.property).
+						add(OLD_VALUE,this.oldValue).
+						add(NEW_VALUE,this.newValue);
 			}
 
 		}
@@ -190,9 +190,9 @@ public final class ChangeLog extends Entity {
 		protected ToStringHelper stringHelper() {
 			return
 				super.stringHelper().
-					add("timestamp",this.timeStamp).
-					add("author",this.author).
-					add("items",this.items);
+					add(TIMESTAMP,this.timeStamp).
+					add(AUTHOR,this.author).
+					add(ITEMS,this.items);
 		}
 
 	}
@@ -217,7 +217,7 @@ public final class ChangeLog extends Entity {
 	protected ToStringHelper stringHelper() {
 		return
 			super.stringHelper().
-				add("entries",this.entries);
+				add(ENTRIES,this.entries);
 	}
 
 }

@@ -62,6 +62,7 @@
 
 	<properties>
 		<jackson.version>2.4.4</jackson.version>
+		<ldp4j.version>0.3.0-SNAPSHOT</ldp4j.version>
 	</properties>
 
 	<dependencyManagement>
@@ -80,6 +81,11 @@
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
 				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ldp4j.commons</groupId>
+				<artifactId>ldp4j-commons-testing</artifactId>
+				<version>${ldp4j.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -111,6 +111,12 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.ldp4j.commons</groupId>
+			<artifactId>ldp4j-commons-testing</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 </project>

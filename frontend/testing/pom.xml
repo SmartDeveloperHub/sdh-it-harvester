@@ -101,7 +101,6 @@
 		<dependency>
 			<groupId>org.ldp4j.commons</groupId>
 			<artifactId>ldp4j-commons-testing</artifactId>
-			<version>${ldp4j.version}</version>
 		</dependency>
 
 		<dependency>
