@@ -26,8 +26,28 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
-public enum Status {
-	OPEN,
-	IN_PROGRESS,
-	CLOSED
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+
+import java.util.List;
+
+import org.junit.Test;
+import org.ldp4j.commons.testing.Utils;
+
+import com.google.common.collect.ImmutableList;
+
+public class EntitiesTest {
+
+	@Test
+	public void isValidUtilityClass() {
+		assertThat(Utils.isUtilityClass(Entities.class),equalTo(true));
+	}
+
+	@Test
+	public void canMarshallAndUnmarshallLists() throws Exception {
+		final List<Integer> original = ImmutableList.of(1,2,3,4,5);
+		final String str = Entities.marshallList(original);
+		assertThat(Entities.unmarshallList(str,Integer.class),equalTo(original));
+	}
+
 }

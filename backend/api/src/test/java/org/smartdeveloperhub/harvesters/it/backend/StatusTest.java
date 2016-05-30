@@ -26,8 +26,33 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
-public enum Status {
-	OPEN,
-	IN_PROGRESS,
-	CLOSED
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
+
+import java.util.Arrays;
+
+import org.junit.Test;
+
+public class StatusTest {
+
+	@Test
+	public void allValuesAreListed() {
+		assertThat(
+			Arrays.asList(Status.values()),
+			contains(
+				Status.OPEN,
+				Status.IN_PROGRESS,
+				Status.CLOSED
+			)
+		);
+	}
+
+	@Test
+	public void valuesCanBeFound() {
+		for(final Status value:Status.values()) {
+			assertThat(Status.valueOf(value.name()),equalTo(value));
+		}
+	}
+
 }

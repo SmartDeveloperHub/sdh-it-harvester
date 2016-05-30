@@ -26,8 +26,45 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
-public enum Status {
-	OPEN,
-	IN_PROGRESS,
-	CLOSED
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+
+import java.io.IOException;
+
+import org.junit.Test;
+import org.ldp4j.commons.testing.Utils;
+
+import com.google.common.collect.ImmutableSet;
+
+public class ProjectTest {
+
+	@Test
+	public void canMarshallAndUnmarshallProjects() throws IOException {
+		final Project one = defaultProject();
+		final String str = Entities.marshallEntity(one);
+		final Project other = Entities.unmarshallEntity(str,Project.class);
+		assertThat(other.getId(),equalTo(one.getId()));
+		assertThat(other.getVersions(),equalTo(one.getVersions()));
+		assertThat(other.getComponents(),equalTo(one.getComponents()));
+		assertThat(other.getTopIssues(),equalTo(one.getTopIssues()));
+		assertThat(other.getIssues(),equalTo(one.getIssues()));
+	}
+
+	@Test
+	public void projectsHaveCustomToString() {
+		final Project sut = defaultProject();
+		assertThat(sut.toString(),not(equalTo(Utils.defaultToString(sut))));
+	}
+
+	private Project defaultProject() {
+		final Project project = new Project();
+		project.setId("id");
+		project.setComponents(ImmutableSet.of("c1","c2"));
+		project.setVersions(ImmutableSet.of("v1","v2"));
+		project.setTopIssues(ImmutableSet.of("ti1","ti2"));
+		project.setIssues(ImmutableSet.of("i1","i2"));
+		return project;
+	}
+
 }

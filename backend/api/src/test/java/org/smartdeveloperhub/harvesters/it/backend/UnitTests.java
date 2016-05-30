@@ -26,8 +26,25 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
-public enum Status {
-	OPEN,
-	IN_PROGRESS,
-	CLOSED
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
+
+@RunWith(Suite.class)
+@SuiteClasses({
+	PriorityTest.class,
+	SeverityTest.class,
+	StatusTest.class,
+	ComponentTest.class,
+	ContributorTest.class,
+	VersionTest.class,
+	CommitTest.class,
+	NotificationsTest.class,
+	CollectorTest.class,
+	ProjectTest.class,
+	ChangeLogTest.class,
+	IssueTest.class,
+	EntitiesTest.class
+})
+public class UnitTests {
 }

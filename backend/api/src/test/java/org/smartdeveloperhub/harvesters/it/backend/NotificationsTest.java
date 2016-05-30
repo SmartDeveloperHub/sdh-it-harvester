@@ -26,8 +26,45 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
-public enum Status {
-	OPEN,
-	IN_PROGRESS,
-	CLOSED
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+
+import java.io.IOException;
+
+import org.junit.Test;
+import org.ldp4j.commons.testing.Utils;
+
+public class NotificationsTest {
+
+	@Test
+	public void canMarshallAndUnmarshallNotifications() throws IOException {
+		final Notifications one = defaultNotifications();
+		final String str = Entities.marshallEntity(one);
+		final Notifications other = Entities.unmarshallEntity(str,Notifications.class);
+		assertEqual(one, other);
+	}
+
+	static void assertEqual(final Notifications one, final Notifications other) {
+		assertThat(other.getBrokerHost(),equalTo(one.getBrokerHost()));
+		assertThat(other.getBrokerPort(),equalTo(one.getBrokerPort()));
+		assertThat(other.getVirtualHost(),equalTo(one.getVirtualHost()));
+		assertThat(other.getExchangeName(),equalTo(one.getExchangeName()));
+	}
+
+	@Test
+	public void notificationsHaveCustomToString() {
+		final Notifications sut = defaultNotifications();
+		assertThat(sut.toString(),not(equalTo(Utils.defaultToString(sut))));
+	}
+
+	static Notifications defaultNotifications() {
+		final Notifications notifications = new Notifications();
+		notifications.setBrokerHost("brokerHost");
+		notifications.setBrokerPort(12345);
+		notifications.setVirtualHost("virtualHost");
+		notifications.setExchangeName("exchangeName");
+		return notifications;
+	}
+
 }

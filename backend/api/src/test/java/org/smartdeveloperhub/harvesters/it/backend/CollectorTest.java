@@ -26,8 +26,37 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
-public enum Status {
-	OPEN,
-	IN_PROGRESS,
-	CLOSED
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+
+import java.io.IOException;
+
+import org.junit.Test;
+import org.ldp4j.commons.testing.Utils;
+
+public class CollectorTest {
+
+	@Test
+	public void canMarshallAndUnmarshallCollectors() throws IOException {
+		final Collector one = defaultCollector();
+		final String str = Entities.marshallEntity(one);
+		final Collector other = Entities.unmarshallEntity(str,Collector.class);
+		assertThat(other.getVersion(),equalTo(one.getVersion()));
+		NotificationsTest.assertEqual(other.getNotifications(), one.getNotifications());
+	}
+
+	@Test
+	public void collectorsHaveCustomToString() {
+		final Collector sut = defaultCollector();
+		assertThat(sut.toString(),not(equalTo(Utils.defaultToString(sut))));
+	}
+
+	private Collector defaultCollector() {
+		final Collector collector = new Collector();
+		collector.setVersion("version");
+		collector.setNotifications(NotificationsTest.defaultNotifications());
+		return collector;
+	}
+
 }

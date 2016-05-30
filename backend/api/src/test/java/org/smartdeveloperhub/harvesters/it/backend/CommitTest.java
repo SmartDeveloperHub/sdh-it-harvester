@@ -26,8 +26,41 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
-public enum Status {
-	OPEN,
-	IN_PROGRESS,
-	CLOSED
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+
+import java.io.IOException;
+
+import org.junit.Test;
+import org.ldp4j.commons.testing.Utils;
+
+public class CommitTest {
+
+	@Test
+	public void canMarshallAndUnmarshallCommits() throws IOException {
+		final Commit one = defaultCommit();
+		final String str = Entities.marshallEntity(one);
+		final Commit other = Entities.unmarshallEntity(str,Commit.class);
+		assertThat(other.getId(),equalTo(one.getId()));
+		assertThat(other.getRepository(),equalTo(one.getRepository()));
+		assertThat(other.getBranch(),equalTo(one.getBranch()));
+		assertThat(other.getHash(),equalTo(one.getHash()));
+	}
+
+	@Test
+	public void commitsHaveCustomToString() {
+		final Commit sut = defaultCommit();
+		assertThat(sut.toString(),not(equalTo(Utils.defaultToString(sut))));
+	}
+
+	private Commit defaultCommit() {
+		final Commit commit = new Commit();
+		commit.setId("id");
+		commit.setRepository("repository");
+		commit.setBranch("branch");
+		commit.setHash("hash");
+		return commit;
+	}
+
 }

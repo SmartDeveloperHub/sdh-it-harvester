@@ -26,8 +26,35 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
-public enum Status {
-	OPEN,
-	IN_PROGRESS,
-	CLOSED
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+
+import java.io.IOException;
+
+import org.junit.Test;
+import org.ldp4j.commons.testing.Utils;
+
+public class ComponentTest {
+
+	@Test
+	public void canMarshallAndUnmarshallComponents() throws IOException {
+		final Component one = defaultComponent();
+		final String str = Entities.marshallEntity(one);
+		final Component other = Entities.unmarshallEntity(str,Component.class);
+		assertThat(other.getId(),equalTo(one.getId()));
+	}
+
+	@Test
+	public void componentsHaveCustomToString() {
+		final Component sut = defaultComponent();
+		assertThat(sut.toString(),not(equalTo(Utils.defaultToString(sut))));
+	}
+
+	private Component defaultComponent() {
+		final Component component = new Component();
+		component.setId("id");
+		return component;
+	}
+
 }

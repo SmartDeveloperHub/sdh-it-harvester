@@ -26,8 +26,35 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
-public enum Status {
-	OPEN,
-	IN_PROGRESS,
-	CLOSED
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
+
+import java.util.Arrays;
+
+import org.junit.Test;
+
+public class SeverityTest {
+
+	@Test
+	public void allValuesAreListed() {
+		assertThat(
+			Arrays.asList(Severity.values()),
+			contains(
+				Severity.BLOCKER,
+				Severity.CRITICAL,
+				Severity.SEVERE,
+				Severity.LOW,
+				Severity.TRIVIAL
+			)
+		);
+	}
+
+	@Test
+	public void valuesCanBeFound() {
+		for(final Severity value:Severity.values()) {
+			assertThat(Severity.valueOf(value.name()),equalTo(value));
+		}
+	}
+
 }
