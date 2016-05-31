@@ -68,4 +68,23 @@
 	<!--   BUILD SETTINGS                                                    -->
 	<!-- =================================================================== -->
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.ldp4j.framework</groupId>
+				<artifactId>ldp4j-application-bom</artifactId>
+				<version>${ldp4j.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.smartdeveloperhub.harvesters.it.backend</groupId>
+				<artifactId>it-backend-bom</artifactId>
+				<version>${project.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 </project>

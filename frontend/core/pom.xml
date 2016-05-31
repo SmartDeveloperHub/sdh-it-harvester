@@ -57,32 +57,12 @@
 	<!--   BUILD SETTINGS                                                    -->
 	<!-- =================================================================== -->
 
-	<properties>
-		<ldp4j.version>0.3.0-SNAPSHOT</ldp4j.version>
-		<jackson.version>2.4.4</jackson.version>
-		<rabbitmq.version>3.5.5</rabbitmq.version>
-	</properties>
-
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>org.smartdeveloperhub.harvesters.it.frontend</groupId>
 				<artifactId>it-frontend-bom</artifactId>
 				<version>${project.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.smartdeveloperhub.harvesters.it.backend</groupId>
-				<artifactId>it-backend-bom</artifactId>
-				<version>${project.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.ldp4j.framework</groupId>
-				<artifactId>ldp4j-application-bom</artifactId>
-				<version>${ldp4j.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -95,6 +75,7 @@
 			<groupId>org.smartdeveloperhub.harvesters.it.frontend</groupId>
 			<artifactId>it-frontend-api</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>org.smartdeveloperhub.harvesters.it.frontend</groupId>
 			<artifactId>it-frontend-test</artifactId>

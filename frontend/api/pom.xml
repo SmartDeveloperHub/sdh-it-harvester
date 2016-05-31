@@ -65,6 +65,11 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.smartdeveloperhub.harvesters.it.backend</groupId>
+			<artifactId>it-backend-api</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<scope>test</scope>
