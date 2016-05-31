@@ -41,6 +41,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	CommitTest.class,
 	NotificationsTest.class,
 	CollectorTest.class,
+	StateTest.class,
 	ProjectTest.class,
 	ChangeLogTest.class,
 	IssueTest.class,
