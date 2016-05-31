@@ -47,7 +47,6 @@ public class IssueTest {
 	public void canMarshallAndUnmarshallIssues() throws IOException {
 		final Issue one = defaultIssue();
 		final String str = Entities.marshallEntity(one);
-		System.out.println(str);
 		final Issue other = Entities.unmarshallEntity(str,Issue.class);
 		assertThat(other.getId(),equalTo(one.getId()));
 		assertThat(other.getChildIssues(),equalTo(one.getChildIssues()));
