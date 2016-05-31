@@ -104,6 +104,9 @@ public class IssueTest {
 		issue.setVersion("version");
 		issue.setComponent("component");
 		issue.setDescription("description");
+		issue.setSeverity(Severity.BLOCKER);
+		issue.setStatus(Status.CLOSED);
+		issue.setPriority(Priority.VERY_HIGH);
 		issue.setClosed(new DateTime());
 		issue.setDueTo(new DateTime());
 		issue.setOpened(new DateTime());

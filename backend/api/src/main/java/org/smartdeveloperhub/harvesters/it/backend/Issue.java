@@ -43,6 +43,9 @@ public final class Issue extends Identifiable<String> {
 
 	private Type type;
 	private String description;
+	private Status status;
+	private Severity severity;
+	private Priority priority;
 	private DateTime opened;
 	private DateTime closed;
 	private DateTime dueTo;
@@ -81,6 +84,30 @@ public final class Issue extends Identifiable<String> {
 
 	public DateTime getOpened() {
 		return this.opened;
+	}
+
+	public Status getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(final Status status) {
+		this.status = status;
+	}
+
+	public Severity getSeverity() {
+		return this.severity;
+	}
+
+	public void setSeverity(final Severity severity) {
+		this.severity = severity;
+	}
+
+	public Priority getPriority() {
+		return this.priority;
+	}
+
+	public void setPriority(final Priority priority) {
+		this.priority = priority;
 	}
 
 	public void setOpened(final DateTime opened) {
@@ -181,6 +208,9 @@ public final class Issue extends Identifiable<String> {
 			super.stringHelper().
 				add("type",this.type).
 				add("description",this.description).
+				add("status",this.status).
+				add("severity",this.severity).
+				add("priority",this.priority).
 				add("opened",this.opened).
 				add("closed",this.closed).
 				add("dueTo",this.dueTo).
