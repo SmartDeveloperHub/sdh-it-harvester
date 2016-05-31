@@ -30,9 +30,9 @@ import org.smartdeveloperhub.harvesters.it.notification.event.Event;
 
 final class Notifications {
 
-	private static final String ROUTING_KEY_BASE= "gitcollector.notification.";
+	private static final String ROUTING_KEY_BASE= "jiracollector.notification.";
 
-	static final String MIME                = "application/psr.sdh.gitcollector+json";
+	static final String MIME                = "application/psr.sdh.jiracollector.notification+json";
 	static final String ROUTING_KEY_PATTERN = ROUTING_KEY_BASE+"*";
 
 	private Notifications() {
