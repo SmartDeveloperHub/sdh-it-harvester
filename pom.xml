@@ -61,7 +61,7 @@
 	<!-- =================================================================== -->
 
 	<properties>
-		<jackson.version>2.4.4</jackson.version>
+		<jackson.version>2.7.4</jackson.version>
 		<ldp4j.version>0.3.0-SNAPSHOT</ldp4j.version>
 	</properties>
 
