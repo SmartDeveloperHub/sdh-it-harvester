@@ -55,6 +55,10 @@ public final class Modification {
 			return forward(target, Entity.VERSION);
 		}
 
+		public Modification topIssue(final String target) {
+			return forward(target, Entity.TOP_ISSUE);
+		}
+
 		public Modification issue(final String target) {
 			return forward(target, Entity.ISSUE);
 		}

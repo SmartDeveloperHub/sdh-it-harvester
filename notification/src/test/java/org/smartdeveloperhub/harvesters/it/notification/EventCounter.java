@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.smartdeveloperhub.harvesters.it.notification.event.CommitCreatedEvent;
+import org.smartdeveloperhub.harvesters.it.notification.event.CommitDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorCreatedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.Event;
@@ -53,6 +55,8 @@ final class EventCounter {
 			initialize(
 				ContributorCreatedEvent.class,
 				ContributorDeletedEvent.class,
+				CommitCreatedEvent.class,
+				CommitDeletedEvent.class,
 				ProjectCreatedEvent.class,
 				ProjectDeletedEvent.class,
 				ProjectUpdatedEvent.class);

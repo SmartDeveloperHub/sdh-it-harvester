@@ -40,6 +40,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smartdeveloperhub.harvesters.it.notification.event.CommitCreatedEvent;
+import org.smartdeveloperhub.harvesters.it.notification.event.CommitDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorCreatedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.Event;
@@ -98,7 +100,7 @@ public class NotificationManagerITest {
 					add(collector("http://www.example.org:5000/collector/3", "exchange2")).
 					build();
 		final int rounds = 10;
-		final CountDownLatch expectedNotifications=new CountDownLatch(collectors.size()*rounds*8);
+		final CountDownLatch expectedNotifications=new CountDownLatch(collectors.size()*rounds*10);
 		final CountingNotificationListener listener = new CountingNotificationListener(expectedNotifications);
 		final NotificationManager sut = NotificationManager.newInstance(collectors,listener);
 		LOGGER.info("Starting Notitication Manager...");
@@ -110,12 +112,18 @@ public class NotificationManagerITest {
 				for(final CollectorConfiguration collector:collectors) {
 					publishEvent(aggregator, createContributors(collector, "cc1"+i,"cc2"+i));
 					publishEvent(aggregator, deleteContributors(collector, "dc1"+i,"dc2"+i));
+					publishEvent(aggregator, createCommits(collector, "ccm1"+i,"ccm2"+i));
+					publishEvent(aggregator, deleteCommits(collector, "dcm1"+i,"dcm2"+i));
 					publishEvent(aggregator, createProjects(collector, "r"+i+1,"r"+i+2));
 					publishEvent(aggregator, deleteProjects(collector, "r"+i*rounds+1,"r"+i*rounds+2));
-					publishEvent(aggregator, createProjectComponents(collector, "r"+i*rounds+1,"cbr1"+i,"cbr2"+i));
-					publishEvent(aggregator, deleteProjectComponents(collector, "r"+i*rounds+2,"dbr1"+i,"dbr2"+i));
-					publishEvent(aggregator, createProjectVersions(collector, "r"+i*rounds+3,"ccommit1"+i,"ccommit2"+i));
-					publishEvent(aggregator, deleteProjectVersions(collector, "r"+i*rounds+4,"dcommit"+i,"dcommit2"+i));
+					publishEvent(aggregator, createProjectComponents(collector, "r"+i*rounds+1,"cpc1"+i,"cpc2"+i));
+					publishEvent(aggregator, deleteProjectComponents(collector, "r"+i*rounds+2,"dpc1"+i,"dpc2"+i));
+					publishEvent(aggregator, createProjectVersions(collector, "r"+i*rounds+3,"cpv1"+i,"cpv2"+i));
+					publishEvent(aggregator, deleteProjectVersions(collector, "r"+i*rounds+4,"dpv1"+i,"dpv2"+i));
+					publishEvent(aggregator, createProjectTopIssues(collector, "r"+i*rounds+3,"cpti1"+i,"cpti2"+i));
+					publishEvent(aggregator, deleteProjectTopIssues(collector, "r"+i*rounds+4,"dpti1"+i,"dpti2"+i));
+					publishEvent(aggregator, createProjectIssues(collector, "r"+i*rounds+3,"cpi1"+i,"cpi2"+i));
+					publishEvent(aggregator, deleteProjectIssues(collector, "r"+i*rounds+4,"dpi1"+i,"dpi2"+i));
 				}
 			}
 			shutdownPool();
@@ -164,6 +172,22 @@ public class NotificationManagerITest {
 		event.setInstance(collector.getInstance());
 		event.setTimestamp(System.currentTimeMillis());
 		event.setDeletedContributors(Arrays.asList(values));
+		return event;
+	}
+
+	private CommitCreatedEvent createCommits(final CollectorConfiguration collector, final String... values) {
+		final CommitCreatedEvent event = new CommitCreatedEvent();
+		event.setInstance(collector.getInstance());
+		event.setTimestamp(System.currentTimeMillis());
+		event.setNewCommits(Arrays.asList(values));
+		return event;
+	}
+
+	private CommitDeletedEvent deleteCommits(final CollectorConfiguration collector, final String... values) {
+		final CommitDeletedEvent event = new CommitDeletedEvent();
+		event.setInstance(collector.getInstance());
+		event.setTimestamp(System.currentTimeMillis());
+		event.setDeletedCommits(Arrays.asList(values));
 		return event;
 	}
 
@@ -223,6 +247,50 @@ public class NotificationManagerITest {
 		event.setProject(id);
 		for(final String valueId:values) {
 			event.append(Modification.delete().version(valueId));
+		}
+		return event;
+	}
+
+	private ProjectUpdatedEvent createProjectTopIssues(final CollectorConfiguration collector, final String id, final String... values) {
+		final ProjectUpdatedEvent event = new ProjectUpdatedEvent();
+		event.setInstance(collector.getInstance());
+		event.setTimestamp(System.currentTimeMillis());
+		event.setProject(id);
+		for(final String valueId:values) {
+			event.append(Modification.create().topIssue(valueId));
+		}
+		return event;
+	}
+
+	private ProjectUpdatedEvent deleteProjectTopIssues(final CollectorConfiguration collector, final String id, final String... values) {
+		final ProjectUpdatedEvent event = new ProjectUpdatedEvent();
+		event.setInstance(collector.getInstance());
+		event.setTimestamp(System.currentTimeMillis());
+		event.setProject(id);
+		for(final String valueId:values) {
+			event.append(Modification.delete().topIssue(valueId));
+		}
+		return event;
+	}
+
+	private ProjectUpdatedEvent createProjectIssues(final CollectorConfiguration collector, final String id, final String... values) {
+		final ProjectUpdatedEvent event = new ProjectUpdatedEvent();
+		event.setInstance(collector.getInstance());
+		event.setTimestamp(System.currentTimeMillis());
+		event.setProject(id);
+		for(final String valueId:values) {
+			event.append(Modification.create().issue(valueId));
+		}
+		return event;
+	}
+
+	private ProjectUpdatedEvent deleteProjectIssues(final CollectorConfiguration collector, final String id, final String... values) {
+		final ProjectUpdatedEvent event = new ProjectUpdatedEvent();
+		event.setInstance(collector.getInstance());
+		event.setTimestamp(System.currentTimeMillis());
+		event.setProject(id);
+		for(final String valueId:values) {
+			event.append(Modification.delete().issue(valueId));
 		}
 		return event;
 	}

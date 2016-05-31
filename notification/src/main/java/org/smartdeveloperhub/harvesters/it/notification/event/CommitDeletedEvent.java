@@ -24,30 +24,47 @@
  *   Bundle      : it-harvester-notification-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.notification;
+package org.smartdeveloperhub.harvesters.it.notification.event;
 
-import org.smartdeveloperhub.harvesters.it.notification.event.CommitCreatedEvent;
-import org.smartdeveloperhub.harvesters.it.notification.event.CommitDeletedEvent;
-import org.smartdeveloperhub.harvesters.it.notification.event.ContributorCreatedEvent;
-import org.smartdeveloperhub.harvesters.it.notification.event.ContributorDeletedEvent;
-import org.smartdeveloperhub.harvesters.it.notification.event.ProjectCreatedEvent;
-import org.smartdeveloperhub.harvesters.it.notification.event.ProjectDeletedEvent;
-import org.smartdeveloperhub.harvesters.it.notification.event.ProjectUpdatedEvent;
+import java.util.ArrayList;
+import java.util.List;
 
-public interface NotificationListener {
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-	void onContributorCreation(Notification notification, ContributorCreatedEvent event);
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+	Event.INSTANCE,
+	Event.TIMESTAMP,
+	CommitDeletedEvent.DELETED_COMMITS
+})
+public class CommitDeletedEvent extends Event {
 
-	void onContributorDeletion(Notification notification, ContributorDeletedEvent event);
+	static final String DELETED_COMMITS = "deletedCommits";
 
-	void onCommitCreation(Notification notification, CommitCreatedEvent event);
+	@JsonProperty(DELETED_COMMITS)
+	private List<String> deletedCommits = new ArrayList<>();
 
-	void onCommitDeletion(Notification notification, CommitDeletedEvent event);
+	/**
+	 * Get the identifiers of the deleted commits
+	 *
+	 * @return The identifiers of the deleted commits
+	 */
+	@JsonProperty(DELETED_COMMITS)
+	public List<String> getDeletedCommits() {
+		return this.deletedCommits;
+	}
 
-	void onProjectCreation(Notification notification, ProjectCreatedEvent event);
-
-	void onProjectDeletion(Notification notification, ProjectDeletedEvent event);
-
-	void onProjectUpdate(Notification notification, ProjectUpdatedEvent event);
+	/**
+	 * Set the identifiers of the deleted commits
+	 *
+	 * @param commitIds
+	 *            The identifiers of the deleted commits
+	 */
+	@JsonProperty(DELETED_COMMITS)
+	public void setDeletedCommits(final List<String> commitIds) {
+		this.deletedCommits = commitIds;
+	}
 
 }

@@ -26,6 +26,8 @@
  */
 package org.smartdeveloperhub.harvesters.it.notification;
 
+import org.smartdeveloperhub.harvesters.it.notification.event.CommitCreatedEvent;
+import org.smartdeveloperhub.harvesters.it.notification.event.CommitDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorCreatedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ProjectCreatedEvent;
@@ -37,6 +39,10 @@ class NullNotificationListener implements NotificationListener {
 	public void onContributorCreation(final Notification notification, final ContributorCreatedEvent event) {}
 	@Override
 	public void onContributorDeletion(final Notification notification, final ContributorDeletedEvent event) {}
+	@Override
+	public void onCommitCreation(final Notification notification, final CommitCreatedEvent event) {}
+	@Override
+	public void onCommitDeletion(final Notification notification, final CommitDeletedEvent event) {}
 	@Override
 	public void onProjectCreation(final Notification notification, final ProjectCreatedEvent event) {}
 	@Override

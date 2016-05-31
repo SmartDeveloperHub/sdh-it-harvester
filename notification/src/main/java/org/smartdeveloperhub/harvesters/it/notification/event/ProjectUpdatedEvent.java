@@ -51,6 +51,7 @@ public class ProjectUpdatedEvent extends Event {
 	public enum Entity {
 		COMPONENT,
 		VERSION,
+		TOP_ISSUE,
 		ISSUE
 	}
 

@@ -35,6 +35,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smartdeveloperhub.harvesters.it.notification.event.CommitCreatedEvent;
+import org.smartdeveloperhub.harvesters.it.notification.event.CommitDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorCreatedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.Event;
@@ -91,6 +93,16 @@ final class CountingNotificationListener implements NotificationListener {
 
 	@Override
 	public void onContributorDeletion(final Notification notification, final ContributorDeletedEvent event) {
+		processEvent(notification,event);
+	}
+
+	@Override
+	public void onCommitCreation(final Notification notification, final CommitCreatedEvent event) {
+		processEvent(notification,event);
+	}
+
+	@Override
+	public void onCommitDeletion(final Notification notification, final CommitDeletedEvent event) {
 		processEvent(notification,event);
 	}
 

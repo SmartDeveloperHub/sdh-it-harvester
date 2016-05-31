@@ -34,6 +34,8 @@ import java.util.Arrays;
 
 import org.junit.Test;
 import org.ldp4j.commons.testing.Utils;
+import org.smartdeveloperhub.harvesters.it.notification.event.CommitCreatedEvent;
+import org.smartdeveloperhub.harvesters.it.notification.event.CommitDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorCreatedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.Event;
@@ -80,6 +82,38 @@ public class EventUtilTest {
 
 		verifyBasicEvent(originalEvent, readEvent);
 		assertThat(readEvent.getDeletedContributors(),equalTo(originalEvent.getDeletedContributors()));
+	}
+
+	@Test
+	public void testReadCommitCreatedEvent() throws IOException {
+		final CommitCreatedEvent originalEvent = new CommitCreatedEvent();
+		originalEvent.setNewCommits(Arrays.asList("23","24"));
+		fillInBasicEvent(originalEvent);
+
+		final CommitCreatedEvent readEvent=
+			EventUtil.
+				unmarshall(
+					EventUtil.marshall(originalEvent),
+					CommitCreatedEvent.class);
+
+		verifyBasicEvent(originalEvent, readEvent);
+		assertThat(readEvent.getNewCommits(),equalTo(originalEvent.getNewCommits()));
+	}
+
+	@Test
+	public void testReadCommitDeletedEvent() throws IOException {
+		final CommitDeletedEvent originalEvent = new CommitDeletedEvent();
+		originalEvent.setDeletedCommits(Arrays.asList("3","4"));
+		fillInBasicEvent(originalEvent);
+
+		final CommitDeletedEvent readEvent=
+			EventUtil.
+				unmarshall(
+					EventUtil.marshall(originalEvent),
+					CommitDeletedEvent.class);
+
+		verifyBasicEvent(originalEvent, readEvent);
+		assertThat(readEvent.getDeletedCommits(),equalTo(originalEvent.getDeletedCommits()));
 	}
 
 	@Test

@@ -38,6 +38,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.smartdeveloperhub.harvesters.it.notification.event.CommitCreatedEvent;
+import org.smartdeveloperhub.harvesters.it.notification.event.CommitDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorCreatedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.Event;
@@ -150,6 +152,14 @@ public class NotificationConsumerTest {
 							fail("Unexpected notification");
 						}
 						@Override
+						public void onCommitCreation(final Notification notification, final CommitCreatedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
+						public void onCommitDeletion(final Notification notification, final CommitDeletedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
 						public void onProjectCreation(final Notification notification, final ProjectCreatedEvent event) {
 							fail("Unexpected notification");
 						}
@@ -184,6 +194,14 @@ public class NotificationConsumerTest {
 							@Override
 							public void onContributorDeletion(final Notification notification, final ContributorDeletedEvent event) {
 								throw new RuntimeException("Failure");
+							}
+							@Override
+							public void onCommitCreation(final Notification notification, final CommitCreatedEvent event) {
+								fail("Unexpected notification");
+							}
+							@Override
+							public void onCommitDeletion(final Notification notification, final CommitDeletedEvent event) {
+								fail("Unexpected notification");
 							}
 							@Override
 							public void onProjectCreation(final Notification notification, final ProjectCreatedEvent event) {
@@ -225,6 +243,14 @@ public class NotificationConsumerTest {
 							fail("Unexpected notification");
 						}
 						@Override
+						public void onCommitCreation(final Notification notification, final CommitCreatedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
+						public void onCommitDeletion(final Notification notification, final CommitDeletedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
 						public void onProjectCreation(final Notification notification, final ProjectCreatedEvent event) {
 							fail("Unexpected notification");
 						}
@@ -257,6 +283,14 @@ public class NotificationConsumerTest {
 						}
 						@Override
 						public void onContributorDeletion(final Notification notification, final ContributorDeletedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
+						public void onCommitCreation(final Notification notification, final CommitCreatedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
+						public void onCommitDeletion(final Notification notification, final CommitDeletedEvent event) {
 							fail("Unexpected notification");
 						}
 						@Override
@@ -295,6 +329,14 @@ public class NotificationConsumerTest {
 							fail("Unexpected notification");
 						}
 						@Override
+						public void onCommitCreation(final Notification notification, final CommitCreatedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
+						public void onCommitDeletion(final Notification notification, final CommitDeletedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
 						public void onProjectCreation(final Notification notification, final ProjectCreatedEvent event) {
 							fail("Unexpected notification");
 						}
@@ -310,7 +352,7 @@ public class NotificationConsumerTest {
 	}
 
 	@Test
-	public void testConsumerProducesValidNotificationForCommiterDeletedEvent() throws Exception {
+	public void testConsumerProducesValidNotificationForContributorDeletedEvent() throws Exception {
 		final ContributorDeletedEvent event=new ContributorDeletedEvent();
 		setUpScenario(event);
 		final BlockingQueue<SuspendedNotification> queue=new LinkedBlockingQueue<>();
@@ -327,6 +369,100 @@ public class NotificationConsumerTest {
 						}
 						@Override
 						public void onContributorDeletion(final Notification notification, final ContributorDeletedEvent event) {
+							notification.consume();
+						}
+						@Override
+						public void onCommitCreation(final Notification notification, final CommitCreatedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
+						public void onCommitDeletion(final Notification notification, final CommitDeletedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
+						public void onProjectCreation(final Notification notification, final ProjectCreatedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
+						public void onProjectDeletion(final Notification notification, final ProjectDeletedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
+						public void onProjectUpdate(final Notification notification, final ProjectUpdatedEvent event) {
+							fail("Unexpected notification");
+						}
+					});
+	}
+
+	@Test
+	public void testConsumerProducesValidNotificationForCommitCreatedEvent() throws Exception {
+		final CommitCreatedEvent event=new CommitCreatedEvent();
+		setUpScenario(event);
+		final BlockingQueue<SuspendedNotification> queue=new LinkedBlockingQueue<>();
+		final NotificationConsumer sut=new NotificationConsumer(this.channel, queue);
+		sut.handleDelivery("consumerTag", this.envelope, this.properties, EventUtil.marshall(event).getBytes());
+		assertThat(queue,hasSize(1));
+		Iterables.
+			getFirst(queue,null).
+				resume(
+					new NotificationListener() {
+						@Override
+						public void onContributorCreation(final Notification notification, final ContributorCreatedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
+						public void onContributorDeletion(final Notification notification, final ContributorDeletedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
+						public void onCommitCreation(final Notification notification, final CommitCreatedEvent event) {
+							notification.consume();
+						}
+						@Override
+						public void onCommitDeletion(final Notification notification, final CommitDeletedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
+						public void onProjectCreation(final Notification notification, final ProjectCreatedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
+						public void onProjectDeletion(final Notification notification, final ProjectDeletedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
+						public void onProjectUpdate(final Notification notification, final ProjectUpdatedEvent event) {
+							fail("Unexpected notification");
+						}
+					});
+	}
+
+	@Test
+	public void testConsumerProducesValidNotificationForCommitDeletedEvent() throws Exception {
+		final CommitDeletedEvent event=new CommitDeletedEvent();
+		setUpScenario(event);
+		final BlockingQueue<SuspendedNotification> queue=new LinkedBlockingQueue<>();
+		final NotificationConsumer sut=new NotificationConsumer(this.channel, queue);
+		sut.handleDelivery("consumerTag", this.envelope, this.properties, EventUtil.marshall(event).getBytes());
+		assertThat(queue,hasSize(1));
+		Iterables.
+			getFirst(queue,null).
+				resume(
+					new NotificationListener() {
+						@Override
+						public void onContributorCreation(final Notification notification, final ContributorCreatedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
+						public void onContributorDeletion(final Notification notification, final ContributorDeletedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
+						public void onCommitCreation(final Notification notification, final CommitCreatedEvent event) {
+							fail("Unexpected notification");
+						}
+						@Override
+						public void onCommitDeletion(final Notification notification, final CommitDeletedEvent event) {
 							notification.consume();
 						}
 						@Override

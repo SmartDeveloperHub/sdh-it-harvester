@@ -33,6 +33,8 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smartdeveloperhub.harvesters.it.notification.event.CommitCreatedEvent;
+import org.smartdeveloperhub.harvesters.it.notification.event.CommitDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorCreatedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ProjectCreatedEvent;
@@ -76,6 +78,18 @@ public class CollectorAggregatorITest extends NotificationTestHelper {
 
 		@Override
 		public void onContributorCreation(final Notification notification, final ContributorCreatedEvent event) {
+			LOGGER.debug("Received {}",event);
+			consume(notification);
+		}
+
+		@Override
+		public void onCommitCreation(final Notification notification, final CommitCreatedEvent event) {
+			LOGGER.debug("Received {}",event);
+			consume(notification);
+		}
+
+		@Override
+		public void onCommitDeletion(final Notification notification, final CommitDeletedEvent event) {
 			LOGGER.debug("Received {}",event);
 			consume(notification);
 		}

@@ -35,6 +35,8 @@ import java.util.concurrent.BlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smartdeveloperhub.harvesters.it.notification.event.CommitCreatedEvent;
+import org.smartdeveloperhub.harvesters.it.notification.event.CommitDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorCreatedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.Event;
@@ -185,6 +187,49 @@ final class NotificationConsumer extends DefaultConsumer {
 		}
 
 	}
+
+	private static final class CommitCreatedNotificationHandler extends CustomNotificationHandler<CommitCreatedEvent> {
+
+		protected CommitCreatedNotificationHandler() {
+			super(CommitCreatedEvent.class);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		protected CustomSuspendedNotification<CommitCreatedEvent> createPropagator(final AcknowledgeableNotification notification, final CommitCreatedEvent event) {
+			return new CustomSuspendedNotification<CommitCreatedEvent>(notification, event) {
+				@Override
+				protected void doResume(final NotificationListener listener) {
+					listener.onCommitCreation(this, super.getEvent());
+				}
+			};
+		}
+
+	}
+
+	private static final class CommitDeletedNotificationHandler extends CustomNotificationHandler<CommitDeletedEvent> {
+
+		protected CommitDeletedNotificationHandler() {
+			super(CommitDeletedEvent.class);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		protected CustomSuspendedNotification<CommitDeletedEvent> createPropagator(final AcknowledgeableNotification notification, final CommitDeletedEvent event) {
+			return new CustomSuspendedNotification<CommitDeletedEvent>(notification, event) {
+				@Override
+				protected void doResume(final NotificationListener listener) {
+					listener.onCommitDeletion(this,super.getEvent());
+				}
+			};
+		}
+
+	}
+
 	private static final class ProjectCreatedNotificationHandler extends CustomNotificationHandler<ProjectCreatedEvent> {
 
 		protected ProjectCreatedNotificationHandler() {
@@ -259,6 +304,8 @@ final class NotificationConsumer extends DefaultConsumer {
 				<NotificationHandler>builder().
 					add(new ContributorCreatedNotificationHandler()).
 					add(new ContributorDeletedNotificationHandler()).
+					add(new CommitCreatedNotificationHandler()).
+					add(new CommitDeletedNotificationHandler()).
 					add(new ProjectCreatedNotificationHandler()).
 					add(new ProjectDeletedNotificationHandler()).
 					add(new ProjectUpdatedNotificationHandler()).
