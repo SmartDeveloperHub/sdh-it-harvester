@@ -26,37 +26,10 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.not;
+public interface ProjectScoped {
 
-import java.io.IOException;
+	String getProjectId();
 
-import org.junit.Test;
-import org.ldp4j.commons.testing.Utils;
-
-public class ComponentTest {
-
-	@Test
-	public void canMarshallAndUnmarshallComponents() throws IOException {
-		final Component one = defaultComponent();
-		final String str = Entities.marshallEntity(one);
-		final Component other = Entities.unmarshallEntity(str,Component.class);
-		assertThat(other.getId(),equalTo(one.getId()));
-		assertThat(other.getProjectId(),equalTo(one.getProjectId()));
-	}
-
-	@Test
-	public void componentsHaveCustomToString() {
-		final Component sut = defaultComponent();
-		assertThat(sut.toString(),not(equalTo(Utils.defaultToString(sut))));
-	}
-
-	private Component defaultComponent() {
-		final Component component = new Component();
-		component.setId("id");
-		component.setProjectId("projectId");
-		return component;
-	}
+	void setProjectId(String projectId);
 
 }

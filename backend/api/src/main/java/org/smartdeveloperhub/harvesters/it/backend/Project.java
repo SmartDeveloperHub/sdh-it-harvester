@@ -36,12 +36,13 @@ import com.google.common.collect.Sets;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
 	Identifiable.ID,
+	Titled.TITLE,
 	Project.VERSIONS,
 	Project.COMPONENTS,
 	Project.TOP_ISSUES,
 	Project.ISSUES
 })
-public final class Project extends Identifiable<String> {
+public final class Project extends Titled<String> {
 
 	static final String VERSIONS="versions";
 	static final String COMPONENTS="components";

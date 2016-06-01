@@ -26,37 +26,44 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.not;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects.ToStringHelper;
 
-import java.io.IOException;
+public abstract class Titled<T> extends Identifiable<T> {
 
-import org.junit.Test;
-import org.ldp4j.commons.testing.Utils;
+	static final String TITLE="title";
 
-public class ComponentTest {
+	@JsonProperty(TITLE)
+	private String title;
 
-	@Test
-	public void canMarshallAndUnmarshallComponents() throws IOException {
-		final Component one = defaultComponent();
-		final String str = Entities.marshallEntity(one);
-		final Component other = Entities.unmarshallEntity(str,Component.class);
-		assertThat(other.getId(),equalTo(one.getId()));
-		assertThat(other.getProjectId(),equalTo(one.getProjectId()));
+	/**
+	 * Get the title of the entity
+	 *
+	 * @return The title
+	 */
+	@JsonProperty(TITLE)
+	public final String getTitle() {
+		return this.title;
 	}
 
-	@Test
-	public void componentsHaveCustomToString() {
-		final Component sut = defaultComponent();
-		assertThat(sut.toString(),not(equalTo(Utils.defaultToString(sut))));
+	/**
+	 * Set the title of the entity
+	 *
+	 * @param title
+	 *            The title of the entity
+	 */
+	@JsonProperty(TITLE)
+	public final void setTitle(final String title) {
+		this.title = title;
 	}
 
-	private Component defaultComponent() {
-		final Component component = new Component();
-		component.setId("id");
-		component.setProjectId("projectId");
-		return component;
+	@Override
+	protected ToStringHelper stringHelper() {
+		return
+			super.stringHelper().
+				add(TITLE,this.title);
 	}
+
+
 
 }

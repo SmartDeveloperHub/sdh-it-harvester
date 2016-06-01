@@ -33,7 +33,10 @@ import org.joda.time.DateTime;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.collect.Sets;
 
-public final class Issue extends Identifiable<String> {
+/**
+ * TODO: For the time being, the issue only identifies the issues blocked from the same project.
+ */
+public final class Issue extends Titled<String> implements ProjectScoped {
 
 	public enum Type {
 		BUG,
@@ -41,14 +44,20 @@ public final class Issue extends Identifiable<String> {
 		TASK
 	}
 
+	static final String PROJECT_ID="projectId";
+
+	private String projectId;
+
 	private Type type;
 	private String description;
 	private Status status;
 	private Severity severity;
 	private Priority priority;
+	private DateTime createdAt;
 	private DateTime opened;
 	private DateTime closed;
 	private DateTime dueTo;
+	private long estimatedEffortInMinutes;
 	private String version;
 	private String component;
 	private String reporter;
@@ -66,6 +75,16 @@ public final class Issue extends Identifiable<String> {
 		this.blockedIssues=Sets.newLinkedHashSet();
 	}
 
+	@Override
+	public String getProjectId() {
+		return this.projectId;
+	}
+
+	@Override
+	public void setProjectId(final String projectId) {
+		this.projectId = projectId;
+	}
+
 	public Type getType() {
 		return this.type;
 	}
@@ -80,10 +99,6 @@ public final class Issue extends Identifiable<String> {
 
 	public void setDescription(final String description) {
 		this.description = description;
-	}
-
-	public DateTime getOpened() {
-		return this.opened;
 	}
 
 	public Status getStatus() {
@@ -110,6 +125,18 @@ public final class Issue extends Identifiable<String> {
 		this.priority = priority;
 	}
 
+	public DateTime getCreatedAt() {
+		return this.createdAt;
+	}
+
+	public void setCreatedAt(final DateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public DateTime getOpened() {
+		return this.opened;
+	}
+
 	public void setOpened(final DateTime opened) {
 		this.opened = opened;
 	}
@@ -128,6 +155,14 @@ public final class Issue extends Identifiable<String> {
 
 	public void setDueTo(final DateTime dueTo) {
 		this.dueTo = dueTo;
+	}
+
+	public long getEstimatedEffortInMinutes() {
+		return this.estimatedEffortInMinutes;
+	}
+
+	public void setEstimatedEffortInMinutes(final long estimatedEffortInMinutes) {
+		this.estimatedEffortInMinutes = estimatedEffortInMinutes;
 	}
 
 	public String getVersion() {
@@ -206,14 +241,17 @@ public final class Issue extends Identifiable<String> {
 	protected ToStringHelper stringHelper() {
 		return
 			super.stringHelper().
+				add(PROJECT_ID,this.projectId).
 				add("type",this.type).
 				add("description",this.description).
 				add("status",this.status).
 				add("severity",this.severity).
 				add("priority",this.priority).
+				add("createdAt",this.createdAt).
 				add("opened",this.opened).
 				add("closed",this.closed).
 				add("dueTo",this.dueTo).
+				add("estimatedEffortInMinutes",this.estimatedEffortInMinutes).
 				add("version",this.version).
 				add("component",this.component).
 				add("reported",this.reporter).

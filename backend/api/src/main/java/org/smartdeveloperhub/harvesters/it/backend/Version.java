@@ -26,6 +26,37 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
-public final class Version extends Identifiable<String>{
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.common.base.MoreObjects.ToStringHelper;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+	Identifiable.ID,
+	Version.PROJECT_ID
+})
+public final class Version extends Identifiable<String> implements ProjectScoped {
+
+	static final String PROJECT_ID="projectId";
+
+	private String projectId;
+
+	@Override
+	public String getProjectId() {
+		return this.projectId;
+	}
+
+	@Override
+	public void setProjectId(final String projectId) {
+		this.projectId = projectId;
+	}
+
+	@Override
+	protected ToStringHelper stringHelper() {
+		return
+			super.
+				stringHelper().
+					add(PROJECT_ID,this.projectId);
+	}
 
 }

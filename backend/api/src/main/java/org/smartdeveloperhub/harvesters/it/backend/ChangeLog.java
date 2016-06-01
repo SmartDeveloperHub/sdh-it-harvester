@@ -123,7 +123,7 @@ public final class ChangeLog extends Entity {
 
 		static final String TIMESTAMP="timestamp";
 		static final String AUTHOR="author";
-		static final String ITEMS="entries";
+		static final String ITEMS="items";
 
 		private DateTime timeStamp;
 		private String author;
