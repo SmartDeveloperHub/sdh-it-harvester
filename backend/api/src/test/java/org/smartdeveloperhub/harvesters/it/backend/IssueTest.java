@@ -55,7 +55,7 @@ public class IssueTest {
 		assertThat(other.getChildIssues(),equalTo(one.getChildIssues()));
 		assertThat(other.getClosed(),equalTo(one.getClosed()));
 		assertThat(other.getCommits(),equalTo(one.getCommits()));
-		assertThat(other.getComponent(),equalTo(one.getComponent()));
+		assertThat(other.getComponents(),equalTo(one.getComponents()));
 		assertThat(other.getCreationDate(),equalTo(one.getCreationDate()));
 		assertThat(other.getDescription(),equalTo(one.getDescription()));
 		assertThat(other.getDueTo(),equalTo(one.getDueTo()));
@@ -68,7 +68,7 @@ public class IssueTest {
 		assertThat(other.getStatus(),equalTo(one.getStatus()));
 		assertThat(other.getTags(),equalTo(one.getTags()));
 		assertThat(other.getType(),equalTo(one.getType()));
-		assertThat(other.getVersion(),equalTo(one.getVersion()));
+		assertThat(other.getVersions(),equalTo(one.getVersions()));
 	}
 
 	@Test
@@ -105,7 +105,7 @@ public class IssueTest {
 		issue.setClosed(new DateTime());
 		issue.setCreationDate(new DateTime());
 		issue.setCommits(ImmutableSet.of("c1","c2"));
-		issue.setComponent("component");
+		issue.setComponents(ImmutableSet.of("cc1","cc2"));
 		issue.setDescription("description");
 		issue.setDueTo(new DateTime());
 		issue.setEstimatedTime(Minutes.minutes(60).toStandardDuration());
@@ -117,7 +117,7 @@ public class IssueTest {
 		issue.setStatus(Status.CLOSED);
 		issue.setTags(ImmutableSet.of("t1","t2"));
 		issue.setType(Type.BUG);
-		issue.setVersion("version");
+		issue.setVersions(ImmutableSet.of("v1","v2"));
 		return issue;
 	}
 

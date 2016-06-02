@@ -59,8 +59,8 @@ public final class Issue extends Titled<String> implements ProjectScoped {
 	private DateTime closed;
 	private DateTime dueTo;
 	private Duration estimatedTime;
-	private String version;
-	private String component;
+	private Set<String> versions;
+	private Set<String> components;
 	private String reporter;
 	private String assignee;
 	private Set<String> tags;
@@ -74,6 +74,8 @@ public final class Issue extends Titled<String> implements ProjectScoped {
 		this.commits=Sets.newLinkedHashSet();
 		this.childIssues=Sets.newLinkedHashSet();
 		this.blockedIssues=Sets.newLinkedHashSet();
+		this.versions=Sets.newLinkedHashSet();
+		this.components=Sets.newLinkedHashSet();
 	}
 
 	@Override
@@ -166,20 +168,20 @@ public final class Issue extends Titled<String> implements ProjectScoped {
 		this.estimatedTime = estimatedTime;
 	}
 
-	public String getVersion() {
-		return this.version;
+	public Set<String> getVersions() {
+		return this.versions;
 	}
 
-	public void setVersion(final String version) {
-		this.version = version;
+	public void setVersions(final Set<String> versions) {
+		this.versions = versions;
 	}
 
-	public String getComponent() {
-		return this.component;
+	public Set<String> getComponents() {
+		return this.components;
 	}
 
-	public void setComponent(final String component) {
-		this.component = component;
+	public void setComponents(final Set<String> components) {
+		this.components = components;
 	}
 
 	public String getReporter() {
@@ -253,8 +255,8 @@ public final class Issue extends Titled<String> implements ProjectScoped {
 				add("closed",this.closed).
 				add("dueTo",this.dueTo).
 				add("estimatedTime",this.estimatedTime).
-				add("version",this.version).
-				add("component",this.component).
+				add("versions",this.versions).
+				add("components",this.components).
 				add("reported",this.reporter).
 				add("assignee",this.assignee).
 				add("tags",this.tags).
