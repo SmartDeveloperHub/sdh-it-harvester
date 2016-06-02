@@ -26,6 +26,41 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.common.base.MoreObjects.ToStringHelper;
+import com.google.common.collect.Sets;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+	Identifiable.ID,
+	Contributor.EMAILS,
+})
 public final class Contributor extends Identifiable<String>{
+
+	static final String EMAILS="emails";
+
+	private Set<String> emails;
+
+	public Contributor() {
+		this.emails=Sets.newLinkedHashSet();
+	}
+
+	public Set<String> getEmails() {
+		return this.emails;
+	}
+
+	public void setEmails(final Set<String> emails) {
+		this.emails = emails;
+	}
+
+	@Override
+	protected ToStringHelper stringHelper() {
+		return
+			super.stringHelper().
+				add(EMAILS,this.emails);
+	}
 
 }

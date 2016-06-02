@@ -29,6 +29,7 @@ package org.smartdeveloperhub.harvesters.it.backend;
 import java.util.Set;
 
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.collect.Sets;
@@ -53,11 +54,11 @@ public final class Issue extends Titled<String> implements ProjectScoped {
 	private Status status;
 	private Severity severity;
 	private Priority priority;
-	private DateTime createdAt;
+	private DateTime creationDate;
 	private DateTime opened;
 	private DateTime closed;
 	private DateTime dueTo;
-	private long estimatedEffortInMinutes;
+	private Duration estimatedTime;
 	private String version;
 	private String component;
 	private String reporter;
@@ -125,12 +126,12 @@ public final class Issue extends Titled<String> implements ProjectScoped {
 		this.priority = priority;
 	}
 
-	public DateTime getCreatedAt() {
-		return this.createdAt;
+	public DateTime getCreationDate() {
+		return this.creationDate;
 	}
 
-	public void setCreatedAt(final DateTime createdAt) {
-		this.createdAt = createdAt;
+	public void setCreationDate(final DateTime createdAt) {
+		this.creationDate = createdAt;
 	}
 
 	public DateTime getOpened() {
@@ -157,12 +158,12 @@ public final class Issue extends Titled<String> implements ProjectScoped {
 		this.dueTo = dueTo;
 	}
 
-	public long getEstimatedEffortInMinutes() {
-		return this.estimatedEffortInMinutes;
+	public Duration getEstimatedTime() {
+		return this.estimatedTime;
 	}
 
-	public void setEstimatedEffortInMinutes(final long estimatedEffortInMinutes) {
-		this.estimatedEffortInMinutes = estimatedEffortInMinutes;
+	public void setEstimatedTime(final Duration estimatedTime) {
+		this.estimatedTime = estimatedTime;
 	}
 
 	public String getVersion() {
@@ -247,11 +248,11 @@ public final class Issue extends Titled<String> implements ProjectScoped {
 				add("status",this.status).
 				add("severity",this.severity).
 				add("priority",this.priority).
-				add("createdAt",this.createdAt).
+				add("creationDate",this.creationDate).
 				add("opened",this.opened).
 				add("closed",this.closed).
 				add("dueTo",this.dueTo).
-				add("estimatedEffortInMinutes",this.estimatedEffortInMinutes).
+				add("estimatedTime",this.estimatedTime).
 				add("version",this.version).
 				add("component",this.component).
 				add("reported",this.reporter).

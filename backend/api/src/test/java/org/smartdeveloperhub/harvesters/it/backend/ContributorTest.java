@@ -35,6 +35,8 @@ import java.io.IOException;
 import org.junit.Test;
 import org.ldp4j.commons.testing.Utils;
 
+import com.google.common.collect.ImmutableSet;
+
 public class ContributorTest {
 
 	@Test
@@ -43,6 +45,7 @@ public class ContributorTest {
 		final String str = Entities.marshallEntity(one);
 		final Contributor other = Entities.unmarshallEntity(str,Contributor.class);
 		assertThat(other.getId(),equalTo(one.getId()));
+		assertThat(other.getEmails(),equalTo(one.getEmails()));
 	}
 
 	@Test
@@ -54,6 +57,7 @@ public class ContributorTest {
 	private Contributor defaultContributor() {
 		final Contributor contributor = new Contributor();
 		contributor.setId("id");
+		contributor.setEmails(ImmutableSet.of("email1","email2"));
 		return contributor;
 	}
 

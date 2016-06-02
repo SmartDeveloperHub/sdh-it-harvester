@@ -31,59 +31,63 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 
 import java.io.IOException;
+import java.util.Set;
 
 import org.joda.time.DateTime;
+import org.joda.time.Minutes;
 import org.junit.Test;
 import org.ldp4j.commons.testing.Utils;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.AssigneeChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.BlockedIssuesChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ChildIssuesChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ClosedDateChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.CommitsChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ComponentsChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.CreationDateChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DescriptionChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DueToDateChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.EstimatedTimeChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ItemVisitor;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.OpenedDateChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.PriorityChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.SeverityChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.StatusChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.TagsChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.TitleChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.TypeChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.VersionsChangeItem;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
 public class ChangeLogTest {
 
 	private static final DateTime TIME_STAMP = new DateTime();
+	private static final DateTime ANOTHER_TIME_STAMP = new DateTime().plusDays(1);
 
-	private static Item defaultItem() {
-		final Item item = new Item();
-		item.setProperty("defaultProperty");
+	private static TitleChangeItem defaultItem() {
+		final TitleChangeItem item = new TitleChangeItem();
 		item.setOldValue("defaultOldValue");
 		item.setNewValue("defaultNewValue");
 		return item;
 	}
 
-	private static Item alternativePropertyItem() {
-		final Item item = defaultItem();
-		item.setProperty("alternativeProperty");
-		return item;
-	}
-
-	private Item alternativeOldValueItem() {
-		final Item item = defaultItem();
+	private static TitleChangeItem alternativeOldValueItem() {
+		final TitleChangeItem item = defaultItem();
 		item.setOldValue("alternativeOldValue");
 		return item;
 	}
 
-	private Item alternativeNewValueItem() {
-		final Item item = defaultItem();
+	private TitleChangeItem alternativeNewValueItem() {
+		final TitleChangeItem item = defaultItem();
 		item.setNewValue("alternativeNewValue");
 		return item;
 	}
 
-	private Item alternativePropertyAndOldValueItem() {
-		final Item item=alternativePropertyItem();
-		item.setOldValue("alternativeOldValue");
-		return item;
-	}
-
-	private Item alternativePropertyAndNewValueItem() {
-		final Item item=alternativePropertyItem();
-		item.setNewValue("alternativeNewValue");
-		return item;
-	}
-
-	private Item alternativeValuesItem() {
-		final Item item=alternativeOldValueItem();
+	private TitleChangeItem alternativeValuesItem() {
+		final TitleChangeItem item=alternativeOldValueItem();
 		item.setNewValue("alternativeNewValue");
 		return item;
 	}
@@ -105,11 +109,6 @@ public class ChangeLogTest {
 	}
 
 	@Test
-	public void itemsWithDifferentPropertyAreNotEqual() throws Exception {
-		assertThat(defaultItem(),not(equalTo(alternativePropertyItem())));
-	}
-
-	@Test
 	public void itemsWithDifferentOldValueAreNotEqual() throws Exception {
 		assertThat(defaultItem(),not(equalTo(alternativeOldValueItem())));
 	}
@@ -117,16 +116,6 @@ public class ChangeLogTest {
 	@Test
 	public void itemsWithDifferentNewValueAreNotEqual() throws Exception {
 		assertThat(defaultItem(),not(equalTo(alternativeNewValueItem())));
-	}
-
-	@Test
-	public void itemsWithDifferentPropertyAndOldValueAreNotEqual() throws Exception {
-		assertThat(defaultItem(),not(equalTo(alternativePropertyAndOldValueItem())));
-	}
-
-	@Test
-	public void itemsWithDifferentPropertyAndNewValueAreNotEqual() throws Exception {
-		assertThat(defaultItem(),not(equalTo(alternativePropertyAndNewValueItem())));
 	}
 
 	@Test
@@ -140,11 +129,6 @@ public class ChangeLogTest {
 	}
 
 	@Test
-	public void itemsWithDifferentPropertyHaveDifferentHashCode() throws Exception {
-		assertThat(defaultItem().hashCode(),not(equalTo(alternativePropertyItem().hashCode())));
-	}
-
-	@Test
 	public void itemsWithDifferentOldValueHaveDifferentHashCode() throws Exception {
 		assertThat(defaultItem().hashCode(),not(equalTo(alternativeOldValueItem().hashCode())));
 	}
@@ -155,16 +139,6 @@ public class ChangeLogTest {
 	}
 
 	@Test
-	public void itemsWithDifferentPropertyAndOldValueHaveDifferentHashCode() throws Exception {
-		assertThat(defaultItem().hashCode(),not(equalTo(alternativePropertyAndOldValueItem().hashCode())));
-	}
-
-	@Test
-	public void itemsWithDifferentPropertyAndNewValueHaveDifferentHashCode() throws Exception {
-		assertThat(defaultItem().hashCode(),not(equalTo(alternativePropertyAndNewValueItem().hashCode())));
-	}
-
-	@Test
 	public void itemsWithDifferentValuesHaveDifferentHashCode() throws Exception {
 		assertThat(defaultItem().hashCode(),not(equalTo(alternativeValuesItem().hashCode())));
 	}
@@ -172,7 +146,7 @@ public class ChangeLogTest {
 	private static Entry defaultEntry() {
 		final Entry entry = new Entry();
 		entry.setAuthor("defaultAuthor");
-		entry.setItems(ImmutableSet.of(defaultItem(),alternativePropertyItem()));
+		entry.setItems(ImmutableSet.<Item>of(defaultItem(),alternativeOldValueItem()));
 		entry.setTimeStamp(TIME_STAMP);
 		return entry;
 	}
@@ -191,7 +165,7 @@ public class ChangeLogTest {
 
 	private Entry alternativeItemsEntry() {
 		final Entry entry = defaultEntry();
-		entry.setItems(ImmutableSet.of(alternativeValuesItem()));
+		entry.setItems(ImmutableSet.<Item>of(alternativeValuesItem()));
 		return entry;
 	}
 
@@ -203,13 +177,13 @@ public class ChangeLogTest {
 
 	private Entry alternativeAuthorAndItemsEntry() {
 		final Entry entry = alternativeAuthorEntry();
-		entry.setItems(ImmutableSet.of(alternativeValuesItem()));
+		entry.setItems(ImmutableSet.<Item>of(alternativeValuesItem()));
 		return entry;
 	}
 
 	private Entry alternativeTimeStampAndItemsEntry() {
 		final Entry entry = alternativeTimeStampEntry();
-		entry.setItems(ImmutableSet.of(alternativeValuesItem()));
+		entry.setItems(ImmutableSet.<Item>of(alternativeValuesItem()));
 		return entry;
 	}
 
@@ -312,6 +286,342 @@ public class ChangeLogTest {
 		final ChangeLog one = new ChangeLog();
 		one.setEntries(ImmutableSet.of(defaultEntry(),alternativeAuthorEntry()));
 		return one;
+	}
+
+	@Test
+	public void supportsPolymorphism() throws IOException {
+		final Entry entry=new Entry();
+		entry.setAuthor("author");
+		entry.setTimeStamp(new DateTime());
+		entry.setItems(
+			ImmutableSet.
+				<Item>of(
+					titleChangeItem(),
+					descriptionChangeItem(),
+					closedDateChangeItem(),
+					openedDateChangeItem(),
+					creationDateChangeItem(),
+					dueToDateChangeItem(),
+					estimatedTimeChangeItem(),
+					typeChangeItem(),
+					statusChangeItem(),
+					severityChangeItem(),
+					priorityChangeItem(),
+					childIssuesChangeItem(),
+					blockedIssuesChangeItem(),
+					componentsChangeItem(),
+					versionsChangeItem(),
+					commitsChangeItem(),
+					tagsChangeItem(),
+					assigneeChangeItem()
+				)
+		);
+		final ChangeLog changeLog=new ChangeLog();
+		changeLog.setEntries(ImmutableSet.of(entry));
+		final String str = Entities.marshallEntity(changeLog);
+		final ChangeLog parsed = Entities.unmarshallEntity(str, ChangeLog.class);
+		for(final Entry pEntry:parsed.getEntries()) {
+			for(final Item pItem:pEntry.getItems()) {
+				pItem.accept(
+					new ItemVisitor() {
+
+						private final Set<String> added=Sets.newLinkedHashSet();
+
+						@Override
+						public void visitTitleChange(final TitleChangeItem item) {
+							assertThat(item,equalTo(titleChangeItem()));
+							count(item);
+						}
+
+						private void count(final Item item) {
+							assertThat(this.added.add(item.getClass().getName()),equalTo(true));
+						}
+
+						@Override
+						public void visitDescriptionChange(final DescriptionChangeItem item) {
+							assertThat(item,equalTo(descriptionChangeItem()));
+							count(item);
+						}
+
+						@Override
+						public void visitCreationDateChange(final CreationDateChangeItem item) {
+							assertThat(item,equalTo(creationDateChangeItem()));
+							count(item);
+						}
+
+						@Override
+						public void visitOpenedDateChange(final OpenedDateChangeItem item) {
+							assertThat(item,equalTo(openedDateChangeItem()));
+							count(item);
+						}
+
+						@Override
+						public void visitClosedDateChange(final ClosedDateChangeItem item) {
+							assertThat(item,equalTo(closedDateChangeItem()));
+							count(item);
+						}
+
+						@Override
+						public void visitDueToDateChange(final DueToDateChangeItem item) {
+							assertThat(item,equalTo(dueToDateChangeItem()));
+							count(item);
+						}
+
+						@Override
+						public void visitEstimatedTimeChange(final EstimatedTimeChangeItem item) {
+							assertThat(item,equalTo(estimatedTimeChangeItem()));
+							count(item);
+						}
+
+						@Override
+						public void visitTagsChange(final TagsChangeItem item) {
+							assertThat(item,equalTo(tagsChangeItem()));
+							count(item);
+						}
+
+						@Override
+						public void visitComponentsChange(final ComponentsChangeItem item) {
+							assertThat(item,equalTo(componentsChangeItem()));
+							count(item);
+						}
+
+						@Override
+						public void visitVersionsChange(final VersionsChangeItem item) {
+							assertThat(item,equalTo(versionsChangeItem()));
+							count(item);
+						}
+
+						@Override
+						public void visitCommitsChange(final CommitsChangeItem item) {
+							assertThat(item,equalTo(commitsChangeItem()));
+							count(item);
+						}
+
+						@Override
+						public void visitAssigneeChange(final AssigneeChangeItem item) {
+							assertThat(item,equalTo(assigneeChangeItem()));
+							count(item);
+						}
+
+						@Override
+						public void visitStatusChange(final StatusChangeItem item) {
+							assertThat(item,equalTo(statusChangeItem()));
+							count(item);
+						}
+
+						@Override
+						public void visitPriorityChange(final PriorityChangeItem item) {
+							assertThat(item,equalTo(priorityChangeItem()));
+							count(item);
+						}
+
+						@Override
+						public void visitSeverityChange(final SeverityChangeItem item) {
+							assertThat(item,equalTo(severityChangeItem()));
+							count(item);
+						}
+
+						@Override
+						public void visitChildIssuesChange(final ChildIssuesChangeItem item) {
+							assertThat(item,equalTo(childIssuesChangeItem()));
+							count(item);
+						}
+
+						@Override
+						public void visitBlockedIssuesChange(final BlockedIssuesChangeItem item) {
+							assertThat(item,equalTo(blockedIssuesChangeItem()));
+							count(item);
+						}
+
+						@Override
+						public void visitTypeChange(final TypeChangeItem item) {
+							assertThat(item,equalTo(typeChangeItem()));
+							count(item);
+						}
+
+					}
+				);
+				pItem.accept(new ItemVisitor() {});
+			}
+		}
+	}
+
+	private Item titleChangeItem() {
+		return
+			Item.
+				builder().
+					title().
+						oldValue("oldValue").
+						newValue("newValue").
+						build();
+	}
+
+	private Item descriptionChangeItem() {
+		return
+			Item.
+				builder().
+					description().
+						oldValue("oldValue").
+						newValue("newValue").
+						build();
+	}
+
+	private Item assigneeChangeItem() {
+		return
+			Item.
+				builder().
+					assignee().
+						oldValue("oldValue").
+						newValue("newValue").
+						build();
+	}
+
+	private Item blockedIssuesChangeItem() {
+		return
+			Item.
+				builder().
+					blockedIssues().
+						oldValue("oldValue").
+						newValue("newValue").
+						build();
+	}
+
+	private Item childIssuesChangeItem() {
+		return
+			Item.
+				builder().
+					childIssues().
+						oldValue("oldValue").
+						newValue("newValue").
+						build();
+	}
+
+	private Item closedDateChangeItem() {
+		return
+			Item.
+				builder().
+					closedDate().
+						oldValue(TIME_STAMP).
+						newValue(ANOTHER_TIME_STAMP).
+						build();
+	}
+
+	private Item estimatedTimeChangeItem() {
+		return
+			Item.
+				builder().
+					estimatedTime().
+						oldValue(Minutes.minutes(1).toStandardDuration()).
+						newValue(Minutes.minutes(3).toStandardDuration()).
+						build();
+	}
+
+	private Item openedDateChangeItem() {
+		return
+			Item.
+				builder().
+					openedDate().
+						oldValue(TIME_STAMP).
+						newValue(ANOTHER_TIME_STAMP).
+						build();
+	}
+
+	private Item creationDateChangeItem() {
+		return
+			Item.
+				builder().
+					creationDate().
+						oldValue(TIME_STAMP).
+						newValue(ANOTHER_TIME_STAMP).
+						build();
+	}
+
+	private Item typeChangeItem() {
+		return
+			Item.
+				builder().
+					type().
+						oldValue(Issue.Type.BUG).
+						newValue(Issue.Type.IMPROVEMENT).
+						build();
+	}
+
+	private Item dueToDateChangeItem() {
+		return
+			Item.
+				builder().
+					dueToDate().
+						oldValue(TIME_STAMP).
+						newValue(ANOTHER_TIME_STAMP).
+						build();
+	}
+
+	private Item statusChangeItem() {
+		return
+			Item.
+				builder().
+					status().
+						oldValue(Status.IN_PROGRESS).
+						newValue(Status.CLOSED).
+						build();
+	}
+
+	private Item severityChangeItem() {
+		return
+			Item.
+				builder().
+					severity().
+						oldValue(Severity.LOW).
+						newValue(Severity.BLOCKER).
+						build();
+	}
+
+	private Item priorityChangeItem() {
+		return
+			Item.
+				builder().
+					priority().
+						oldValue(Priority.LOW).
+						newValue(Priority.VERY_HIGH).
+						build();
+	}
+
+	private Item tagsChangeItem() {
+		return
+			Item.
+				builder().
+					tags().
+						oldValue("oldValue").
+						newValue("newValue").
+						build();
+	}
+
+	private Item commitsChangeItem() {
+		return
+			Item.
+				builder().
+					commits().
+						oldValue("oldValue").
+						newValue("newValue").
+						build();
+	}
+	private Item componentsChangeItem() {
+		return
+			Item.
+				builder().
+					components().
+						oldValue("oldValue").
+						newValue("newValue").
+						build();
+	}
+	private Item versionsChangeItem() {
+		return
+			Item.
+				builder().
+					versions().
+						oldValue("oldValue").
+						newValue("newValue").
+						build();
 	}
 
 }

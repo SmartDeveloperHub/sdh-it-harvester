@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.joda.time.DateTime;
+import org.joda.time.Minutes;
 import org.junit.Test;
 import org.ldp4j.commons.testing.Utils;
 import org.smartdeveloperhub.harvesters.it.backend.Issue.Type;
@@ -48,22 +49,26 @@ public class IssueTest {
 		final Issue one = defaultIssue();
 		final String str = Entities.marshallEntity(one);
 		final Issue other = Entities.unmarshallEntity(str,Issue.class);
-		assertThat(other.getId(),equalTo(one.getId()));
-		assertThat(other.getChildIssues(),equalTo(one.getChildIssues()));
-		assertThat(other.getBlockedIssues(),equalTo(one.getBlockedIssues()));
-		assertThat(other.getCommits(),equalTo(one.getCommits()));
-		assertThat(other.getTags(),equalTo(one.getTags()));
 		assertThat(other.getAssignee(),equalTo(one.getAssignee()));
-		assertThat(other.getTags(),equalTo(one.getTags()));
+		assertThat(other.getBlockedIssues(),equalTo(one.getBlockedIssues()));
+		assertThat(other.getChanges().getEntries(),equalTo(one.getChanges().getEntries()));
+		assertThat(other.getChildIssues(),equalTo(one.getChildIssues()));
 		assertThat(other.getClosed(),equalTo(one.getClosed()));
+		assertThat(other.getCommits(),equalTo(one.getCommits()));
 		assertThat(other.getComponent(),equalTo(one.getComponent()));
+		assertThat(other.getCreationDate(),equalTo(one.getCreationDate()));
 		assertThat(other.getDescription(),equalTo(one.getDescription()));
 		assertThat(other.getDueTo(),equalTo(one.getDueTo()));
+		assertThat(other.getEstimatedTime(),equalTo(one.getEstimatedTime()));
+		assertThat(other.getId(),equalTo(one.getId()));
 		assertThat(other.getOpened(),equalTo(one.getOpened()));
+		assertThat(other.getPriority(),equalTo(one.getPriority()));
 		assertThat(other.getReporter(),equalTo(one.getReporter()));
+		assertThat(other.getSeverity(),equalTo(one.getSeverity()));
+		assertThat(other.getStatus(),equalTo(one.getStatus()));
+		assertThat(other.getTags(),equalTo(one.getTags()));
 		assertThat(other.getType(),equalTo(one.getType()));
 		assertThat(other.getVersion(),equalTo(one.getVersion()));
-		assertThat(other.getChanges().getEntries(),equalTo(one.getChanges().getEntries()));
 	}
 
 	@Test
@@ -93,24 +98,26 @@ public class IssueTest {
 
 	private Issue defaultIssue() {
 		final Issue issue = new Issue();
-		issue.setId("id");
-		issue.setChildIssues(ImmutableSet.of("ci1","ci2"));
-		issue.setBlockedIssues(ImmutableSet.of("bi1","bi2"));
-		issue.setCommits(ImmutableSet.of("c1","c2"));
-		issue.setTags(ImmutableSet.of("t1","t2"));
-		issue.setType(Type.BUG);
-		issue.setReporter("reporter");
 		issue.setAssignee("assignee");
-		issue.setVersion("version");
+		issue.setBlockedIssues(ImmutableSet.of("bi1","bi2"));
+		issue.setChanges(ChangeLogTest.defaultChangeLog());
+		issue.setChildIssues(ImmutableSet.of("ci1","ci2"));
+		issue.setClosed(new DateTime());
+		issue.setCreationDate(new DateTime());
+		issue.setCommits(ImmutableSet.of("c1","c2"));
 		issue.setComponent("component");
 		issue.setDescription("description");
+		issue.setDueTo(new DateTime());
+		issue.setEstimatedTime(Minutes.minutes(60).toStandardDuration());
+		issue.setId("id");
+		issue.setOpened(new DateTime());
+		issue.setPriority(Priority.VERY_HIGH);
+		issue.setReporter("reporter");
 		issue.setSeverity(Severity.BLOCKER);
 		issue.setStatus(Status.CLOSED);
-		issue.setPriority(Priority.VERY_HIGH);
-		issue.setClosed(new DateTime());
-		issue.setDueTo(new DateTime());
-		issue.setOpened(new DateTime());
-		issue.setChanges(ChangeLogTest.defaultChangeLog());
+		issue.setTags(ImmutableSet.of("t1","t2"));
+		issue.setType(Type.BUG);
+		issue.setVersion("version");
 		return issue;
 	}
 

@@ -31,9 +31,13 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Sets;
@@ -52,58 +56,270 @@ public final class ChangeLog extends Entity {
 	})
 	public static final class Entry extends Entity implements Comparable<Entry> {
 
+		@JsonTypeInfo(
+			use=JsonTypeInfo.Id.NAME,
+			include=JsonTypeInfo.As.PROPERTY,
+			property=Item.PROPERTY
+		)
+		@JsonSubTypes({
+			@Type(value=AssigneeChangeItem.class,name="assignee"),
+			@Type(value=BlockedIssuesChangeItem.class,name="blockedIssues"),
+			@Type(value=ChildIssuesChangeItem.class,name="childIssues"),
+			@Type(value=ClosedDateChangeItem.class,name="closedDate"),
+			@Type(value=CommitsChangeItem.class,name="commits"),
+			@Type(value=ComponentsChangeItem.class,name="components"),
+			@Type(value=CreationDateChangeItem.class,name="creationDate"),
+			@Type(value=DescriptionChangeItem.class,name="description"),
+			@Type(value=DueToDateChangeItem.class,name="dueToDate"),
+			@Type(value=EstimatedTimeChangeItem.class,name="estimatedTime"),
+			@Type(value=OpenedDateChangeItem.class,name="openedDate"),
+			@Type(value=PriorityChangeItem.class,name="priority"),
+			@Type(value=SeverityChangeItem.class,name="severity"),
+			@Type(value=StatusChangeItem.class,name="status"),
+			@Type(value=TagsChangeItem.class,name="tags"),
+			@Type(value=TitleChangeItem.class,name="title"),
+			@Type(value=TypeChangeItem.class,name="type"),
+			@Type(value=VersionsChangeItem.class,name="versions")
+		})
+		public static abstract class Item extends Entity {
+
+			public static final class Builder {
+
+				public static final class ItemEditorBuilder<T> {
+
+					private final AbstractItem<T> item;
+
+					private ItemEditorBuilder(final AbstractItem<T> item) {
+						this.item = item;
+					}
+
+					public ItemEditorBuilder<T> oldValue(final T oldValue) {
+						this.item.setOldValue(oldValue);
+						return this;
+					}
+
+					public ItemEditorBuilder<T> newValue(final T newValue) {
+						this.item.setNewValue(newValue);
+						return this;
+					}
+
+					public Item build() {
+						return this.item;
+					}
+
+				}
+
+				private Builder() {
+				}
+
+				public ItemEditorBuilder<String> title() {
+					return new ItemEditorBuilder<String>(new TitleChangeItem());
+				}
+
+				public ItemEditorBuilder<String> description() {
+					return new ItemEditorBuilder<String>(new DescriptionChangeItem());
+				}
+
+				public ItemEditorBuilder<DateTime> creationDate() {
+					return new ItemEditorBuilder<DateTime>(new CreationDateChangeItem());
+				}
+
+				public ItemEditorBuilder<DateTime> openedDate() {
+					return new ItemEditorBuilder<DateTime>(new OpenedDateChangeItem());
+				}
+
+				public ItemEditorBuilder<DateTime> closedDate() {
+					return new ItemEditorBuilder<DateTime>(new ClosedDateChangeItem());
+				}
+
+				public ItemEditorBuilder<DateTime> dueToDate() {
+					return new ItemEditorBuilder<DateTime>(new DueToDateChangeItem());
+				}
+
+				public ItemEditorBuilder<Duration> estimatedTime() {
+					return new ItemEditorBuilder<Duration>(new EstimatedTimeChangeItem());
+				}
+
+				public ItemEditorBuilder<String> tags() {
+					return new ItemEditorBuilder<String>(new TagsChangeItem());
+				}
+
+				public ItemEditorBuilder<String> components() {
+					return new ItemEditorBuilder<String>(new ComponentsChangeItem());
+				}
+
+				public ItemEditorBuilder<String> versions() {
+					return new ItemEditorBuilder<String>(new VersionsChangeItem());
+				}
+
+				public ItemEditorBuilder<String> commits() {
+					return new ItemEditorBuilder<String>(new CommitsChangeItem());
+				}
+
+				public ItemEditorBuilder<String> assignee() {
+					return new ItemEditorBuilder<String>(new AssigneeChangeItem());
+				}
+
+				public ItemEditorBuilder<String> blockedIssues() {
+					return new ItemEditorBuilder<String>(new BlockedIssuesChangeItem());
+				}
+
+				public ItemEditorBuilder<String> childIssues() {
+					return new ItemEditorBuilder<String>(new ChildIssuesChangeItem());
+				}
+
+				public ItemEditorBuilder<Status> status() {
+					return new ItemEditorBuilder<Status>(new StatusChangeItem());
+				}
+
+				public ItemEditorBuilder<Severity> severity() {
+					return new ItemEditorBuilder<Severity>(new SeverityChangeItem());
+				}
+
+				public ItemEditorBuilder<Priority> priority() {
+					return new ItemEditorBuilder<Priority>(new PriorityChangeItem());
+				}
+
+				public ItemEditorBuilder<Issue.Type> type() {
+					return new ItemEditorBuilder<Issue.Type>(new TypeChangeItem());
+				}
+
+			}
+
+			static final String PROPERTY="property";
+
+			public abstract Object getOldValue();
+
+			public abstract Object getNewValue();
+
+			public abstract void accept(ItemVisitor visitor);
+
+			public static Builder builder() {
+				return new Builder();
+			}
+
+		}
+
+		public static abstract class ItemVisitor {
+
+			public void visitTitleChange(final TitleChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+			public void visitDescriptionChange(final DescriptionChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+			public void visitCreationDateChange(final CreationDateChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+			public void visitOpenedDateChange(final OpenedDateChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+			public void visitClosedDateChange(final ClosedDateChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+			public void visitDueToDateChange(final DueToDateChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+			public void visitEstimatedTimeChange(final EstimatedTimeChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+			public void visitTagsChange(final TagsChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+			public void visitComponentsChange(final ComponentsChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+			public void visitVersionsChange(final VersionsChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+			public void visitCommitsChange(final CommitsChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+			public void visitAssigneeChange(final AssigneeChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+			public void visitStatusChange(final StatusChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+			public void visitPriorityChange(final PriorityChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+			public void visitSeverityChange(final SeverityChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+			public void visitChildIssuesChange(final ChildIssuesChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+			public void visitBlockedIssuesChange(final BlockedIssuesChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+			public void visitTypeChange(final TypeChangeItem item) {
+				// To be overriden by subclasses
+			}
+
+		}
+
 		@JsonInclude(JsonInclude.Include.NON_NULL)
 		@JsonPropertyOrder({
 			Item.PROPERTY,
-			Item.OLD_VALUE,
-			Item.NEW_VALUE
+			AbstractItem.OLD_VALUE,
+			AbstractItem.NEW_VALUE
 		})
-		public static final class Item extends Entity {
+		public static abstract class AbstractItem<T> extends Item {
 
-			static final String PROPERTY="property";
 			static final String OLD_VALUE="oldValue";
 			static final String NEW_VALUE="newValue";
 
-			private String property;
-			private Object oldValue;
-			private Object newValue;
+			private T oldValue;
+			private T newValue;
 
-			public String getProperty() {
-				return this.property;
-			}
-
-			public void setProperty(final String property) {
-				this.property = property;
-			}
-
-			public Object getOldValue() {
+			@Override
+			public final T getOldValue() {
 				return this.oldValue;
 			}
 
-			public void setOldValue(final Object oldValue) {
+			public final void setOldValue(final T oldValue) {
 				this.oldValue = oldValue;
 			}
 
-			public Object getNewValue() {
+			@Override
+			public final T getNewValue() {
 				return this.newValue;
 			}
 
-			public void setNewValue(final Object newValue) {
+			public final void setNewValue(final T newValue) {
 				this.newValue = newValue;
 			}
 
 			@Override
-			public int hashCode() {
-				return Objects.hash(this.property,this.oldValue,this.newValue);
+			public final int hashCode() {
+				return Objects.hash(getClass(),this.oldValue,this.newValue);
 			}
 
 			@Override
-			public boolean equals(final Object obj) {
+			public final boolean equals(final Object obj) {
 				boolean result = false;
-				if(obj instanceof Item) {
-					final Item that=(Item)obj;
+				if(obj instanceof AbstractItem) {
+					final AbstractItem<?> that=(AbstractItem<?>)obj;
 					result=
-						Objects.equals(this.property,that.property) &&
+						this.getClass()==that.getClass() &&
 						Objects.equals(this.oldValue,that.oldValue) &&
 						Objects.equals(this.newValue,that.newValue) ;
 				}
@@ -111,14 +327,140 @@ public final class ChangeLog extends Entity {
 			}
 
 			@Override
-			protected ToStringHelper stringHelper() {
+			protected final ToStringHelper stringHelper() {
 				return
 					super.stringHelper().
-						add(PROPERTY,this.property).
 						add(OLD_VALUE,this.oldValue).
 						add(NEW_VALUE,this.newValue);
 			}
 
+		}
+
+		public static final class TitleChangeItem extends AbstractItem<String> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitTitleChange(this);
+			}
+		}
+
+		public static final class DescriptionChangeItem extends AbstractItem<String> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitDescriptionChange(this);
+			}
+		}
+
+		public static final class CreationDateChangeItem extends AbstractItem<DateTime> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitCreationDateChange(this);
+			}
+		}
+
+		public static final class OpenedDateChangeItem extends AbstractItem<DateTime> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitOpenedDateChange(this);
+			}
+		}
+
+		public static final class ClosedDateChangeItem extends AbstractItem<DateTime> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitClosedDateChange(this);
+			}
+		}
+
+		public static final class DueToDateChangeItem extends AbstractItem<DateTime> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitDueToDateChange(this);
+			}
+		}
+
+		public static final class EstimatedTimeChangeItem extends AbstractItem<Duration> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitEstimatedTimeChange(this);
+			}
+		}
+
+		public static final class TagsChangeItem extends AbstractItem<String> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitTagsChange(this);
+			}
+		}
+
+
+		public static final class ComponentsChangeItem extends AbstractItem<String> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitComponentsChange(this);
+			}
+		}
+
+		public static final class VersionsChangeItem extends AbstractItem<String> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitVersionsChange(this);
+			}
+		}
+
+		public static final class CommitsChangeItem extends AbstractItem<String> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitCommitsChange(this);
+			}
+		}
+
+		public static final class AssigneeChangeItem extends AbstractItem<String> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitAssigneeChange(this);
+			}
+		}
+
+		public static final class BlockedIssuesChangeItem extends AbstractItem<String> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitBlockedIssuesChange(this);
+			}
+		}
+
+		public static final class ChildIssuesChangeItem extends AbstractItem<String> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitChildIssuesChange(this);
+			}
+		}
+
+		public static final class StatusChangeItem extends AbstractItem<Status> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitStatusChange(this);
+			}
+		}
+
+		public static final class PriorityChangeItem extends AbstractItem<Priority> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitPriorityChange(this);
+			}
+		}
+
+		public static final class SeverityChangeItem extends AbstractItem<Severity> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitSeverityChange(this);
+			}
+		}
+
+		public static final class TypeChangeItem extends AbstractItem<Issue.Type> {
+			@Override
+			public void accept(final ItemVisitor visitor) {
+				visitor.visitTypeChange(this);
+			}
 		}
 
 		static final String TIMESTAMP="timestamp";

@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -59,9 +60,26 @@ public final class Entities {
 	private static final class DateTimeDeserializer extends JsonDeserializer<DateTime> {
 
 		@Override
-		public DateTime deserialize(final JsonParser jp, final DeserializationContext ctxt)
-				throws IOException, JsonProcessingException {
+		public DateTime deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException, JsonProcessingException {
 			return new DateTime(jp.getLongValue());
+		}
+
+	}
+
+	private static final class DurationSerializer extends JsonSerializer<Duration> {
+
+		@Override
+		public void serialize(final Duration value, final JsonGenerator jgen, final SerializerProvider provider) throws IOException {
+			jgen.writeNumber(value.getMillis());
+		}
+
+	}
+
+	private static final class DurationDeserializer extends JsonDeserializer<Duration> {
+
+		@Override
+		public Duration deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException, JsonProcessingException {
+			return new Duration(jp.getLongValue());
 		}
 
 	}
@@ -72,6 +90,7 @@ public final class Entities {
 	private static ObjectMapper parsingMapper() {
 		final SimpleModule module = new SimpleModule();
 		module.addDeserializer(DateTime.class, new DateTimeDeserializer());
+		module.addDeserializer(Duration.class, new DurationDeserializer());
 		return
 			new ObjectMapper().
 				enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).
@@ -83,6 +102,7 @@ public final class Entities {
 	private static ObjectMapper writingMapper() {
 		final SimpleModule module = new SimpleModule();
 		module.addSerializer(DateTime.class, new DateTimeSerializer());
+		module.addSerializer(Duration.class, new DurationSerializer());
 		return
 			new ObjectMapper().
 				enable(SerializationFeature.INDENT_OUTPUT).
