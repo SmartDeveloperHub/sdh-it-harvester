@@ -29,6 +29,8 @@ package org.smartdeveloperhub.harvesters.it.backend;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.Set;
@@ -444,6 +446,47 @@ public class ChangeLogTest {
 				pItem.accept(new ItemVisitor() {});
 			}
 		}
+	}
+
+	@Test
+	public void cannotBuildItemsWithoutValues() {
+		try {
+			Item.builder().title().build();
+			fail("Should not be able to build an item without values");
+		} catch(final IllegalStateException e) {
+
+		}
+	}
+
+	@Test
+	public void cannotBuildItemsWithSameOldAndNewValue() {
+		try {
+			Item.builder().title().oldValue("value").newValue("value").build();
+			fail("Should not be able to build items with same old and new value");
+		} catch(final IllegalStateException e) {
+
+		}
+	}
+
+	@Test
+	public void canBuildItemsWithDifferentValues() {
+		final Item build = Item.builder().title().oldValue("value1").newValue("value2").build();
+		assertThat(build.getOldValue(),equalTo((Object)"value1"));
+		assertThat(build.getNewValue(),equalTo((Object)"value2"));
+	}
+
+	@Test
+	public void canBuildItemsWithOnlyOldValue() {
+		final Item build = Item.builder().title().oldValue("value").build();
+		assertThat(build.getOldValue(),equalTo((Object)"value"));
+		assertThat(build.getNewValue(),nullValue());
+	}
+
+	@Test
+	public void canBuildItemsWithOnlyNewValue() {
+		final Item build = Item.builder().title().newValue("value").build();
+		assertThat(build.getNewValue(),equalTo((Object)"value"));
+		assertThat(build.getOldValue(),nullValue());
 	}
 
 	private Item titleChangeItem() {

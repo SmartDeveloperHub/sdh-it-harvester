@@ -39,6 +39,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Sets;
 
@@ -104,6 +105,8 @@ public final class ChangeLog extends Entity {
 					}
 
 					public Item build() {
+						Preconditions.checkState(!(this.item.getOldValue()==null && this.item.getNewValue()==null),"No item values defined");
+						Preconditions.checkState(!Objects.equals(this.item.getNewValue(),this.item.getOldValue()),"Item old and new value must be different");
 						return this.item;
 					}
 
