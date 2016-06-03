@@ -26,66 +26,13 @@
  */
 package org.smartdeveloperhub.harvesters.it.frontend.issue;
 
-import java.io.Serializable;
-import java.util.Objects;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
-import com.google.common.base.MoreObjects;
-
-public final class IssueKey implements Comparable<IssueKey>, Serializable {
-
-	private static final long serialVersionUID = 786423257542885122L;
-
-	private final String projectId;
-	private final String issueId;
-
-	public IssueKey(final String projectId, final String issueId) {
-		this.projectId = projectId;
-		this.issueId = issueId;
-	}
-
-	public String getProjectId() {
-		return this.projectId;
-	}
-
-	public String getIssueId() {
-		return this.issueId;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(this.projectId,this.issueId);
-	}
-
-	@Override
-	public boolean equals(final Object obj) {
-		boolean result=false;
-		if(obj instanceof IssueKey) {
-			final IssueKey that=(IssueKey)obj;
-			result=
-				Objects.equals(this.projectId,that.projectId) &&
-				Objects.equals(this.issueId,that.issueId);
-		}
-		return result;
-	}
-
-	@Override
-	public int compareTo(final IssueKey key) {
-		int result=this.projectId.compareTo(key.projectId);
-		if(result==0) {
-			result=this.issueId.compareTo(key.issueId);
-		}
-		return result;
-	}
-
-	@Override
-	public String toString() {
-		return
-			MoreObjects.
-				toStringHelper(getClass()).
-					omitNullValues().
-					add("projectId",this.projectId).
-					add("issueId", this.issueId).
-					toString();
-	}
-
+@RunWith(Suite.class)
+@SuiteClasses({
+	IssueKeyTest.class
+})
+public class UnitTestSuite {
 }
