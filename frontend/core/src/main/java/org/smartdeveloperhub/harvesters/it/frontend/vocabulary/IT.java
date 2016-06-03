@@ -101,8 +101,8 @@ public final class IT {
 	public static final String HAS_PROJECT             = "http://www.smartdeveloperhub.org/vocabulary/it#hasProject";
 	public static final String HAS_CONTRIBUTOR         = "http://www.smartdeveloperhub.org/vocabulary/it#hasContributor";
 	public static final String HAS_COMMIT              = "http://www.smartdeveloperhub.org/vocabulary/it#hasCommit";
-	public static final String HAS_VERSION             = term("hasVersion");
-	public static final String HAS_COMPONENT           = term("hasComponent");
+	public static final String HAS_VERSION             = "http://www.smartdeveloperhub.org/vocabulary/it#hasVersion";
+	public static final String HAS_COMPONENT           = "http://www.smartdeveloperhub.org/vocabulary/it#hasComponent";
 	public static final String HAS_PROJECT_ISSUE       = "http://www.smartdeveloperhub.org/vocabulary/it#hasProjectIssue";
 	public static final String HAS_PROJECT_TOP_ISSUE   = term("hasProjectTopIssue");
 
@@ -158,7 +158,7 @@ public final class IT {
 		return NAMESPACE+localName;
 	}
 
-	public static URI sourcecode() {
+	public static URI sourceCode() {
 		return URI.create("http://www.smartdeveloperhub.org/vocabulary/v1/it.ttl");
 	}
 

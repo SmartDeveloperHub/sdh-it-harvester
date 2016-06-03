@@ -151,6 +151,13 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.smartdeveloperhub.harvesters.it.backend</groupId>
+			<artifactId>it-backend-api</artifactId>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<scope>test</scope>

@@ -37,7 +37,7 @@ import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.IT;
 )
 public class IssueContainerHandler extends AbstractCappedContainerHandler {
 
-	public static final String ID   = "IssueContainerHandler";
+	public static final String ID = "IssueContainerHandler";
 
 	public IssueContainerHandler() {
 		super("issue");

@@ -32,7 +32,8 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	ComponentKeyTest.class
+	ComponentKeyTest.class,
+	ComponentContainerHandlerTest.class
 })
 public class UnitTestSuite {
 }

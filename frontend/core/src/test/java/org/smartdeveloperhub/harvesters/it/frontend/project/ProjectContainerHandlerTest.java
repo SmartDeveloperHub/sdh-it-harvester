@@ -24,16 +24,25 @@
  *   Bundle      : it-frontend-core-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.frontend.version;
+package org.smartdeveloperhub.harvesters.it.frontend.project;
 
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.smartdeveloperhub.harvesters.it.frontend.util.AbstractCappedContainerHandlerTestHelper;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	VersionKeyTest.class,
-	VersionContainerHandlerTest.class
-})
-public class UnitTestSuite {
+import mockit.integration.junit4.JMockit;
+
+@RunWith(JMockit.class)
+public class ProjectContainerHandlerTest extends AbstractCappedContainerHandlerTestHelper {
+
+	@Test
+	public void testGet() throws Exception {
+		super.verifyGetReturnsEmptyDataset(new ProjectContainerHandler());
+	}
+
+	@Test
+	public void testCreate() throws Exception {
+		super.verifyFactoryMethodIsDisabled("project",new ProjectContainerHandler());
+	}
+
 }

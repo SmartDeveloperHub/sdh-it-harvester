@@ -24,7 +24,7 @@
  *   Bundle      : it-frontend-core-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.frontend.version;
+package org.smartdeveloperhub.harvesters.it.frontend.project;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -32,8 +32,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	VersionKeyTest.class,
-	VersionContainerHandlerTest.class
+	ProjectContainerHandlerTest.class
 })
 public class UnitTestSuite {
 }

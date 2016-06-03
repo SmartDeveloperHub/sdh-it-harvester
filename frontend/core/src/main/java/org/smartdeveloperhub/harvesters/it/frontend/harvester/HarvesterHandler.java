@@ -96,9 +96,9 @@ public class HarvesterHandler implements ResourceHandler {
 					withIndividual(IT.VOCABULARY_TYPE).
 					withIndividual(PLATFORM.VOCABULARY_TYPE).
 				property(PLATFORM.SOURCE).
-					withLiteral(IT.sourcecode()).
+					withLiteral(IT.sourceCode()).
 				property(DCTERMS.SOURCE).
-					withLiteral(IT.sourcecode()).
+					withLiteral(IT.sourceCode()).
 				property(PLATFORM.IMPLEMENTS).
 					withIndividual(IT.DOMAIN_TYPE);
 

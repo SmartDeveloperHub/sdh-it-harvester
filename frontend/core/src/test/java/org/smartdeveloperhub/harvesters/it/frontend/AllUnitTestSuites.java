@@ -37,7 +37,10 @@ import org.junit.runners.Suite.SuiteClasses;
 	org.smartdeveloperhub.harvesters.it.frontend.vocabulary.UnitTestSuite.class,
 	org.smartdeveloperhub.harvesters.it.frontend.component.UnitTestSuite.class,
 	org.smartdeveloperhub.harvesters.it.frontend.version.UnitTestSuite.class,
-	org.smartdeveloperhub.harvesters.it.frontend.issue.UnitTestSuite.class
+	org.smartdeveloperhub.harvesters.it.frontend.issue.UnitTestSuite.class,
+	org.smartdeveloperhub.harvesters.it.frontend.project.UnitTestSuite.class,
+	org.smartdeveloperhub.harvesters.it.frontend.contributor.UnitTestSuite.class,
+	org.smartdeveloperhub.harvesters.it.frontend.commit.UnitTestSuite.class
 })
 public class AllUnitTestSuites {
 }

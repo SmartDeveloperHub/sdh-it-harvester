@@ -28,11 +28,12 @@ package org.smartdeveloperhub.harvesters.it.frontend.version;
 
 import org.ldp4j.application.ext.annotations.DirectContainer;
 import org.smartdeveloperhub.harvesters.it.frontend.util.AbstractCappedContainerHandler;
+import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.IT;
 
 @DirectContainer(
 	id = VersionContainerHandler.ID,
 	memberHandler = VersionHandler.class,
-	membershipPredicate="http://www.smartdeveloperhub.org/vocabulary/it#hasVersion"
+	membershipPredicate=IT.HAS_VERSION
 )
 public class VersionContainerHandler extends AbstractCappedContainerHandler {
 
