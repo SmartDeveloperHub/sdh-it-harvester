@@ -93,6 +93,17 @@ public class BackendControllersTest {
 	}
 
 	@Test
+	public void createsControllerFromDiscoveredFactoriesIfDefaultFactoryFails(@Mocked final BackendControllerFactory factory,@Mocked final BackendController expected) throws Exception {
+		new Expectations() {{
+			factory.create(TARGET);this.result=new IllegalArgumentException("");
+		}};
+		BackendControllers.setDefaultFactory(factory);
+		WorkingBackendControllerFactory.setController(expected);
+		final BackendController controller = BackendControllers.createController(TARGET);
+		assertThat(controller,sameInstance(expected));
+	}
+
+	@Test
 	public void createsControllerFromDiscoveredFactoriesWhenDefaultFactoryDoesNotCreateAController(@Mocked final BackendControllerFactory factory,@Mocked final BackendController expected) throws Exception {
 		new Expectations() {{
 			factory.create(TARGET);this.result=null;

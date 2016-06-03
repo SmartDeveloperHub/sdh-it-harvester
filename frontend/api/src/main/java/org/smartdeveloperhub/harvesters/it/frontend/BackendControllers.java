@@ -138,11 +138,10 @@ public final class BackendControllers {
 	}
 
 	public static BackendController createController(final URI target) {
-		final BackendControllerFactory defaultFactory = DEFAULT_FACTORY.get();
-		if(defaultFactory!=null) {
-			final BackendController controller = defaultFactory.create(target);
+		final BackendControllerFactory factory = DEFAULT_FACTORY.get();
+		if(factory!=null) {
+			final BackendController controller = createController(target, factory, true);
 			if(controller!=null) {
-				LOGGER.debug("Created controller {} for target '{}' using default factory",controller.getClass().getName(),target);
 				return controller;
 			}
 		}
@@ -153,15 +152,29 @@ public final class BackendControllers {
 	private static BackendController createDynamicController(final URI target) {
 		final ServiceLoader<BackendControllerFactory> factories=ServiceLoader.load(BackendControllerFactory.class);
 		for(final BackendControllerFactory factory:factories) {
-			final BackendController controller = factory.create(target);
+			final BackendController controller = createController(target, factory, false);
 			if(controller!=null) {
-				LOGGER.debug("Created controller {} for target '{}'",controller.getClass().getName(),target);
 				return controller;
 			}
-			LOGGER.warn("Backend controller factory '{}' ({}) did not create factory for target '{}'",factory,factory.getClass().getName(),target);
 		}
 		LOGGER.error("Could not create controller for target '{}'",target);
 		return new NullBackendController(target);
+	}
+
+
+	private static BackendController createController(final URI target, final BackendControllerFactory factory, final boolean isDefault) {
+		BackendController controller=null;
+		try {
+			controller=factory.create(target);
+			if(controller!=null) {
+				LOGGER.debug("Created controller {} for target '{}'{}",controller.getClass().getName(),target,isDefault?"using default factory":"");
+			} else {
+				LOGGER.warn("{}ackend controller factory '{}' ({}) could not create factory for target '{}'",isDefault?"Default b":"B",factory,factory.getClass().getName(),target);
+			}
+		} catch (final Exception e) {
+			LOGGER.warn("{}ackend controller factory '{}' ({}) failed to create factory for target '{}'",isDefault?"Default b":"B",factory,factory.getClass().getName(),target,e);
+		}
+		return controller;
 	}
 
 }
