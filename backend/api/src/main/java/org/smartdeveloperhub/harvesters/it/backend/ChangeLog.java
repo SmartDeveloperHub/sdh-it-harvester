@@ -81,7 +81,7 @@ public final class ChangeLog extends Entity {
 			@Type(value=TypeChangeItem.class,name="type"),
 			@Type(value=VersionsChangeItem.class,name="versions")
 		})
-		public static abstract class Item extends Entity {
+		public abstract static class Item extends Entity {
 
 			public static final class Builder {
 
@@ -198,7 +198,7 @@ public final class ChangeLog extends Entity {
 
 		}
 
-		public static abstract class ItemVisitor {
+		public abstract static class ItemVisitor {
 
 			public void visitTitleChange(final TitleChangeItem item) {
 				// To be overriden by subclasses
@@ -276,7 +276,7 @@ public final class ChangeLog extends Entity {
 			AbstractItem.OLD_VALUE,
 			AbstractItem.NEW_VALUE
 		})
-		public static abstract class AbstractItem<T> extends Item {
+		public abstract static class AbstractItem<T> extends Item {
 
 			static final String OLD_VALUE="oldValue";
 			static final String NEW_VALUE="newValue";

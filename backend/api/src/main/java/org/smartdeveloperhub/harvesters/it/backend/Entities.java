@@ -34,7 +34,6 @@ import org.joda.time.Duration;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
@@ -60,7 +59,7 @@ public final class Entities {
 	private static final class DateTimeDeserializer extends JsonDeserializer<DateTime> {
 
 		@Override
-		public DateTime deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException, JsonProcessingException {
+		public DateTime deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
 			return new DateTime(jp.getLongValue());
 		}
 
@@ -78,7 +77,7 @@ public final class Entities {
 	private static final class DurationDeserializer extends JsonDeserializer<Duration> {
 
 		@Override
-		public Duration deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException, JsonProcessingException {
+		public Duration deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
 			return new Duration(jp.getLongValue());
 		}
 
