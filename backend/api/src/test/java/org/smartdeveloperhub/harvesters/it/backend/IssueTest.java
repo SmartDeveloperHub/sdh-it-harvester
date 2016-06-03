@@ -34,19 +34,15 @@ import static org.hamcrest.Matchers.not;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.joda.time.DateTime;
-import org.joda.time.Minutes;
 import org.junit.Test;
 import org.ldp4j.commons.testing.Utils;
 import org.smartdeveloperhub.harvesters.it.backend.Issue.Type;
-
-import com.google.common.collect.ImmutableSet;
 
 public class IssueTest {
 
 	@Test
 	public void canMarshallAndUnmarshallIssues() throws IOException {
-		final Issue one = defaultIssue();
+		final Issue one = Fixture.defaultIssue();
 		final String str = Entities.marshallEntity(one);
 		final Issue other = Entities.unmarshallEntity(str,Issue.class);
 		assertThat(other.getAssignee(),equalTo(one.getAssignee()));
@@ -73,7 +69,7 @@ public class IssueTest {
 
 	@Test
 	public void issuesHaveCustomToString() {
-		final Issue sut = defaultIssue();
+		final Issue sut = Fixture.defaultIssue();
 		assertThat(sut.toString(),not(equalTo(Utils.defaultToString(sut))));
 	}
 
@@ -94,31 +90,6 @@ public class IssueTest {
 		for(final Type value:Type.values()) {
 			assertThat(Type.valueOf(value.name()),equalTo(value));
 		}
-	}
-
-	private Issue defaultIssue() {
-		final Issue issue = new Issue();
-		issue.setAssignee("assignee");
-		issue.setBlockedIssues(ImmutableSet.of("bi1","bi2"));
-		issue.setChanges(ChangeLogTest.defaultChangeLog());
-		issue.setChildIssues(ImmutableSet.of("ci1","ci2"));
-		issue.setClosed(new DateTime());
-		issue.setCreationDate(new DateTime());
-		issue.setCommits(ImmutableSet.of("c1","c2"));
-		issue.setComponents(ImmutableSet.of("cc1","cc2"));
-		issue.setDescription("description");
-		issue.setDueTo(new DateTime());
-		issue.setEstimatedTime(Minutes.minutes(60).toStandardDuration());
-		issue.setId("id");
-		issue.setOpened(new DateTime());
-		issue.setPriority(Priority.VERY_HIGH);
-		issue.setReporter("reporter");
-		issue.setSeverity(Severity.BLOCKER);
-		issue.setStatus(Status.CLOSED);
-		issue.setTags(ImmutableSet.of("t1","t2"));
-		issue.setType(Type.BUG);
-		issue.setVersions(ImmutableSet.of("v1","v2"));
-		return issue;
 	}
 
 }

@@ -39,7 +39,7 @@ public class VersionTest {
 
 	@Test
 	public void canMarshallAndUnmarshallVersions() throws IOException {
-		final Version one = defaultVersion();
+		final Version one = Fixture.defaultVersion();
 		final String str = Entities.marshallEntity(one);
 		final Version other = Entities.unmarshallEntity(str,Version.class);
 		assertThat(other.getId(),equalTo(one.getId()));
@@ -48,15 +48,8 @@ public class VersionTest {
 
 	@Test
 	public void versionsHaveCustomToString() {
-		final Version sut = defaultVersion();
+		final Version sut = Fixture.defaultVersion();
 		assertThat(sut.toString(),not(equalTo(Utils.defaultToString(sut))));
-	}
-
-	private Version defaultVersion() {
-		final Version version = new Version();
-		version.setId("id");
-		version.setProjectId("projectId");
-		return version;
 	}
 
 }

@@ -35,13 +35,11 @@ import java.io.IOException;
 import org.junit.Test;
 import org.ldp4j.commons.testing.Utils;
 
-import com.google.common.collect.ImmutableSet;
-
 public class ContributorTest {
 
 	@Test
 	public void canMarshallAndUnmarshallContributors() throws IOException {
-		final Contributor one = defaultContributor();
+		final Contributor one = Fixture.defaultContributor();
 		final String str = Entities.marshallEntity(one);
 		final Contributor other = Entities.unmarshallEntity(str,Contributor.class);
 		assertThat(other.getId(),equalTo(one.getId()));
@@ -50,15 +48,8 @@ public class ContributorTest {
 
 	@Test
 	public void contributorsHaveCustomToString() {
-		final Contributor sut = defaultContributor();
+		final Contributor sut = Fixture.defaultContributor();
 		assertThat(sut.toString(),not(equalTo(Utils.defaultToString(sut))));
-	}
-
-	private Contributor defaultContributor() {
-		final Contributor contributor = new Contributor();
-		contributor.setId("id");
-		contributor.setEmails(ImmutableSet.of("email1","email2"));
-		return contributor;
 	}
 
 }

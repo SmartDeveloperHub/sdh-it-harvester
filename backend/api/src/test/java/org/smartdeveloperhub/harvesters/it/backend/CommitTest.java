@@ -39,7 +39,7 @@ public class CommitTest {
 
 	@Test
 	public void canMarshallAndUnmarshallCommits() throws IOException {
-		final Commit one = defaultCommit();
+		final Commit one = Fixture.defaultCommit();
 		final String str = Entities.marshallEntity(one);
 		final Commit other = Entities.unmarshallEntity(str,Commit.class);
 		assertThat(other.getId(),equalTo(one.getId()));
@@ -50,17 +50,8 @@ public class CommitTest {
 
 	@Test
 	public void commitsHaveCustomToString() {
-		final Commit sut = defaultCommit();
+		final Commit sut = Fixture.defaultCommit();
 		assertThat(sut.toString(),not(equalTo(Utils.defaultToString(sut))));
-	}
-
-	private Commit defaultCommit() {
-		final Commit commit = new Commit();
-		commit.setId("id");
-		commit.setRepository("repository");
-		commit.setBranch("branch");
-		commit.setHash("hash");
-		return commit;
 	}
 
 }

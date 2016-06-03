@@ -39,7 +39,7 @@ public class ComponentTest {
 
 	@Test
 	public void canMarshallAndUnmarshallComponents() throws IOException {
-		final Component one = defaultComponent();
+		final Component one = Fixture.defaultComponent();
 		final String str = Entities.marshallEntity(one);
 		final Component other = Entities.unmarshallEntity(str,Component.class);
 		assertThat(other.getId(),equalTo(one.getId()));
@@ -48,15 +48,8 @@ public class ComponentTest {
 
 	@Test
 	public void componentsHaveCustomToString() {
-		final Component sut = defaultComponent();
+		final Component sut = Fixture.defaultComponent();
 		assertThat(sut.toString(),not(equalTo(Utils.defaultToString(sut))));
-	}
-
-	private Component defaultComponent() {
-		final Component component = new Component();
-		component.setId("id");
-		component.setProjectId("projectId");
-		return component;
 	}
 
 }

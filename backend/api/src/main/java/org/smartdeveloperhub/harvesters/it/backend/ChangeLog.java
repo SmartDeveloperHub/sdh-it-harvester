@@ -69,7 +69,6 @@ public final class ChangeLog extends Entity {
 			@Type(value=ClosedDateChangeItem.class,name="closedDate"),
 			@Type(value=CommitsChangeItem.class,name="commits"),
 			@Type(value=ComponentsChangeItem.class,name="components"),
-			@Type(value=CreationDateChangeItem.class,name="creationDate"),
 			@Type(value=DescriptionChangeItem.class,name="description"),
 			@Type(value=DueToDateChangeItem.class,name="dueToDate"),
 			@Type(value=EstimatedTimeChangeItem.class,name="estimatedTime"),
@@ -106,7 +105,7 @@ public final class ChangeLog extends Entity {
 
 					public Item build() {
 						Preconditions.checkState(!(this.item.getOldValue()==null && this.item.getNewValue()==null),"No item values defined");
-						Preconditions.checkState(!Objects.equals(this.item.getNewValue(),this.item.getOldValue()),"Item old and new value must be different");
+						Preconditions.checkState(!Objects.equals(this.item.getNewValue(),this.item.getOldValue()),"Old and new values of an item must be different");
 						return this.item;
 					}
 
@@ -121,10 +120,6 @@ public final class ChangeLog extends Entity {
 
 				public ItemEditorBuilder<String> description() {
 					return new ItemEditorBuilder<String>(new DescriptionChangeItem());
-				}
-
-				public ItemEditorBuilder<DateTime> creationDate() {
-					return new ItemEditorBuilder<DateTime>(new CreationDateChangeItem());
 				}
 
 				public ItemEditorBuilder<DateTime> openedDate() {
@@ -210,10 +205,6 @@ public final class ChangeLog extends Entity {
 			}
 
 			public void visitDescriptionChange(final DescriptionChangeItem item) {
-				// To be overriden by subclasses
-			}
-
-			public void visitCreationDateChange(final CreationDateChangeItem item) {
 				// To be overriden by subclasses
 			}
 
@@ -350,13 +341,6 @@ public final class ChangeLog extends Entity {
 			@Override
 			public void accept(final ItemVisitor visitor) {
 				visitor.visitDescriptionChange(this);
-			}
-		}
-
-		public static final class CreationDateChangeItem extends AbstractItem<DateTime> {
-			@Override
-			public void accept(final ItemVisitor visitor) {
-				visitor.visitCreationDateChange(this);
 			}
 		}
 

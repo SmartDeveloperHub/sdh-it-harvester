@@ -39,7 +39,7 @@ public class NotificationsTest {
 
 	@Test
 	public void canMarshallAndUnmarshallNotifications() throws IOException {
-		final Notifications one = defaultNotifications();
+		final Notifications one = Fixture.defaultNotifications();
 		final String str = Entities.marshallEntity(one);
 		final Notifications other = Entities.unmarshallEntity(str,Notifications.class);
 		assertEqual(one, other);
@@ -54,17 +54,8 @@ public class NotificationsTest {
 
 	@Test
 	public void notificationsHaveCustomToString() {
-		final Notifications sut = defaultNotifications();
+		final Notifications sut = Fixture.defaultNotifications();
 		assertThat(sut.toString(),not(equalTo(Utils.defaultToString(sut))));
-	}
-
-	static Notifications defaultNotifications() {
-		final Notifications notifications = new Notifications();
-		notifications.setBrokerHost("brokerHost");
-		notifications.setBrokerPort(12345);
-		notifications.setVirtualHost("virtualHost");
-		notifications.setExchangeName("exchangeName");
-		return notifications;
 	}
 
 }

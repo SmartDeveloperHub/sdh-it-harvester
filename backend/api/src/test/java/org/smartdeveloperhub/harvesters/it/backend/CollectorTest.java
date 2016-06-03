@@ -39,7 +39,7 @@ public class CollectorTest {
 
 	@Test
 	public void canMarshallAndUnmarshallCollectors() throws IOException {
-		final Collector one = defaultCollector();
+		final Collector one = Fixture.defaultCollector();
 		final String str = Entities.marshallEntity(one);
 		final Collector other = Entities.unmarshallEntity(str,Collector.class);
 		assertThat(other.getVersion(),equalTo(one.getVersion()));
@@ -48,15 +48,8 @@ public class CollectorTest {
 
 	@Test
 	public void collectorsHaveCustomToString() {
-		final Collector sut = defaultCollector();
+		final Collector sut = Fixture.defaultCollector();
 		assertThat(sut.toString(),not(equalTo(Utils.defaultToString(sut))));
-	}
-
-	private Collector defaultCollector() {
-		final Collector collector = new Collector();
-		collector.setVersion("version");
-		collector.setNotifications(NotificationsTest.defaultNotifications());
-		return collector;
 	}
 
 }

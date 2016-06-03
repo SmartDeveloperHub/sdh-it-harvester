@@ -34,7 +34,6 @@ import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ChildIssuesCh
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ClosedDateChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.CommitsChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ComponentsChangeItem;
-import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.CreationDateChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DescriptionChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DueToDateChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.EstimatedTimeChangeItem;
@@ -233,11 +232,6 @@ public final class IT {
 			@Override
 			public void visitDescriptionChange(final DescriptionChangeItem item) {
 				this.property=DESCRIPTION;
-			}
-
-			@Override
-			public void visitCreationDateChange(final CreationDateChangeItem item) {
-				this.property=DATE_CREATION;
 			}
 
 			@Override

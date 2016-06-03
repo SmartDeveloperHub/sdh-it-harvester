@@ -28,6 +28,7 @@ package org.smartdeveloperhub.harvesters.it.backend;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.fail;
@@ -36,7 +37,6 @@ import java.io.IOException;
 import java.util.Set;
 
 import org.joda.time.DateTime;
-import org.joda.time.Minutes;
 import org.junit.Test;
 import org.ldp4j.commons.testing.Utils;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry;
@@ -46,7 +46,6 @@ import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ChildIssuesCh
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ClosedDateChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.CommitsChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ComponentsChangeItem;
-import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.CreationDateChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DescriptionChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DueToDateChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.EstimatedTimeChangeItem;
@@ -66,17 +65,17 @@ import com.google.common.collect.Sets;
 
 public class ChangeLogTest {
 
-	private static final DateTime TIME_STAMP = new DateTime();
-	private static final DateTime ANOTHER_TIME_STAMP = new DateTime().plusDays(1);
+	static final DateTime TIME_STAMP = new DateTime();
+	static final DateTime ANOTHER_TIME_STAMP = new DateTime().plusDays(1);
 
-	private static TitleChangeItem defaultItem() {
+	private TitleChangeItem defaultItem() {
 		final TitleChangeItem item = new TitleChangeItem();
 		item.setOldValue("defaultOldValue");
 		item.setNewValue("defaultNewValue");
 		return item;
 	}
 
-	private static TitleChangeItem alternativeOldValueItem() {
+	private TitleChangeItem alternativeOldValueItem() {
 		final TitleChangeItem item = defaultItem();
 		item.setOldValue("alternativeOldValue");
 		return item;
@@ -145,28 +144,20 @@ public class ChangeLogTest {
 		assertThat(defaultItem().hashCode(),not(equalTo(alternativeValuesItem().hashCode())));
 	}
 
-	private static Entry defaultEntry() {
-		final Entry entry = new Entry();
-		entry.setAuthor("defaultAuthor");
-		entry.setItems(ImmutableSet.<Item>of(defaultItem(),alternativeOldValueItem()));
-		entry.setTimeStamp(TIME_STAMP);
-		return entry;
-	}
-
-	private static Entry alternativeAuthorEntry() {
-		final Entry entry = defaultEntry();
+	private Entry alternativeAuthorEntry() {
+		final Entry entry = Fixture.defaultEntry();
 		entry.setAuthor("alternativeAuthor");
 		return entry;
 	}
 
 	private Entry alternativeTimeStampEntry() {
-		final Entry entry = defaultEntry();
+		final Entry entry = Fixture.defaultEntry();
 		entry.setTimeStamp(new DateTime());
 		return entry;
 	}
 
 	private Entry alternativeItemsEntry() {
-		final Entry entry = defaultEntry();
+		final Entry entry = Fixture.defaultEntry();
 		entry.setItems(ImmutableSet.<Item>of(alternativeValuesItem()));
 		return entry;
 	}
@@ -191,88 +182,88 @@ public class ChangeLogTest {
 
 	@Test
 	public void entriesHaveCustomToString() {
-		final Entry sut = defaultEntry();
+		final Entry sut = Fixture.defaultEntry();
 		assertThat(sut.toString(),not(equalTo(Utils.defaultToString(sut))));
 	}
 
 	@Test
 	public void entriesCanOnlyBeEqualToOtherEntries() throws Exception {
-		assertThat((Object)defaultEntry(),not(equalTo((Object)"value")));
+		assertThat((Object)Fixture.defaultEntry(),not(equalTo((Object)"value")));
 	}
 
 	@Test
 	public void entriesWithSameAttributeValuesAreEqual() throws Exception {
-		assertThat(defaultEntry(),equalTo(defaultEntry()));
+		assertThat(Fixture.defaultEntry(),equalTo(Fixture.defaultEntry()));
 	}
 
 	@Test
 	public void entriesWithDifferentAuthorAreNotEqual() throws Exception {
-		assertThat(defaultEntry(),not(equalTo(alternativeAuthorEntry())));
+		assertThat(Fixture.defaultEntry(),not(equalTo(alternativeAuthorEntry())));
 	}
 
 	@Test
 	public void entriesWithDifferentTimeStampAreNotEqual() throws Exception {
-		assertThat(defaultEntry(),not(equalTo(alternativeTimeStampEntry())));
+		assertThat(Fixture.defaultEntry(),not(equalTo(alternativeTimeStampEntry())));
 	}
 
 	@Test
 	public void entriesWithDifferentItemsAreNotEqual() throws Exception {
-		assertThat(defaultEntry(),not(equalTo(alternativeItemsEntry())));
+		assertThat(Fixture.defaultEntry(),not(equalTo(alternativeItemsEntry())));
 	}
 
 	@Test
 	public void entriesWithDifferentAuthorAndTimeStampAreNotEqual() throws Exception {
-		assertThat(defaultEntry(),not(equalTo(alternativeAuthorAndTimeStampEntry())));
+		assertThat(Fixture.defaultEntry(),not(equalTo(alternativeAuthorAndTimeStampEntry())));
 	}
 
 	@Test
 	public void entriesWithDifferentAuthorAndItemsAreNotEqual() throws Exception {
-		assertThat(defaultEntry(),not(equalTo(alternativeAuthorAndItemsEntry())));
+		assertThat(Fixture.defaultEntry(),not(equalTo(alternativeAuthorAndItemsEntry())));
 	}
 
 	@Test
 	public void entriesWithDifferentTimeStampAndItemsAreNotEqual() throws Exception {
-		assertThat(defaultEntry(),not(equalTo(alternativeTimeStampAndItemsEntry())));
+		assertThat(Fixture.defaultEntry(),not(equalTo(alternativeTimeStampAndItemsEntry())));
 	}
 
 	@Test
 	public void entriesWithSameAttributeValuesHaveSameHashCode() throws Exception {
-		assertThat(defaultEntry().hashCode(),equalTo(defaultEntry().hashCode()));
+		assertThat(Fixture.defaultEntry().hashCode(),equalTo(Fixture.defaultEntry().hashCode()));
 	}
 
 	@Test
 	public void entriesWithDifferentAuthorHaveDifferentHashCode() throws Exception {
-		assertThat(defaultEntry().hashCode(),not(equalTo(alternativeAuthorEntry().hashCode())));
+		assertThat(Fixture.defaultEntry().hashCode(),not(equalTo(alternativeAuthorEntry().hashCode())));
 	}
 
 	@Test
 	public void entriesWithDifferentTimeStampHaveDifferentHashCode() throws Exception {
-		assertThat(defaultEntry().hashCode(),not(equalTo(alternativeTimeStampEntry().hashCode())));
+		assertThat(Fixture.defaultEntry().hashCode(),not(equalTo(alternativeTimeStampEntry().hashCode())));
 	}
 
 	@Test
 	public void entriesWithDifferentItemsHaveDifferentHashCode() throws Exception {
-		assertThat(defaultEntry().hashCode(),not(equalTo(alternativeItemsEntry().hashCode())));
+		assertThat(Fixture.defaultEntry().hashCode(),not(equalTo(alternativeItemsEntry().hashCode())));
 	}
 
 	@Test
 	public void entriesWithDifferentAuthorAndTimeStampHaveDifferentHashCode() throws Exception {
-		assertThat(defaultEntry().hashCode(),not(equalTo(alternativeAuthorAndTimeStampEntry().hashCode())));
+		assertThat(Fixture.defaultEntry().hashCode(),not(equalTo(alternativeAuthorAndTimeStampEntry().hashCode())));
 	}
 
 	@Test
 	public void entriesWithDifferentAuthorAndItemsHaveDifferentHashCode() throws Exception {
-		assertThat(defaultEntry().hashCode(),not(equalTo(alternativeAuthorAndItemsEntry().hashCode())));
+		assertThat(Fixture.defaultEntry().hashCode(),not(equalTo(alternativeAuthorAndItemsEntry().hashCode())));
 	}
 
 	@Test
 	public void entriesWithDifferentTimeStampAndItemsHaveDifferentHashCode() throws Exception {
-		assertThat(defaultEntry().hashCode(),not(equalTo(alternativeTimeStampAndItemsEntry().hashCode())));
+		assertThat(Fixture.defaultEntry().hashCode(),not(equalTo(alternativeTimeStampAndItemsEntry().hashCode())));
 	}
 
 	@Test
 	public void canMarshallAndUnmarshallChangeLogs() throws IOException {
-		final ChangeLog one = defaultChangeLog();
+		final ChangeLog one = Fixture.defaultChangeLog();
 		final String str = Entities.marshallEntity(one);
 		final ChangeLog other = Entities.unmarshallEntity(str,ChangeLog.class);
 		assertThat(other.getEntries(),equalTo(one.getEntries()));
@@ -280,42 +271,147 @@ public class ChangeLogTest {
 
 	@Test
 	public void changeLogsHaveCustomToString() {
-		final ChangeLog sut = defaultChangeLog();
+		final ChangeLog sut = Fixture.defaultChangeLog();
 		assertThat(sut.toString(),not(equalTo(Utils.defaultToString(sut))));
-	}
-
-	static ChangeLog defaultChangeLog() {
-		final ChangeLog one = new ChangeLog();
-		one.setEntries(ImmutableSet.of(defaultEntry(),alternativeAuthorEntry()));
-		return one;
 	}
 
 	@Test
 	public void supportsPolymorphism() throws IOException {
+		class Verifier extends ItemVisitor {
+
+			private final Set<String> added=Sets.newLinkedHashSet();
+
+			@Override
+			public void visitTitleChange(final TitleChangeItem item) {
+				assertThat(item,equalTo(Fixture.titleChangeItem()));
+				count(item);
+			}
+
+			private void count(final Item item) {
+				assertThat(this.added.add(item.getClass().getName()),equalTo(true));
+			}
+
+			@Override
+			public void visitDescriptionChange(final DescriptionChangeItem item) {
+				assertThat(item,equalTo(Fixture.descriptionChangeItem()));
+				count(item);
+			}
+
+			@Override
+			public void visitOpenedDateChange(final OpenedDateChangeItem item) {
+				assertThat(item,equalTo(Fixture.openedDateChangeItem()));
+				count(item);
+			}
+
+			@Override
+			public void visitClosedDateChange(final ClosedDateChangeItem item) {
+				assertThat(item,equalTo(Fixture.closedDateChangeItem()));
+				count(item);
+			}
+
+			@Override
+			public void visitDueToDateChange(final DueToDateChangeItem item) {
+				assertThat(item,equalTo(Fixture.dueToDateChangeItem()));
+				count(item);
+			}
+
+			@Override
+			public void visitEstimatedTimeChange(final EstimatedTimeChangeItem item) {
+				assertThat(item,equalTo(Fixture.estimatedTimeChangeItem()));
+				count(item);
+			}
+
+			@Override
+			public void visitTagsChange(final TagsChangeItem item) {
+				assertThat(item,equalTo(Fixture.tagsChangeItem()));
+				count(item);
+			}
+
+			@Override
+			public void visitComponentsChange(final ComponentsChangeItem item) {
+				assertThat(item,equalTo(Fixture.componentsChangeItem()));
+				count(item);
+			}
+
+			@Override
+			public void visitVersionsChange(final VersionsChangeItem item) {
+				assertThat(item,equalTo(Fixture.versionsChangeItem()));
+				count(item);
+			}
+
+			@Override
+			public void visitCommitsChange(final CommitsChangeItem item) {
+				assertThat(item,equalTo(Fixture.commitsChangeItem()));
+				count(item);
+			}
+
+			@Override
+			public void visitAssigneeChange(final AssigneeChangeItem item) {
+				assertThat(item,equalTo(Fixture.assigneeChangeItem()));
+				count(item);
+			}
+
+			@Override
+			public void visitStatusChange(final StatusChangeItem item) {
+				assertThat(item,equalTo(Fixture.statusChangeItem()));
+				count(item);
+			}
+
+			@Override
+			public void visitPriorityChange(final PriorityChangeItem item) {
+				assertThat(item,equalTo(Fixture.priorityChangeItem()));
+				count(item);
+			}
+
+			@Override
+			public void visitSeverityChange(final SeverityChangeItem item) {
+				assertThat(item,equalTo(Fixture.severityChangeItem()));
+				count(item);
+			}
+
+			@Override
+			public void visitChildIssuesChange(final ChildIssuesChangeItem item) {
+				assertThat(item,equalTo(Fixture.childIssuesChangeItem()));
+				count(item);
+			}
+
+			@Override
+			public void visitBlockedIssuesChange(final BlockedIssuesChangeItem item) {
+				assertThat(item,equalTo(Fixture.blockedIssuesChangeItem()));
+				count(item);
+			}
+
+			@Override
+			public void visitTypeChange(final TypeChangeItem item) {
+				assertThat(item,equalTo(Fixture.typeChangeItem()));
+				count(item);
+			}
+
+		};
+
 		final Entry entry=new Entry();
 		entry.setAuthor("author");
 		entry.setTimeStamp(new DateTime());
 		entry.setItems(
 			ImmutableSet.
 				<Item>of(
-					titleChangeItem(),
-					descriptionChangeItem(),
-					closedDateChangeItem(),
-					openedDateChangeItem(),
-					creationDateChangeItem(),
-					dueToDateChangeItem(),
-					estimatedTimeChangeItem(),
-					typeChangeItem(),
-					statusChangeItem(),
-					severityChangeItem(),
-					priorityChangeItem(),
-					childIssuesChangeItem(),
-					blockedIssuesChangeItem(),
-					componentsChangeItem(),
-					versionsChangeItem(),
-					commitsChangeItem(),
-					tagsChangeItem(),
-					assigneeChangeItem()
+					Fixture.titleChangeItem(),
+					Fixture.descriptionChangeItem(),
+					Fixture.closedDateChangeItem(),
+					Fixture.openedDateChangeItem(),
+					Fixture.dueToDateChangeItem(),
+					Fixture.estimatedTimeChangeItem(),
+					Fixture.typeChangeItem(),
+					Fixture.statusChangeItem(),
+					Fixture.severityChangeItem(),
+					Fixture.priorityChangeItem(),
+					Fixture.childIssuesChangeItem(),
+					Fixture.blockedIssuesChangeItem(),
+					Fixture.componentsChangeItem(),
+					Fixture.versionsChangeItem(),
+					Fixture.commitsChangeItem(),
+					Fixture.tagsChangeItem(),
+					Fixture.assigneeChangeItem()
 				)
 		);
 		final ChangeLog changeLog=new ChangeLog();
@@ -323,128 +419,12 @@ public class ChangeLogTest {
 		final String str = Entities.marshallEntity(changeLog);
 		final ChangeLog parsed = Entities.unmarshallEntity(str, ChangeLog.class);
 		for(final Entry pEntry:parsed.getEntries()) {
+			final Verifier verifier = new Verifier();
 			for(final Item pItem:pEntry.getItems()) {
-				pItem.accept(
-					new ItemVisitor() {
-
-						private final Set<String> added=Sets.newLinkedHashSet();
-
-						@Override
-						public void visitTitleChange(final TitleChangeItem item) {
-							assertThat(item,equalTo(titleChangeItem()));
-							count(item);
-						}
-
-						private void count(final Item item) {
-							assertThat(this.added.add(item.getClass().getName()),equalTo(true));
-						}
-
-						@Override
-						public void visitDescriptionChange(final DescriptionChangeItem item) {
-							assertThat(item,equalTo(descriptionChangeItem()));
-							count(item);
-						}
-
-						@Override
-						public void visitCreationDateChange(final CreationDateChangeItem item) {
-							assertThat(item,equalTo(creationDateChangeItem()));
-							count(item);
-						}
-
-						@Override
-						public void visitOpenedDateChange(final OpenedDateChangeItem item) {
-							assertThat(item,equalTo(openedDateChangeItem()));
-							count(item);
-						}
-
-						@Override
-						public void visitClosedDateChange(final ClosedDateChangeItem item) {
-							assertThat(item,equalTo(closedDateChangeItem()));
-							count(item);
-						}
-
-						@Override
-						public void visitDueToDateChange(final DueToDateChangeItem item) {
-							assertThat(item,equalTo(dueToDateChangeItem()));
-							count(item);
-						}
-
-						@Override
-						public void visitEstimatedTimeChange(final EstimatedTimeChangeItem item) {
-							assertThat(item,equalTo(estimatedTimeChangeItem()));
-							count(item);
-						}
-
-						@Override
-						public void visitTagsChange(final TagsChangeItem item) {
-							assertThat(item,equalTo(tagsChangeItem()));
-							count(item);
-						}
-
-						@Override
-						public void visitComponentsChange(final ComponentsChangeItem item) {
-							assertThat(item,equalTo(componentsChangeItem()));
-							count(item);
-						}
-
-						@Override
-						public void visitVersionsChange(final VersionsChangeItem item) {
-							assertThat(item,equalTo(versionsChangeItem()));
-							count(item);
-						}
-
-						@Override
-						public void visitCommitsChange(final CommitsChangeItem item) {
-							assertThat(item,equalTo(commitsChangeItem()));
-							count(item);
-						}
-
-						@Override
-						public void visitAssigneeChange(final AssigneeChangeItem item) {
-							assertThat(item,equalTo(assigneeChangeItem()));
-							count(item);
-						}
-
-						@Override
-						public void visitStatusChange(final StatusChangeItem item) {
-							assertThat(item,equalTo(statusChangeItem()));
-							count(item);
-						}
-
-						@Override
-						public void visitPriorityChange(final PriorityChangeItem item) {
-							assertThat(item,equalTo(priorityChangeItem()));
-							count(item);
-						}
-
-						@Override
-						public void visitSeverityChange(final SeverityChangeItem item) {
-							assertThat(item,equalTo(severityChangeItem()));
-							count(item);
-						}
-
-						@Override
-						public void visitChildIssuesChange(final ChildIssuesChangeItem item) {
-							assertThat(item,equalTo(childIssuesChangeItem()));
-							count(item);
-						}
-
-						@Override
-						public void visitBlockedIssuesChange(final BlockedIssuesChangeItem item) {
-							assertThat(item,equalTo(blockedIssuesChangeItem()));
-							count(item);
-						}
-
-						@Override
-						public void visitTypeChange(final TypeChangeItem item) {
-							assertThat(item,equalTo(typeChangeItem()));
-							count(item);
-						}
-
-					}
-				);
+				pItem.accept(verifier);
 				pItem.accept(new ItemVisitor() {});
 			}
+			assertThat(verifier.added,hasSize(entry.getItems().size()));
 		}
 	}
 
@@ -454,7 +434,7 @@ public class ChangeLogTest {
 			Item.builder().title().build();
 			fail("Should not be able to build an item without values");
 		} catch(final IllegalStateException e) {
-
+			assertThat(e.getMessage(),equalTo("No item values defined"));
 		}
 	}
 
@@ -464,7 +444,7 @@ public class ChangeLogTest {
 			Item.builder().title().oldValue("value").newValue("value").build();
 			fail("Should not be able to build items with same old and new value");
 		} catch(final IllegalStateException e) {
-
+			assertThat(e.getMessage(),equalTo("Old and new values of an item must be different"));
 		}
 	}
 
@@ -487,184 +467,6 @@ public class ChangeLogTest {
 		final Item build = Item.builder().title().newValue("value").build();
 		assertThat(build.getNewValue(),equalTo((Object)"value"));
 		assertThat(build.getOldValue(),nullValue());
-	}
-
-	private Item titleChangeItem() {
-		return
-			Item.
-				builder().
-					title().
-						oldValue("oldValue").
-						newValue("newValue").
-						build();
-	}
-
-	private Item descriptionChangeItem() {
-		return
-			Item.
-				builder().
-					description().
-						oldValue("oldValue").
-						newValue("newValue").
-						build();
-	}
-
-	private Item assigneeChangeItem() {
-		return
-			Item.
-				builder().
-					assignee().
-						oldValue("oldValue").
-						newValue("newValue").
-						build();
-	}
-
-	private Item blockedIssuesChangeItem() {
-		return
-			Item.
-				builder().
-					blockedIssues().
-						oldValue("oldValue").
-						newValue("newValue").
-						build();
-	}
-
-	private Item childIssuesChangeItem() {
-		return
-			Item.
-				builder().
-					childIssues().
-						oldValue("oldValue").
-						newValue("newValue").
-						build();
-	}
-
-	private Item closedDateChangeItem() {
-		return
-			Item.
-				builder().
-					closedDate().
-						oldValue(TIME_STAMP).
-						newValue(ANOTHER_TIME_STAMP).
-						build();
-	}
-
-	private Item estimatedTimeChangeItem() {
-		return
-			Item.
-				builder().
-					estimatedTime().
-						oldValue(Minutes.minutes(1).toStandardDuration()).
-						newValue(Minutes.minutes(3).toStandardDuration()).
-						build();
-	}
-
-	private Item openedDateChangeItem() {
-		return
-			Item.
-				builder().
-					openedDate().
-						oldValue(TIME_STAMP).
-						newValue(ANOTHER_TIME_STAMP).
-						build();
-	}
-
-	private Item creationDateChangeItem() {
-		return
-			Item.
-				builder().
-					creationDate().
-						oldValue(TIME_STAMP).
-						newValue(ANOTHER_TIME_STAMP).
-						build();
-	}
-
-	private Item typeChangeItem() {
-		return
-			Item.
-				builder().
-					type().
-						oldValue(Issue.Type.BUG).
-						newValue(Issue.Type.IMPROVEMENT).
-						build();
-	}
-
-	private Item dueToDateChangeItem() {
-		return
-			Item.
-				builder().
-					dueToDate().
-						oldValue(TIME_STAMP).
-						newValue(ANOTHER_TIME_STAMP).
-						build();
-	}
-
-	private Item statusChangeItem() {
-		return
-			Item.
-				builder().
-					status().
-						oldValue(Status.IN_PROGRESS).
-						newValue(Status.CLOSED).
-						build();
-	}
-
-	private Item severityChangeItem() {
-		return
-			Item.
-				builder().
-					severity().
-						oldValue(Severity.LOW).
-						newValue(Severity.BLOCKER).
-						build();
-	}
-
-	private Item priorityChangeItem() {
-		return
-			Item.
-				builder().
-					priority().
-						oldValue(Priority.LOW).
-						newValue(Priority.VERY_HIGH).
-						build();
-	}
-
-	private Item tagsChangeItem() {
-		return
-			Item.
-				builder().
-					tags().
-						oldValue("oldValue").
-						newValue("newValue").
-						build();
-	}
-
-	private Item commitsChangeItem() {
-		return
-			Item.
-				builder().
-					commits().
-						oldValue("oldValue").
-						newValue("newValue").
-						build();
-	}
-	private Item componentsChangeItem() {
-		return
-			Item.
-				builder().
-					components().
-						oldValue("oldValue").
-						newValue("newValue").
-						build();
-	}
-	private Item versionsChangeItem() {
-		return
-			Item.
-				builder().
-					versions().
-						oldValue("oldValue").
-						newValue("newValue").
-						build();
 	}
 
 }
