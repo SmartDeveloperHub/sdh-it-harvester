@@ -33,7 +33,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
 	VersionKeyTest.class,
-	VersionContainerHandlerTest.class
+	VersionContainerHandlerTest.class,
+	VersionHandlerTest.class
 })
 public class UnitTestSuite {
 }

@@ -83,7 +83,7 @@ public final class ContributorHandler extends AbstractEntityResourceHandler<Cont
 
 		for(final String email:contributor.getEmails()) {
 			individual.
-				property(IT.EMAIL).
+				property(IT.MBOX).
 					withLiteral(URI.create(email));
 		}
 

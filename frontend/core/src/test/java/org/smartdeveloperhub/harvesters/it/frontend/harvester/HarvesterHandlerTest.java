@@ -24,17 +24,34 @@
  *   Bundle      : it-frontend-core-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.frontend.component;
+package org.smartdeveloperhub.harvesters.it.frontend.harvester;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
+
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.ldp4j.application.data.Name;
+import org.ldp4j.application.session.ResourceSnapshot;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	ComponentKeyTest.class,
-	ComponentContainerHandlerTest.class,
-	ComponentHandlerTest.class
-})
-public class UnitTestSuite {
+import mockit.Expectations;
+import mockit.Mocked;
+import mockit.Tested;
+import mockit.integration.junit4.JMockit;
+
+@RunWith(JMockit.class)
+public class HarvesterHandlerTest {
+
+	@Mocked private ResourceSnapshot snapshot;
+
+	@Tested private HarvesterHandler sut;
+
+	@Test
+	public void testGet(@Mocked final Name<?> name) throws Exception {
+		new Expectations() {{
+			HarvesterHandlerTest.this.snapshot.name();this.result=name;
+		}};
+		assertThat(this.sut.get(this.snapshot),notNullValue());
+	}
+
 }

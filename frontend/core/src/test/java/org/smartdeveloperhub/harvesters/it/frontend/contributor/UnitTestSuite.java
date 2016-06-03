@@ -32,7 +32,8 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	ContributorContainerHandlerTest.class
+	ContributorContainerHandlerTest.class,
+	ContributorHandlerTest.class
 })
 public class UnitTestSuite {
 }

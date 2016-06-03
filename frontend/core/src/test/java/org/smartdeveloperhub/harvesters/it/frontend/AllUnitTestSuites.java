@@ -35,6 +35,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	UnitTestSuite.class,
 	org.smartdeveloperhub.harvesters.it.frontend.util.UnitTestSuite.class,
 	org.smartdeveloperhub.harvesters.it.frontend.vocabulary.UnitTestSuite.class,
+	org.smartdeveloperhub.harvesters.it.frontend.harvester.UnitTestSuite.class,
 	org.smartdeveloperhub.harvesters.it.frontend.component.UnitTestSuite.class,
 	org.smartdeveloperhub.harvesters.it.frontend.version.UnitTestSuite.class,
 	org.smartdeveloperhub.harvesters.it.frontend.issue.UnitTestSuite.class,

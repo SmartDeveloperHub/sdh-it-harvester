@@ -76,12 +76,14 @@ public final class CommitHandler extends AbstractEntityResourceHandler<Commit,St
 			managedIndividual(commitName,CommitHandler.ID).
 				property(RDF.TYPE).
 					withIndividual(IT.COMMIT_TYPE).
+				property(IT.COMMIT_ID).
+					withLiteral(commit.getId()).
 				property(IT.REPOSITORY).
 					withLiteral(URI.create(commit.getRepository())).
 				property(IT.BRANCH).
 					withLiteral(commit.getBranch()).
 				property(IT.HASH).
-					withIndividual(commit.getHash());
+					withLiteral(commit.getHash());
 
 		return dataSet;
 	}

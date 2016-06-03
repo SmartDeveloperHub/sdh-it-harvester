@@ -32,7 +32,8 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	ProjectContainerHandlerTest.class
+	ProjectContainerHandlerTest.class,
+	ProjectHandlerTest.class
 })
 public class UnitTestSuite {
 }

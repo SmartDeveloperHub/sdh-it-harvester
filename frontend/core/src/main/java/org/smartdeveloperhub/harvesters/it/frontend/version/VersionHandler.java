@@ -63,13 +63,13 @@ public final class VersionHandler extends AbstractEntityResourceHandler<Version,
 
 	@Override
 	protected DataSet toDataSet(final Version version, final VersionKey key) {
-		final Name<VersionKey> componentName=IdentityUtil.versionName(key);
+		final Name<VersionKey> versionName=IdentityUtil.versionName(key);
 
-		final DataSet dataSet=DataSets.createDataSet(componentName);
+		final DataSet dataSet=DataSets.createDataSet(versionName);
 		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
 
 		helper.
-			managedIndividual(componentName,VersionHandler.ID).
+			managedIndividual(versionName,VersionHandler.ID).
 				property(RDF.TYPE).
 					withIndividual(IT.VERSION_TYPE).
 				property(IT.VERSION_ID).
