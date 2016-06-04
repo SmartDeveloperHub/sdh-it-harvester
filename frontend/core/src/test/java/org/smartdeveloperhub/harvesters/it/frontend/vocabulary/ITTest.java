@@ -28,6 +28,7 @@ package org.smartdeveloperhub.harvesters.it.frontend.vocabulary;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.net.URI;
 
@@ -51,6 +52,7 @@ public class ITTest {
 		assertThat(IT.forStatus(Status.OPEN),equalTo(term(IT.OPEN)));
 		assertThat(IT.forStatus(Status.IN_PROGRESS),equalTo(term(IT.IN_PROGRESS)));
 		assertThat(IT.forStatus(Status.CLOSED),equalTo(term(IT.CLOSED)));
+		assertThat(IT.forStatus(null),nullValue());
 	}
 	@Test
 	public void translatesSeverityProperly() {
@@ -59,6 +61,7 @@ public class ITTest {
 		assertThat(IT.forSeverity(Severity.SEVERE),equalTo(term(IT.GRAVE_SEVERITY)));
 		assertThat(IT.forSeverity(Severity.LOW),equalTo(term(IT.NORMAL_SEVERITY)));
 		assertThat(IT.forSeverity(Severity.TRIVIAL),equalTo(term(IT.TRIVIAL_SEVERITY)));
+		assertThat(IT.forSeverity(null),nullValue());
 	}
 
 	@Test
@@ -67,6 +70,7 @@ public class ITTest {
 		assertThat(IT.forPriority(Priority.HIGH),equalTo(term(IT.HIGH_PRIORITY)));
 		assertThat(IT.forPriority(Priority.MEDIUM),equalTo(term(IT.MEDIUM_PRIORITY)));
 		assertThat(IT.forPriority(Priority.LOW),equalTo(term(IT.LOW_PRIORITY)));
+		assertThat(IT.forPriority(null),nullValue());
 	}
 
 	@Test
@@ -88,6 +92,7 @@ public class ITTest {
 		assertThat(IT.propertyOf(Fixture.titleChangeItem()),equalTo(term(IT.ISSUE_TITLE)));
 		assertThat(IT.propertyOf(Fixture.typeChangeItem()),equalTo(term(RDF.TYPE)));
 		assertThat(IT.propertyOf(Fixture.versionsChangeItem()),equalTo(term(IT.AFFECTS_VERSION)));
+		assertThat(IT.propertyOf(null),equalTo(null));
 	}
 
 	@Test

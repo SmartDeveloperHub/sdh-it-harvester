@@ -53,6 +53,101 @@ import org.smartdeveloperhub.harvesters.it.backend.Status;
 
 public final class IT {
 
+	private static final class PropertySelector extends ItemVisitor {
+
+		private String property;
+
+		@Override
+		public void visitTitleChange(final TitleChangeItem item) {
+			this.property=ISSUE_TITLE;
+		}
+
+		@Override
+		public void visitDescriptionChange(final DescriptionChangeItem item) {
+			this.property=DESCRIPTION;
+		}
+
+		@Override
+		public void visitOpenedDateChange(final OpenedDateChangeItem item) {
+			this.property=DATE_OPEN;
+		}
+
+		@Override
+		public void visitClosedDateChange(final ClosedDateChangeItem item) {
+			this.property=DATE_CLOSED;
+		}
+
+		@Override
+		public void visitDueToDateChange(final DueToDateChangeItem item) {
+			this.property=DUE_TO;
+		}
+
+		@Override
+		public void visitEstimatedTimeChange(final EstimatedTimeChangeItem item) {
+			this.property=ESTIMATED_TIME;
+		}
+
+		@Override
+		public void visitTagsChange(final TagsChangeItem item) {
+			this.property=ISSUE_CUSTOM_TAG;
+		}
+
+		@Override
+		public void visitComponentsChange(final ComponentsChangeItem item) {
+			this.property=ASSOCIATED_TO_COMPONENT;
+		}
+
+		@Override
+		public void visitVersionsChange(final VersionsChangeItem item) {
+			this.property=AFFECTS_VERSION;
+		}
+
+		@Override
+		public void visitCommitsChange(final CommitsChangeItem item) {
+			this.property=ASSOCIATED_TO_COMMIT;
+		}
+
+		@Override
+		public void visitAssigneeChange(final AssigneeChangeItem item) {
+			this.property=IS_ASSIGNED_TO;
+		}
+
+		@Override
+		public void visitStatusChange(final StatusChangeItem item) {
+			this.property=HAS_STATUS;
+		}
+
+		@Override
+		public void visitPriorityChange(final PriorityChangeItem item) {
+			this.property=HAS_PRIORITY;
+		}
+
+		@Override
+		public void visitSeverityChange(final SeverityChangeItem item) {
+			this.property=HAS_SEVERITY;
+		}
+
+		@Override
+		public void visitChildIssuesChange(final ChildIssuesChangeItem item) {
+			this.property=IS_COMPOSED_OF_ISSUE;
+		}
+
+		@Override
+		public void visitBlockedIssuesChange(final BlockedIssuesChangeItem item) {
+			this.property=BLOCKS_ISSUE;
+		}
+
+		@Override
+		public void visitTypeChange(final TypeChangeItem item) {
+			this.property=RDF.TYPE;
+		}
+
+		URI getProperty() {
+			return URI.create(this.property);
+		}
+
+	}
+
 	public static final String NAMESPACE = "http://www.smartdeveloperhub.org/vocabulary/it#";
 	public static final String PREFIX    = "platform";
 
@@ -162,6 +257,9 @@ public final class IT {
 	}
 
 	public static URI forStatus(final Status status) {
+		if(status==null) {
+			return null;
+		}
 		String individual=null;
 		switch(status) {
 		case CLOSED:
@@ -178,6 +276,9 @@ public final class IT {
 	}
 
 	public static URI forSeverity(final Severity severity) {
+		if(severity==null) {
+			return null;
+		}
 		String individual=null;
 		switch(severity) {
 		case BLOCKER:
@@ -200,6 +301,9 @@ public final class IT {
 	}
 
 	public static URI forPriority(final Priority priority) {
+		if(priority==null) {
+			return null;
+		}
 		String individual=null;
 		switch(priority) {
 		case VERY_HIGH:
@@ -219,100 +323,8 @@ public final class IT {
 	}
 
 	public static URI propertyOf(final Item item) {
-		final class PropertySelector extends ItemVisitor {
-
-			private String property;
-
-			@Override
-			public void visitTitleChange(final TitleChangeItem item) {
-				this.property=ISSUE_TITLE;
-			}
-
-			@Override
-			public void visitDescriptionChange(final DescriptionChangeItem item) {
-				this.property=DESCRIPTION;
-			}
-
-			@Override
-			public void visitOpenedDateChange(final OpenedDateChangeItem item) {
-				this.property=DATE_OPEN;
-			}
-
-			@Override
-			public void visitClosedDateChange(final ClosedDateChangeItem item) {
-				this.property=DATE_CLOSED;
-			}
-
-			@Override
-			public void visitDueToDateChange(final DueToDateChangeItem item) {
-				this.property=DUE_TO;
-			}
-
-			@Override
-			public void visitEstimatedTimeChange(final EstimatedTimeChangeItem item) {
-				this.property=ESTIMATED_TIME;
-			}
-
-			@Override
-			public void visitTagsChange(final TagsChangeItem item) {
-				this.property=ISSUE_CUSTOM_TAG;
-			}
-
-			@Override
-			public void visitComponentsChange(final ComponentsChangeItem item) {
-				this.property=ASSOCIATED_TO_COMPONENT;
-			}
-
-			@Override
-			public void visitVersionsChange(final VersionsChangeItem item) {
-				this.property=AFFECTS_VERSION;
-			}
-
-			@Override
-			public void visitCommitsChange(final CommitsChangeItem item) {
-				this.property=ASSOCIATED_TO_COMMIT;
-			}
-
-			@Override
-			public void visitAssigneeChange(final AssigneeChangeItem item) {
-				this.property=IS_ASSIGNED_TO;
-			}
-
-			@Override
-			public void visitStatusChange(final StatusChangeItem item) {
-				this.property=HAS_STATUS;
-			}
-
-			@Override
-			public void visitPriorityChange(final PriorityChangeItem item) {
-				this.property=HAS_PRIORITY;
-			}
-
-			@Override
-			public void visitSeverityChange(final SeverityChangeItem item) {
-				this.property=HAS_SEVERITY;
-			}
-
-			@Override
-			public void visitChildIssuesChange(final ChildIssuesChangeItem item) {
-				this.property=IS_COMPOSED_OF_ISSUE;
-			}
-
-			@Override
-			public void visitBlockedIssuesChange(final BlockedIssuesChangeItem item) {
-				this.property=BLOCKS_ISSUE;
-			}
-
-			@Override
-			public void visitTypeChange(final TypeChangeItem item) {
-				this.property=RDF.TYPE;
-			}
-
-			public URI getProperty() {
-				// TODO Auto-generated method stub
-				return URI.create(this.property);
-			}
-
+		if(item==null) {
+			return null;
 		}
 		final PropertySelector selector = new PropertySelector();
 		item.accept(selector);

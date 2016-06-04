@@ -121,7 +121,6 @@ public class ProjectHandlerTest {
 		}};
 		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
 		assertThat(dataSet,notNullValue());
-		System.out.println(dataSet);
 		final Individual<?,?> individual=dataSet.individualOfId(projectId());
 		final IndividualHelper newHelper = DataSetUtils.newHelper(individual);
 		assertThat(newHelper.types(),hasItem(URI.create(IT.PROJECT_TYPE)));

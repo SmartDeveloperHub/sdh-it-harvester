@@ -26,15 +26,30 @@
  */
 package org.smartdeveloperhub.harvesters.it.frontend.issue;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.ldp4j.application.data.IndividualHelper;
+import org.ldp4j.application.data.Name;
+import org.smartdeveloperhub.harvesters.it.backend.Issue;
+import org.smartdeveloperhub.harvesters.it.frontend.component.ComponentHandler;
+import org.smartdeveloperhub.harvesters.it.frontend.component.ComponentKey;
+import org.smartdeveloperhub.harvesters.it.frontend.util.IdentityUtil;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	IssueKeyTest.class,
-	IssueContainerHandlerTest.class,
-	IssueHandlerTest.class
-})
-public class UnitTestSuite {
+final class ComponentLinker extends Linker<ComponentKey,String> {
+
+	private final String projectId;
+
+	ComponentLinker(final IndividualHelper individual, final Issue issue) {
+		super(individual);
+		this.projectId=issue.getProjectId();
+	}
+
+	@Override
+	protected String managerId() {
+		return ComponentHandler.ID;
+	}
+
+	@Override
+	protected Name<ComponentKey> createName(final String key) {
+		return IdentityUtil.componentName(new ComponentKey(this.projectId,key));
+	}
+
 }

@@ -41,15 +41,10 @@ import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
 import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
-import org.smartdeveloperhub.harvesters.it.frontend.commit.CommitHandler;
-import org.smartdeveloperhub.harvesters.it.frontend.component.ComponentHandler;
-import org.smartdeveloperhub.harvesters.it.frontend.component.ComponentKey;
 import org.smartdeveloperhub.harvesters.it.frontend.contributor.ContributorHandler;
 import org.smartdeveloperhub.harvesters.it.frontend.project.ProjectHandler;
 import org.smartdeveloperhub.harvesters.it.frontend.util.AbstractEntityResourceHandler;
 import org.smartdeveloperhub.harvesters.it.frontend.util.IdentityUtil;
-import org.smartdeveloperhub.harvesters.it.frontend.version.VersionHandler;
-import org.smartdeveloperhub.harvesters.it.frontend.version.VersionKey;
 import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.IT;
 import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.RDF;
 
@@ -109,7 +104,9 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 					property(IT.DATE_CLOSED).
 						withLiteral(dateTime(issue.getClosed(),false,"closed",issue).orNull()).
 					property(IT.DUE_TO).
-						withLiteral(dateTime(issue.getDueTo(),false,"dueTo",issue).get());
+						withLiteral(dateTime(issue.getDueTo(),false,"dueTo",issue).get()).
+					property(IT.ESTIMATED_TIME).
+						withLiteral(issue.getEstimatedTime());
 
 		populateTags(issue,individual);
 
@@ -129,115 +126,45 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 
 		populateChangeLog(issue,changeLogName,helper);
 
-		populateEstimatedEffort(issue,individual);
-
 		return dataSet;
 	}
 
-	private void populateEstimatedEffort(final Issue issue, final IndividualHelper individual) {
-		/**
-		 * TODO: Populate the individual once the appropriate property is
-		 * defined in the ontology
-		 */
-	}
-
 	private void populateCommits(final Issue issue, final IndividualHelper individual) {
-		if(!issue.getCommits().isEmpty()) {
-			individual.
-				property(RDF.TYPE).
-					withIndividual(IT.TASK_TYPE).
-					withIndividual(IT.DEVELOPMENT_TASK_TYPE);
-			for (final String commitId:issue.getCommits()){
-				final Name<String> commitName = IdentityUtil.
-					commitName(commitId);
-				individual.
-					property(IT.ASSOCIATED_TO_COMMIT).
-						withIndividual(commitName,CommitHandler.ID);
-			}
-		}
+		new CommitLinker(individual).
+			infer(IT.TASK_TYPE).
+			infer(IT.DEVELOPMENT_TASK_TYPE).
+			link(IT.ASSOCIATED_TO_COMMIT,issue.getCommits());
 	}
 
 	private void populateChildIssues(final Issue issue, final IndividualHelper individual) {
-		if(!issue.getChildIssues().isEmpty()) {
-			individual.
-				property(RDF.TYPE).
-					withIndividual(IT.COMPOSITE_ISSUE_TYPE);
-			for (final String issueId:issue.getChildIssues()){
-				final Name<IssueKey> childIssueName =
-					IdentityUtil.
-						issueName(
-							new IssueKey(
-								issue.getProjectId(),
-								issueId));
-				individual.
-					property(IT.IS_COMPOSED_OF_ISSUE).
-						withIndividual(childIssueName,IssueHandler.ID);
-			}
-		}
+		new IssueLinker(individual,issue).
+			infer(IT.COMPOSITE_ISSUE_TYPE).
+			link(IT.IS_COMPOSED_OF_ISSUE,issue.getChildIssues());
 	}
 
 	private void populateBlockedIssues(final Issue issue, final IndividualHelper individual) {
-		for (final String issueId:issue.getBlockedIssues()) {
-			final Name<IssueKey> blockedIssueName =
-				IdentityUtil.
-					issueName(
-						new IssueKey(
-							issue.getProjectId(),
-							issueId));
-			individual.
-				property(IT.BLOCKS_ISSUE).
-					withIndividual(blockedIssueName,IssueHandler.ID);
-		}
+		new IssueLinker(individual,issue).
+			link(IT.BLOCKS_ISSUE,issue.getBlockedIssues());
 	}
 
 	private void populateAssignee(final Issue issue, final IndividualHelper individual) {
-		if(issue.getAssignee()!=null) {
-			final Name<String> assigneeName=IdentityUtil.contributorName(issue.getAssignee());
-			individual.
-				property(IT.IS_ASSIGNED_TO).
-					withIndividual(assigneeName,ContributorHandler.ID);
-		}
+		new ContributorLinker(individual).
+			link(IT.IS_ASSIGNED_TO,issue.getAssignee());
 	}
 
 	private void populateReporter(final Issue issue, final IndividualHelper individual) {
-		if(issue.getReporter()!=null) {
-			final Name<String> reporterName=IdentityUtil.contributorName(issue.getReporter());
-			individual.
-				property(IT.IS_REPORTED_BY).
-					withIndividual(reporterName,ContributorHandler.ID);
-		}
+		new ContributorLinker(individual).
+			link(IT.IS_REPORTED_BY,issue.getReporter());
 	}
 
 	private void populateComponents(final Issue issue, final IndividualHelper individual) {
-		if(!issue.getComponents().isEmpty()) {
-			for(final String componentId:issue.getComponents()) {
-				final Name<ComponentKey> componentName =
-					IdentityUtil.
-						componentName(
-							new ComponentKey(
-								issue.getProjectId(),
-								componentId));
-				individual.
-					property(IT.ASSOCIATED_TO_COMPONENT).
-						withIndividual(componentName,ComponentHandler.ID);
-			}
-		}
+		new ComponentLinker(individual,issue).
+			link(IT.ASSOCIATED_TO_COMPONENT,issue.getComponents());
 	}
 
 	private void populateVersion(final Issue issue, final IndividualHelper individual) {
-		if(!issue.getVersions().isEmpty()) {
-			for(final String versionId:issue.getVersions()) {
-				final Name<VersionKey> versionName =
-					IdentityUtil.
-						versionName(
-							new VersionKey(
-								issue.getProjectId(),
-								versionId));
-				individual.
-					property(IT.AFFECTS_VERSION).
-						withIndividual(versionName,VersionHandler.ID);
-			}
-		}
+		new VersionLinker(individual,issue).
+			link(IT.AFFECTS_VERSION,issue.getVersions());
 	}
 
 	private void populateTags(final Issue issue, final IndividualHelper individual) {
@@ -320,14 +247,17 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 			item.
 				property(RDF.TYPE).
 					withIndividual(IT.ADD_LOG_ITEM_TYPE);
+			// TODO: Add old value marshalling logic
 		} else if(itemData.getNewValue()==null){
 			item.
 				property(RDF.TYPE).
 					withIndividual(IT.DELETE_LOG_ITEM_TYPE);
+			// TODO: Add new value marshalling logic
 		} else {
 			item.
 				property(RDF.TYPE).
 					withIndividual(IT.UPDATE_LOG_ITEM_TYPE);
+			// TODO: Add old/new value marshalling logic
 		}
 	}
 
