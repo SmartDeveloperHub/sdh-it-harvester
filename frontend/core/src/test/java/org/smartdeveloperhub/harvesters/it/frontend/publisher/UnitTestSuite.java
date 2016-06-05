@@ -24,7 +24,7 @@
  *   Bundle      : it-frontend-core-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.frontend;
+package org.smartdeveloperhub.harvesters.it.frontend.publisher;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -32,8 +32,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	HarvesterConfigurationTest.class,
-	HarvesterApplicationTest.class
+	PublisherFactoryTest.class
 })
 public class UnitTestSuite {
 }

@@ -29,8 +29,10 @@ package org.smartdeveloperhub.harvesters.it.frontend.issue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.fail;
@@ -47,11 +49,16 @@ import org.ldp4j.application.data.DataSetUtils;
 import org.ldp4j.application.data.Individual;
 import org.ldp4j.application.data.IndividualHelper;
 import org.ldp4j.application.data.Literals;
+import org.ldp4j.application.data.LocalIndividual;
 import org.ldp4j.application.data.ManagedIndividual;
 import org.ldp4j.application.data.ManagedIndividualId;
 import org.ldp4j.application.data.Name;
+import org.ldp4j.application.data.Property;
 import org.ldp4j.application.data.Value;
 import org.ldp4j.application.session.ResourceSnapshot;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
 import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
 import org.smartdeveloperhub.harvesters.it.frontend.commit.CommitHandler;
@@ -63,6 +70,7 @@ import org.smartdeveloperhub.harvesters.it.frontend.version.VersionHandler;
 import org.smartdeveloperhub.harvesters.it.frontend.version.VersionKey;
 import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.IT;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
 import mockit.Expectations;
@@ -366,6 +374,19 @@ public class IssueHandlerTest {
 	}
 
 	@Test
+	public void testToDataSet$withoutOpenDate() throws Exception {
+		new Expectations() {{
+			IssueHandlerTest.this.entity.getOpened();this.result=null;
+		}};
+		try {
+			this.sut.toDataSet(this.entity,this.key);
+			fail("Should fail if no open date is provided");
+		} catch (final Exception e) {
+			assertThat(e.getMessage(),startsWith("Could not create date for property open"));
+		}
+	}
+
+	@Test
 	public void testToDataSet$withClosedDate() throws Exception {
 		final DateTime expected = new DateTime();
 		new Expectations() {{
@@ -388,4 +409,172 @@ public class IssueHandlerTest {
 		final Individual<?,?> individual=dataSet.individualOfId(issueId());
 		assertThat(individual.property(URI.create(IT.DUE_TO)).hasLiteralValue(Literals.newLiteral(expected)),equalTo(true));
 	}
+
+	@Test
+	public void testToDataSet$withoutOptionalDates() throws Exception {
+		new Expectations() {{
+			IssueHandlerTest.this.entity.getClosed();this.result=null;
+			IssueHandlerTest.this.entity.getDueTo();this.result=null;
+		}};
+		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
+		assertThat(dataSet,notNullValue());
+		final Individual<?,?> individual=dataSet.individualOfId(issueId());
+		assertThat(individual.hasProperty(URI.create(IT.DATE_CLOSED)),equalTo(false));
+		assertThat(individual.hasProperty(URI.create(IT.DUE_TO)),equalTo(false));
+	}
+
+	@Test
+	public void testToDataSet$withChangeLogWithoutEntries() throws Exception {
+		final ChangeLog expected = new ChangeLog();
+		new Expectations() {{
+			IssueHandlerTest.this.entity.getChanges();this.result=expected;
+		}};
+		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
+		assertThat(dataSet,notNullValue());
+		final Individual<?,?> individual=dataSet.individualOfId(issueId());
+		final Property property = individual.property(URI.create(IT.HAS_CHANGE_LOG));
+		assertThat(property.numberOfValues(),equalTo(1));
+		final LocalIndividual clInd = getFirstLocal(property);
+		assertThat(DataSetUtils.newHelper(clInd).types(),hasItem(URI.create(IT.CHANGE_LOG_TYPE)));
+		assertThat(clInd.property(URI.create(IT.HAS_CHANGE_LOG_ENTRY)),nullValue());
+		assertThat(clInd.property(URI.create(IT.IS_COMPOSED_BY_CHANGE_LOG_ITEM)),nullValue());
+	}
+
+	@Test
+	public void testToDataSet$withChangeLogWithEmptyEntry() throws Exception {
+		final ChangeLog expectedChangeLog = new ChangeLog();
+		final Entry expectedEntry = new Entry();
+		expectedEntry.setAuthor("author");
+		expectedEntry.setTimeStamp(new DateTime());
+		expectedChangeLog.getEntries().add(expectedEntry);
+		new Expectations() {{
+			IssueHandlerTest.this.entity.getChanges();this.result=expectedChangeLog;
+		}};
+		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
+		assertThat(dataSet,notNullValue());
+		final Individual<?,?> issue=dataSet.individualOfId(issueId());
+		final Property hasChangeLog = issue.property(URI.create(IT.HAS_CHANGE_LOG));
+		assertThat(hasChangeLog.numberOfValues(),equalTo(1));
+		final LocalIndividual changeLog = getFirstLocal(hasChangeLog);
+		assertThat(DataSetUtils.newHelper(changeLog).types(),hasItem(URI.create(IT.CHANGE_LOG_TYPE)));
+		assertThat(changeLog.property(URI.create(IT.IS_COMPOSED_BY_CHANGE_LOG_ITEM)),nullValue());
+		final Property hasChangeLogEntry = changeLog.property(URI.create(IT.HAS_CHANGE_LOG_ENTRY));
+		assertThat(hasChangeLogEntry.numberOfValues(),equalTo(1));
+		final LocalIndividual entry = getFirstLocal(hasChangeLogEntry);
+		final IndividualHelper entryHelper = DataSetUtils.newHelper(entry);
+		assertThat(entryHelper.types(),hasItem(URI.create(IT.CHANGE_LOG_ENTRY_TYPE)));
+		assertThat(entryHelper.property(IT.ENTRY_TIME_STAMP).firstValue(DateTime.class),equalTo(expectedEntry.getTimeStamp()));
+		assertThat(entry.property(URI.create(IT.HAS_CHANGE_LOG_ITEM)),nullValue());
+		checkLinks(entry,IT.TRIGGERED_BY,Sets.newHashSet(expectedEntry.getAuthor()),new ContributorCollector());
+	}
+
+	@Test
+	public void testToDataSet$withChangeLogWithEntryWithUpdateItem() throws Exception {
+		final ChangeLog expectedChangeLog = new ChangeLog();
+		final Entry expectedEntry = new Entry();
+		expectedEntry.setAuthor("author");
+		expectedEntry.setTimeStamp(new DateTime());
+		final Item expectedItem = Item.builder().assignee().oldValue("old").newValue("new").build();
+		expectedEntry.getItems().add(expectedItem);
+		expectedChangeLog.getEntries().add(expectedEntry);
+		new Expectations() {{
+			IssueHandlerTest.this.entity.getChanges();this.result=expectedChangeLog;
+		}};
+		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
+		assertThat(dataSet,notNullValue());
+		final Individual<?,?> issue=dataSet.individualOfId(issueId());
+		final Property hasChangeLog = issue.property(URI.create(IT.HAS_CHANGE_LOG));
+		assertThat(hasChangeLog.numberOfValues(),equalTo(1));
+		final LocalIndividual changeLog = getFirstLocal(hasChangeLog);
+		assertThat(DataSetUtils.newHelper(changeLog).types(),hasItem(URI.create(IT.CHANGE_LOG_TYPE)));
+		final Property isComposedByChangeLogItem = changeLog.property(URI.create(IT.IS_COMPOSED_BY_CHANGE_LOG_ITEM));
+		assertThat(isComposedByChangeLogItem.numberOfValues(),equalTo(1));
+		final Property hasChangeLogEntry = changeLog.property(URI.create(IT.HAS_CHANGE_LOG_ENTRY));
+		assertThat(hasChangeLogEntry.numberOfValues(),equalTo(1));
+		final LocalIndividual entry = getFirstLocal(hasChangeLogEntry);
+		final Property hasChangeLogItem = entry.property(URI.create(IT.HAS_CHANGE_LOG_ITEM));
+		assertThat(hasChangeLogEntry.numberOfValues(),equalTo(1));
+		final LocalIndividual item = getFirstLocal(hasChangeLogItem);
+		assertThat(item,equalTo(Iterables.getFirst(isComposedByChangeLogItem.values(),null)));
+		final IndividualHelper itemHelper = DataSetUtils.newHelper(item);
+		assertThat(itemHelper.types(),hasItems(URI.create(IT.CHANGE_LOG_ITEM_TYPE),URI.create(IT.UPDATE_LOG_ITEM_TYPE)));
+		assertThat(item.property(URI.create(IT.ON_PROPERTY)).hasIdentifiedIndividual(IT.propertyOf(expectedItem)),equalTo(true));
+		// TODO: Check that there is an old property and a new property
+	}
+
+	@Test
+	public void testToDataSet$withChangeLogWithEntryWithAddedItem() throws Exception {
+		final ChangeLog expectedChangeLog = new ChangeLog();
+		final Entry expectedEntry = new Entry();
+		expectedEntry.setAuthor("author");
+		expectedEntry.setTimeStamp(new DateTime());
+		final Item expectedItem = Item.builder().assignee().newValue("new").build();
+		expectedEntry.getItems().add(expectedItem);
+		expectedChangeLog.getEntries().add(expectedEntry);
+		new Expectations() {{
+			IssueHandlerTest.this.entity.getChanges();this.result=expectedChangeLog;
+		}};
+		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
+		assertThat(dataSet,notNullValue());
+		final Individual<?,?> issue=dataSet.individualOfId(issueId());
+		final Property hasChangeLog = issue.property(URI.create(IT.HAS_CHANGE_LOG));
+		assertThat(hasChangeLog.numberOfValues(),equalTo(1));
+		final LocalIndividual changeLog = getFirstLocal(hasChangeLog);
+		assertThat(DataSetUtils.newHelper(changeLog).types(),hasItem(URI.create(IT.CHANGE_LOG_TYPE)));
+		final Property isComposedByChangeLogItem = changeLog.property(URI.create(IT.IS_COMPOSED_BY_CHANGE_LOG_ITEM));
+		assertThat(isComposedByChangeLogItem.numberOfValues(),equalTo(1));
+		final Property hasChangeLogEntry = changeLog.property(URI.create(IT.HAS_CHANGE_LOG_ENTRY));
+		assertThat(hasChangeLogEntry.numberOfValues(),equalTo(1));
+		final LocalIndividual entry = getFirstLocal(hasChangeLogEntry);
+		final Property hasChangeLogItem = entry.property(URI.create(IT.HAS_CHANGE_LOG_ITEM));
+		assertThat(hasChangeLogEntry.numberOfValues(),equalTo(1));
+		final LocalIndividual item = getFirstLocal(hasChangeLogItem);
+		assertThat(item,equalTo(Iterables.getFirst(isComposedByChangeLogItem.values(),null)));
+		final IndividualHelper itemHelper = DataSetUtils.newHelper(item);
+		assertThat(itemHelper.types(),hasItems(URI.create(IT.CHANGE_LOG_ITEM_TYPE),URI.create(IT.ADD_LOG_ITEM_TYPE)));
+		assertThat(item.property(URI.create(IT.ON_PROPERTY)).hasIdentifiedIndividual(IT.propertyOf(expectedItem)),equalTo(true));
+		// TODO: Check that there is a property for a new value but not for an old one
+	}
+
+	@Test
+	public void testToDataSet$withChangeLogWithEntryWithDeletedItem() throws Exception {
+		final ChangeLog expectedChangeLog = new ChangeLog();
+		final Entry expectedEntry = new Entry();
+		expectedEntry.setAuthor("author");
+		expectedEntry.setTimeStamp(new DateTime());
+		final Item expectedItem = Item.builder().assignee().oldValue("old").build();
+		expectedEntry.getItems().add(expectedItem);
+		expectedChangeLog.getEntries().add(expectedEntry);
+		new Expectations() {{
+			IssueHandlerTest.this.entity.getChanges();this.result=expectedChangeLog;
+		}};
+		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
+		assertThat(dataSet,notNullValue());
+		final Individual<?,?> issue=dataSet.individualOfId(issueId());
+		final Property hasChangeLog = issue.property(URI.create(IT.HAS_CHANGE_LOG));
+		assertThat(hasChangeLog.numberOfValues(),equalTo(1));
+		final LocalIndividual changeLog = getFirstLocal(hasChangeLog);
+		assertThat(DataSetUtils.newHelper(changeLog).types(),hasItem(URI.create(IT.CHANGE_LOG_TYPE)));
+		final Property isComposedByChangeLogItem = changeLog.property(URI.create(IT.IS_COMPOSED_BY_CHANGE_LOG_ITEM));
+		assertThat(isComposedByChangeLogItem.numberOfValues(),equalTo(1));
+		final Property hasChangeLogEntry = changeLog.property(URI.create(IT.HAS_CHANGE_LOG_ENTRY));
+		assertThat(hasChangeLogEntry.numberOfValues(),equalTo(1));
+		final LocalIndividual entry = getFirstLocal(hasChangeLogEntry);
+		final Property hasChangeLogItem = entry.property(URI.create(IT.HAS_CHANGE_LOG_ITEM));
+		assertThat(hasChangeLogEntry.numberOfValues(),equalTo(1));
+		final LocalIndividual item = getFirstLocal(hasChangeLogItem);
+		assertThat(item,equalTo(Iterables.getFirst(isComposedByChangeLogItem.values(),null)));
+		final IndividualHelper itemHelper = DataSetUtils.newHelper(item);
+		assertThat(itemHelper.types(),hasItems(URI.create(IT.CHANGE_LOG_ITEM_TYPE),URI.create(IT.DELETE_LOG_ITEM_TYPE)));
+		assertThat(item.property(URI.create(IT.ON_PROPERTY)).hasIdentifiedIndividual(IT.propertyOf(expectedItem)),equalTo(true));
+		// TODO: Check that there is property for the old value a no for a new one
+	}
+
+	private LocalIndividual getFirstLocal(final Property hasChangeLog) {
+		final Value first = Iterables.getFirst(hasChangeLog.values(),null);
+		assertThat(first,instanceOf(LocalIndividual.class));
+		final LocalIndividual clInd=(LocalIndividual)first;
+		return clInd;
+	}
+
 }

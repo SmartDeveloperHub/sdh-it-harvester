@@ -41,7 +41,6 @@ import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
 import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
-import org.smartdeveloperhub.harvesters.it.frontend.contributor.ContributorHandler;
 import org.smartdeveloperhub.harvesters.it.frontend.project.ProjectHandler;
 import org.smartdeveloperhub.harvesters.it.frontend.util.AbstractEntityResourceHandler;
 import org.smartdeveloperhub.harvesters.it.frontend.util.IdentityUtil;
@@ -104,7 +103,7 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 					property(IT.DATE_CLOSED).
 						withLiteral(dateTime(issue.getClosed(),false,"closed",issue).orNull()).
 					property(IT.DUE_TO).
-						withLiteral(dateTime(issue.getDueTo(),false,"dueTo",issue).get()).
+						withLiteral(dateTime(issue.getDueTo(),false,"dueTo",issue).orNull()).
 					property(IT.ESTIMATED_TIME).
 						withLiteral(issue.getEstimatedTime());
 
@@ -213,12 +212,8 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 		/**
 		 * TODO: Should fail if no author is defined
 		 */
-		if(entryData.getAuthor()!=null) {
-			final Name<String> authorName=IdentityUtil.contributorName(entryData.getAuthor());
-			entry.
-				property(IT.TRIGGERED_BY).
-					withIndividual(authorName,ContributorHandler.ID);
-		}
+		new ContributorLinker(entry).
+			link(IT.TRIGGERED_BY,entryData.getAuthor());
 
 		int itemCount=0;
 		for(final Item item:entryData.getItems()) {

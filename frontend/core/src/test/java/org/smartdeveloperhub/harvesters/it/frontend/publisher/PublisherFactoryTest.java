@@ -24,16 +24,32 @@
  *   Bundle      : it-frontend-core-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.frontend;
+package org.smartdeveloperhub.harvesters.it.frontend.publisher;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.fail;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	HarvesterConfigurationTest.class,
-	HarvesterApplicationTest.class
-})
-public class UnitTestSuite {
+import java.io.IOException;
+
+import org.junit.Test;
+import org.ldp4j.commons.testing.Utils;
+
+public class PublisherFactoryTest {
+
+	@Test
+	public void verifyIsValidUtilityClass() {
+		assertThat(Utils.isUtilityClass(PublisherFactory.class),equalTo(true));
+	}
+
+	@Test
+	public void implentationIsNotReady() throws IOException {
+		try {
+			PublisherFactory.createPublisher(null);
+			fail("Should fail");
+		} catch (final UnsupportedOperationException e) {
+			assertThat(e.getMessage(),equalTo("Method not implemented yet"));
+		}
+	}
+
 }
