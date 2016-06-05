@@ -47,6 +47,7 @@ import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.TagsChangeIte
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.TitleChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.TypeChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.VersionsChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.Issue.Type;
 import org.smartdeveloperhub.harvesters.it.backend.Priority;
 import org.smartdeveloperhub.harvesters.it.backend.Severity;
 import org.smartdeveloperhub.harvesters.it.backend.Status;
@@ -317,6 +318,25 @@ public final class IT {
 			break;
 		default:
 			individual=LOW_PRIORITY;
+			break;
+		}
+		return URI.create(individual);
+	}
+
+	public static URI forType(final Type type) {
+		if(type==null) {
+			return null;
+		}
+		String individual=null;
+		switch(type) {
+		case BUG:
+			individual=BUG_TYPE;
+			break;
+		case IMPROVEMENT:
+			individual=IMPROVEMENT_TYPE;
+			break;
+		default:
+			individual=TASK_TYPE;
 			break;
 		}
 		return URI.create(individual);

@@ -190,11 +190,11 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 							changeLogName.id(),
 							"entry",
 							Integer.toString(entryCount++));
-			populateChangeLogEntry(entry,entryName,helper,changeLog);
+			populateChangeLogEntry(issue,entry,entryName,helper,changeLog);
 		}
 	}
 
-	private void populateChangeLogEntry(final Entry entryData, final Name<String> entryName, final DataSetHelper helper, final IndividualHelper changeLog) {
+	private void populateChangeLogEntry(final Issue issue, final Entry entryData, final Name<String> entryName, final DataSetHelper helper, final IndividualHelper changeLog) {
 		final IndividualHelper entry =
 			helper.
 				localIndividual(entryName);
@@ -218,11 +218,11 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 		int itemCount=0;
 		for(final Item item:entryData.getItems()) {
 			final Name<String> itemName=NamingScheme.getDefault().name(entryName.id(),"item",Integer.toString(itemCount++));
-			populateChangeLogItem(item, itemName, helper, changeLog, entry);
+			populateChangeLogItem(issue,item, itemName, helper, changeLog, entry);
 		}
 	}
 
-	private void populateChangeLogItem(final Item itemData, final Name<String> itemName, final DataSetHelper helper, final IndividualHelper changeLog, final IndividualHelper entry) {
+	private void populateChangeLogItem(final Issue issue, final Item itemData, final Name<String> itemName, final DataSetHelper helper, final IndividualHelper changeLog, final IndividualHelper entry) {
 		changeLog.
 			property(IT.IS_COMPOSED_BY_CHANGE_LOG_ITEM).
 				withIndividual(itemName);
@@ -242,17 +242,18 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 			item.
 				property(RDF.TYPE).
 					withIndividual(IT.ADD_LOG_ITEM_TYPE);
-			// TODO: Add old value marshalling logic
+			itemData.accept(new NewValueItemPopulator(issue,item,IT.ADDED_VALUE));
 		} else if(itemData.getNewValue()==null){
 			item.
 				property(RDF.TYPE).
 					withIndividual(IT.DELETE_LOG_ITEM_TYPE);
-			// TODO: Add new value marshalling logic
+			itemData.accept(new OldValueItemPopulator(issue,item,IT.DELETED_VALUE));
 		} else {
 			item.
 				property(RDF.TYPE).
 					withIndividual(IT.UPDATE_LOG_ITEM_TYPE);
-			// TODO: Add old/new value marshalling logic
+			itemData.accept(new NewValueItemPopulator(issue,item,IT.NEW_VALUE));
+			itemData.accept(new OldValueItemPopulator(issue,item,IT.PREVIOUS_VALUE));
 		}
 	}
 

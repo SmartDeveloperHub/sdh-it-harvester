@@ -26,16 +26,19 @@
  */
 package org.smartdeveloperhub.harvesters.it.frontend.issue;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.ldp4j.application.data.IndividualHelper;
+import org.smartdeveloperhub.harvesters.it.backend.Issue;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.AbstractItem;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	IssueKeyTest.class,
-	IssueContainerHandlerTest.class,
-	ItemPopulatorTest.class,
-	IssueHandlerTest.class
-})
-public class UnitTestSuite {
+final class NewValueItemPopulator extends ItemPopulator {
+
+	NewValueItemPopulator(final Issue issue, final IndividualHelper item, final String property) {
+		super(issue,item,property);
+	}
+
+	@Override
+	protected <V> V getValue(final AbstractItem<V> aItem) {
+		return aItem.getNewValue();
+	}
+
 }

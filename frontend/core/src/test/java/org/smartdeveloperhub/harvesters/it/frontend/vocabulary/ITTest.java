@@ -35,6 +35,7 @@ import java.net.URI;
 import org.junit.Test;
 import org.ldp4j.commons.testing.Utils;
 import org.smartdeveloperhub.harvesters.it.backend.Fixture;
+import org.smartdeveloperhub.harvesters.it.backend.Issue.Type;
 import org.smartdeveloperhub.harvesters.it.backend.Priority;
 import org.smartdeveloperhub.harvesters.it.backend.Severity;
 import org.smartdeveloperhub.harvesters.it.backend.Status;
@@ -71,6 +72,14 @@ public class ITTest {
 		assertThat(IT.forPriority(Priority.MEDIUM),equalTo(term(IT.MEDIUM_PRIORITY)));
 		assertThat(IT.forPriority(Priority.LOW),equalTo(term(IT.LOW_PRIORITY)));
 		assertThat(IT.forPriority(null),nullValue());
+	}
+
+	@Test
+	public void translatesTypeProperly() {
+		assertThat(IT.forType(Type.BUG),equalTo(term(IT.BUG_TYPE)));
+		assertThat(IT.forType(Type.IMPROVEMENT),equalTo(term(IT.IMPROVEMENT_TYPE)));
+		assertThat(IT.forType(Type.TASK),equalTo(term(IT.TASK_TYPE)));
+		assertThat(IT.forType(null),nullValue());
 	}
 
 	@Test

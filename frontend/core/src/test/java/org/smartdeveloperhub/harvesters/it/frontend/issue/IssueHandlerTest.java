@@ -474,7 +474,7 @@ public class IssueHandlerTest {
 		final Entry expectedEntry = new Entry();
 		expectedEntry.setAuthor("author");
 		expectedEntry.setTimeStamp(new DateTime());
-		final Item expectedItem = Item.builder().assignee().oldValue("old").newValue("new").build();
+		final Item expectedItem = Item.builder().title().oldValue("old").newValue("new").build();
 		expectedEntry.getItems().add(expectedItem);
 		expectedChangeLog.getEntries().add(expectedEntry);
 		new Expectations() {{
@@ -499,7 +499,10 @@ public class IssueHandlerTest {
 		final IndividualHelper itemHelper = DataSetUtils.newHelper(item);
 		assertThat(itemHelper.types(),hasItems(URI.create(IT.CHANGE_LOG_ITEM_TYPE),URI.create(IT.UPDATE_LOG_ITEM_TYPE)));
 		assertThat(item.property(URI.create(IT.ON_PROPERTY)).hasIdentifiedIndividual(IT.propertyOf(expectedItem)),equalTo(true));
-		// TODO: Check that there is an old property and a new property
+		assertThat(itemHelper.property(IT.NEW_VALUE).firstValue(String.class),equalTo("new"));
+		assertThat(itemHelper.property(IT.PREVIOUS_VALUE).firstValue(String.class),equalTo("old"));
+		assertThat(item.property(URI.create(IT.ADDED_VALUE)),nullValue());
+		assertThat(item.property(URI.create(IT.DELETED_VALUE)),nullValue());
 	}
 
 	@Test
@@ -508,7 +511,7 @@ public class IssueHandlerTest {
 		final Entry expectedEntry = new Entry();
 		expectedEntry.setAuthor("author");
 		expectedEntry.setTimeStamp(new DateTime());
-		final Item expectedItem = Item.builder().assignee().newValue("new").build();
+		final Item expectedItem = Item.builder().description().newValue("new").build();
 		expectedEntry.getItems().add(expectedItem);
 		expectedChangeLog.getEntries().add(expectedEntry);
 		new Expectations() {{
@@ -533,7 +536,10 @@ public class IssueHandlerTest {
 		final IndividualHelper itemHelper = DataSetUtils.newHelper(item);
 		assertThat(itemHelper.types(),hasItems(URI.create(IT.CHANGE_LOG_ITEM_TYPE),URI.create(IT.ADD_LOG_ITEM_TYPE)));
 		assertThat(item.property(URI.create(IT.ON_PROPERTY)).hasIdentifiedIndividual(IT.propertyOf(expectedItem)),equalTo(true));
-		// TODO: Check that there is a property for a new value but not for an old one
+		assertThat(itemHelper.property(IT.ADDED_VALUE).firstValue(String.class),equalTo("new"));
+		assertThat(item.property(URI.create(IT.PREVIOUS_VALUE)),nullValue());
+		assertThat(item.property(URI.create(IT.NEW_VALUE)),nullValue());
+		assertThat(item.property(URI.create(IT.DELETED_VALUE)),nullValue());
 	}
 
 	@Test
@@ -542,7 +548,7 @@ public class IssueHandlerTest {
 		final Entry expectedEntry = new Entry();
 		expectedEntry.setAuthor("author");
 		expectedEntry.setTimeStamp(new DateTime());
-		final Item expectedItem = Item.builder().assignee().oldValue("old").build();
+		final Item expectedItem = Item.builder().tags().oldValue("old").build();
 		expectedEntry.getItems().add(expectedItem);
 		expectedChangeLog.getEntries().add(expectedEntry);
 		new Expectations() {{
@@ -567,7 +573,10 @@ public class IssueHandlerTest {
 		final IndividualHelper itemHelper = DataSetUtils.newHelper(item);
 		assertThat(itemHelper.types(),hasItems(URI.create(IT.CHANGE_LOG_ITEM_TYPE),URI.create(IT.DELETE_LOG_ITEM_TYPE)));
 		assertThat(item.property(URI.create(IT.ON_PROPERTY)).hasIdentifiedIndividual(IT.propertyOf(expectedItem)),equalTo(true));
-		// TODO: Check that there is property for the old value a no for a new one
+		assertThat(itemHelper.property(IT.DELETED_VALUE).firstValue(String.class),equalTo("old"));
+		assertThat(item.property(URI.create(IT.PREVIOUS_VALUE)),nullValue());
+		assertThat(item.property(URI.create(IT.NEW_VALUE)),nullValue());
+		assertThat(item.property(URI.create(IT.ADDED_VALUE)),nullValue());
 	}
 
 	private LocalIndividual getFirstLocal(final Property hasChangeLog) {
