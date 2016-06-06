@@ -28,7 +28,9 @@ package org.smartdeveloperhub.harvesters.it.frontend.publisher;
 
 import java.io.IOException;
 
+import org.smartdeveloperhub.harvesters.it.backend.Notifications;
 import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
+import org.smartdeveloperhub.harvesters.it.notification.CollectorConfiguration;
 
 public final class PublisherFactory {
 
@@ -36,7 +38,22 @@ public final class PublisherFactory {
 	}
 
 	public static Publisher createPublisher(final BackendController controller) throws IOException {
-		throw new UnsupportedOperationException("Method not implemented yet");
+		return
+			new DynamicPublisher(
+				controller,
+				toConfiguration(
+					controller.
+						getCollector().
+							getNotifications()));
+	}
+
+	private static CollectorConfiguration toConfiguration(final Notifications notifications) {
+		final CollectorConfiguration result = new CollectorConfiguration();
+		result.setBrokerHost(notifications.getBrokerHost());
+		result.setBrokerPort(notifications.getBrokerPort());
+		result.setVirtualHost(notifications.getVirtualHost());
+		result.setExchangeName(notifications.getExchangeName());
+		return result;
 	}
 
 }

@@ -296,16 +296,16 @@ final class PublisherHelper {
 	}
 
 	private static ResourceSnapshot findProjectResource(final WriteSession session, final URI target, final String projectId) {
-		final Name<String> repositoryName = IdentityUtil.projectName(projectId);
-		ResourceSnapshot repositorySnapshot = session.find(ResourceSnapshot.class,repositoryName,ProjectHandler.class);
-		if(repositorySnapshot==null) {
+		final Name<String> projectName = IdentityUtil.projectName(projectId);
+		ResourceSnapshot projectSnapshot = session.find(ResourceSnapshot.class,projectName,ProjectHandler.class);
+		if(projectSnapshot==null) {
 			LOGGER.warn("Could not find resource for project {}",projectId);
-			repositorySnapshot=
+			projectSnapshot=
 				publishProject(
 					findProjectContainer(session,target),
 					projectId);
 		}
-		return repositorySnapshot;
+		return projectSnapshot;
 	}
 
 	private static ResourceSnapshot publishProject(final ContainerSnapshot projectContainer, final String projectId) {

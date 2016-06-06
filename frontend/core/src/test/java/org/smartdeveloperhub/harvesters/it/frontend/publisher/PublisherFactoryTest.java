@@ -28,13 +28,27 @@ package org.smartdeveloperhub.harvesters.it.frontend.publisher;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.ldp4j.commons.testing.Utils;
+import org.smartdeveloperhub.harvesters.it.backend.Collector;
+import org.smartdeveloperhub.harvesters.it.backend.Fixture;
+import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
+import org.smartdeveloperhub.harvesters.it.notification.CollectorConfiguration;
 
+import mockit.Expectations;
+import mockit.Mock;
+import mockit.MockUp;
+import mockit.Mocked;
+import mockit.integration.junit4.JMockit;
+
+@RunWith(JMockit.class)
 public class PublisherFactoryTest {
 
 	@Test
@@ -43,13 +57,36 @@ public class PublisherFactoryTest {
 	}
 
 	@Test
-	public void implentationIsNotReady() throws IOException {
+	public void failsIfCannotConnect(@Mocked final BackendController controller) throws IOException {
+		new Expectations() {{
+			controller.getCollector();this.result=new IOException("failure");
+		}};
 		try {
-			PublisherFactory.createPublisher(null);
-			fail("Should fail");
-		} catch (final UnsupportedOperationException e) {
-			assertThat(e.getMessage(),equalTo("Method not implemented yet"));
+			PublisherFactory.createPublisher(controller);
+			fail("Should fail creation if the controller fails");
+		} catch (final IOException e) {
+			assertThat(e.getMessage(),equalTo("failure"));
 		}
+	}
+
+	@Test
+	public void createsDynamicPublisherIfCanConnect(@Mocked final BackendController controller) throws Exception {
+		final Collector collector = Fixture.defaultCollector();
+		new Expectations() {{
+			controller.getCollector();this.result=collector;
+		}};
+		new MockUp<DynamicPublisher>() {
+			@Mock
+			void $init(final BackendController aController, final CollectorConfiguration config) {
+				assertThat(aController,sameInstance(controller));
+				assertThat(config.getBrokerHost(),equalTo(collector.getNotifications().getBrokerHost()));
+				assertThat(config.getBrokerPort(),equalTo(collector.getNotifications().getBrokerPort()));
+				assertThat(config.getVirtualHost(),equalTo(collector.getNotifications().getVirtualHost()));
+				assertThat(config.getExchangeName(),equalTo(collector.getNotifications().getExchangeName()));
+			}
+		};
+		final Publisher created = PublisherFactory.createPublisher(controller);
+		assertThat(created,notNullValue());
 	}
 
 }

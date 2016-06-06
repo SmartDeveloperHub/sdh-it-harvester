@@ -105,7 +105,6 @@ public class ContributorHandlerTest {
 		}};
 		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
 		assertThat(dataSet,notNullValue());
-		System.out.println(dataSet);
 		final Individual<?,?> individual=dataSet.individualOfId(contributorId());
 		final IndividualHelper newHelper = DataSetUtils.newHelper(individual);
 		assertThat(newHelper.types(),hasItem(URI.create(IT.CONTRIBUTOR_TYPE)));
