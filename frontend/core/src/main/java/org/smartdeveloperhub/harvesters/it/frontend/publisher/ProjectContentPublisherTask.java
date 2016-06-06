@@ -26,19 +26,46 @@
  */
 package org.smartdeveloperhub.harvesters.it.frontend.publisher;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import java.io.IOException;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	PublisherFactoryTest.class,
-	PublisherHelperTest.class,
-	PublishingNotificationListenerTest.class,
-	PublisherTaskTest.class,
-	CommitPublisherTaskTest.class,
-	ContributorPublisherTaskTest.class,
-	ProjectContentPublisherTaskTest.class
-})
-public class UnitTestSuite {
+import org.ldp4j.application.ApplicationContext;
+import org.ldp4j.application.session.WriteSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
+
+final class ProjectContentPublisherTask extends PublisherTask {
+
+	private static final Logger LOGGER=LoggerFactory.getLogger(ProjectContentPublisherTask.class);
+
+	ProjectContentPublisherTask(final BackendController controller) {
+		super("Proj. member publication",controller);
+	}
+
+	@Override
+	protected final void doPublish() throws IOException {
+		for(final String projectId:getController().getProjects()){
+			populateRepository(projectId);
+		}
+	}
+
+	private void populateRepository(final String projectId) throws IOException {
+		LOGGER.info("Populating project {}...",projectId);
+		final ApplicationContext ctx = ApplicationContext.getInstance();
+		WriteSession session=null;
+		try {
+			session=ctx.createSession();
+			PublisherHelper.
+				publishProject(
+					session,
+					getController().getTarget(),
+					getController().getProject(projectId));
+			session.saveChanges();
+		} catch (final Exception e) {
+			throw new IOException("Could not populate project "+projectId,e);
+		} finally {
+			PublisherHelper.closeGracefully(session);
+		}
+	}
+
 }

@@ -26,19 +26,47 @@
  */
 package org.smartdeveloperhub.harvesters.it.frontend.publisher;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	PublisherFactoryTest.class,
-	PublisherHelperTest.class,
-	PublishingNotificationListenerTest.class,
-	PublisherTaskTest.class,
-	CommitPublisherTaskTest.class,
-	ContributorPublisherTaskTest.class,
-	ProjectContentPublisherTaskTest.class
-})
-public class UnitTestSuite {
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
+
+import mockit.Mocked;
+import mockit.integration.junit4.JMockit;
+
+@RunWith(JMockit.class)
+public class PublisherTaskTest {
+
+	@Mocked	private BackendController controller;
+
+	@Test
+	public void testCapturesFailure() throws Exception {
+		final PublisherTask task=
+			new PublisherTask("taskName",this.controller) {
+				@Override
+				protected void doPublish() throws Exception {
+					throw new RuntimeException("Failure");
+				}
+			};
+		assertThat(task.call(),equalTo(false));
+	}
+
+	@Test
+	public void testDelegatesInvocation() throws Exception {
+		final AtomicBoolean invoked=new AtomicBoolean();
+		final PublisherTask task=
+			new PublisherTask("taskName",this.controller) {
+				@Override
+				protected void doPublish() throws Exception {
+					invoked.set(true);
+				}
+			};
+		assertThat(task.call(),equalTo(true));
+		assertThat(invoked.get(),equalTo(true));
+	}
+
 }

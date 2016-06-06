@@ -26,19 +26,48 @@
  */
 package org.smartdeveloperhub.harvesters.it.frontend.publisher;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	PublisherFactoryTest.class,
-	PublisherHelperTest.class,
-	PublishingNotificationListenerTest.class,
-	PublisherTaskTest.class,
-	CommitPublisherTaskTest.class,
-	ContributorPublisherTaskTest.class,
-	ProjectContentPublisherTaskTest.class
-})
-public class UnitTestSuite {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
+
+import com.google.common.base.Stopwatch;
+
+abstract class PublisherTask implements Callable<Boolean> {
+
+	private static final Logger LOGGER=LoggerFactory.getLogger(PublisherTask.class);
+
+	private final BackendController controller;
+	private final String taskName;
+
+	PublisherTask(final String taskName, final BackendController controller) {
+		this.taskName = taskName;
+		this.controller = controller;
+	}
+
+	@Override
+	public final Boolean call() {
+		LOGGER.info("Starting {} task...",this.taskName);
+		final Stopwatch watch = Stopwatch.createStarted();
+		try {
+			doPublish();
+			LOGGER.info("{} completed.",this.taskName);
+			return true;
+		} catch(final Exception e) {
+			LOGGER.warn("{} failed. Full stacktrace follows.",this.taskName,e);
+			return false;
+		} finally {
+			watch.stop();
+			LOGGER.info("{} task finished. Elapsed time (ms): {}",this.taskName,watch.elapsed(TimeUnit.MILLISECONDS));
+		}
+	}
+
+	protected abstract void doPublish() throws Exception; // NOSONAR
+
+	protected final BackendController getController() {
+		return this.controller;
+	}
+
 }
