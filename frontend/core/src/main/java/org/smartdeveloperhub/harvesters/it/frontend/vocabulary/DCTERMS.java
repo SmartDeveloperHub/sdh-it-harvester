@@ -34,6 +34,7 @@ public final class DCTERMS {
 	public static final String SOURCE      = term("source");
 	public static final String TITLE       = term("title");
 	public static final String DESCRIPTION = term("description");
+	public static final String DATE        = term("date");
 
 	private DCTERMS() {
 	}

@@ -403,6 +403,7 @@ public class IssueHandlerTest {
 		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
 		assertThat(dataSet,notNullValue());
 		final Individual<?,?> individual=dataSet.individualOfId(issueId());
+		assertThat(individual.property(URI.create(DCTERMS.DATE)).hasLiteralValue(Literals.newLiteral(expected)),equalTo(true));
 		assertThat(individual.property(URI.create(IT.DATE_CLOSED)).hasLiteralValue(Literals.newLiteral(expected)),equalTo(true));
 	}
 
@@ -415,6 +416,7 @@ public class IssueHandlerTest {
 		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
 		assertThat(dataSet,notNullValue());
 		final Individual<?,?> individual=dataSet.individualOfId(issueId());
+		assertThat(individual.property(URI.create(DCTERMS.DATE)).hasLiteralValue(Literals.newLiteral(expected)),equalTo(true));
 		assertThat(individual.property(URI.create(IT.DUE_TO)).hasLiteralValue(Literals.newLiteral(expected)),equalTo(true));
 	}
 
@@ -429,6 +431,24 @@ public class IssueHandlerTest {
 		final Individual<?,?> individual=dataSet.individualOfId(issueId());
 		assertThat(individual.hasProperty(URI.create(IT.DATE_CLOSED)),equalTo(false));
 		assertThat(individual.hasProperty(URI.create(IT.DUE_TO)),equalTo(false));
+		assertThat(individual.hasProperty(URI.create(DCTERMS.DATE)),equalTo(false));
+	}
+
+	@Test
+	public void testToDataSet$withBothOptionalDates() throws Exception {
+		final DateTime closedDate = new DateTime();
+		final DateTime dueTo = new DateTime();
+		new Expectations() {{
+			IssueHandlerTest.this.entity.getClosed();this.result=closedDate;
+			IssueHandlerTest.this.entity.getDueTo();this.result=dueTo;
+		}};
+		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
+		assertThat(dataSet,notNullValue());
+		final Individual<?,?> individual=dataSet.individualOfId(issueId());
+		assertThat(individual.property(URI.create(DCTERMS.DATE)).hasLiteralValue(Literals.newLiteral(closedDate)),equalTo(true));
+		assertThat(individual.property(URI.create(DCTERMS.DATE)).hasLiteralValue(Literals.newLiteral(dueTo)),equalTo(true));
+		assertThat(individual.property(URI.create(IT.DATE_CLOSED)).hasLiteralValue(Literals.newLiteral(closedDate)),equalTo(true));
+		assertThat(individual.property(URI.create(IT.DUE_TO)).hasLiteralValue(Literals.newLiteral(dueTo)),equalTo(true));
 	}
 
 	@Test

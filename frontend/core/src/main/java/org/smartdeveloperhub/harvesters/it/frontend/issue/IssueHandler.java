@@ -28,6 +28,7 @@ package org.smartdeveloperhub.harvesters.it.frontend.issue;
 
 import java.io.IOException;
 
+import org.joda.time.DateTime;
 import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.data.DataSetHelper;
 import org.ldp4j.application.data.DataSetUtils;
@@ -76,6 +77,9 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 		final DataSet dataSet=DataSets.createDataSet(issueName);
 		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
 
+		final DateTime closedDate = dateTime(issue.getClosed(),false,"closed",issue).orNull();
+		final DateTime dueToDate = dateTime(issue.getDueTo(),false,"dueTo",issue).orNull();
+
 		final IndividualHelper individual=
 			helper.
 				managedIndividual(issueName,IssueHandler.ID).
@@ -107,10 +111,14 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 						withLiteral(dateTime(issue.getCreationDate(),true,"createdAt",issue).get()).
 					property(IT.DATE_OPEN).
 						withLiteral(dateTime(issue.getOpened(),true,"opened",issue).get()).
+					property(DCTERMS.DATE).
+						withLiteral(closedDate).
 					property(IT.DATE_CLOSED).
-						withLiteral(dateTime(issue.getClosed(),false,"closed",issue).orNull()).
+						withLiteral(closedDate).
+					property(DCTERMS.DATE).
+						withLiteral(dueToDate).
 					property(IT.DUE_TO).
-						withLiteral(dateTime(issue.getDueTo(),false,"dueTo",issue).orNull()).
+						withLiteral(dueToDate).
 					property(IT.ESTIMATED_TIME).
 						withLiteral(issue.getEstimatedTime());
 
