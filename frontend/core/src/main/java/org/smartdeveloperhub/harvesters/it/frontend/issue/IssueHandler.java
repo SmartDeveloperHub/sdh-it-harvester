@@ -77,6 +77,7 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 		final DataSet dataSet=DataSets.createDataSet(issueName);
 		final DataSetHelper helper=DataSetUtils.newHelper(dataSet);
 
+		final DateTime creationDate = dateTime(issue.getCreationDate(),true,"createdAt",issue).get();
 		final DateTime openDate = dateTime(issue.getOpened(),true,"opened",issue).get();
 		final DateTime closedDate = dateTime(issue.getClosed(),false,"closed",issue).orNull();
 		final DateTime dueToDate = dateTime(issue.getDueTo(),false,"dueTo",issue).orNull();
@@ -108,8 +109,10 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 						withIndividual(IT.forSeverity(issue.getSeverity())).
 					property(IT.HAS_PRIORITY).
 						withIndividual(IT.forPriority(issue.getPriority())).
+					property(DCTERMS.CREATED).
+						withLiteral(creationDate).
 					property(IT.DATE_CREATION).
-						withLiteral(dateTime(issue.getCreationDate(),true,"createdAt",issue).get()).
+						withLiteral(creationDate).
 					property(DCTERMS.DATE).
 						withLiteral(openDate).
 					property(IT.DATE_OPEN).

@@ -225,11 +225,13 @@ public class IssueHandlerTest {
 
 	@Test
 	public void testToDataSet$regularData() throws Exception {
+		final DateTime expected = new DateTime();
 		new Expectations() {{
 			IssueHandlerTest.this.entity.getId();this.result=IssueHandlerTest.this.key.getIssueId();
 			IssueHandlerTest.this.entity.getTitle();this.result="title";
 			IssueHandlerTest.this.entity.getDescription();this.result="description";
 			IssueHandlerTest.this.entity.getEstimatedTime();this.result=null;
+			IssueHandlerTest.this.entity.getCreationDate();this.result=expected;
 		}};
 		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
 		assertThat(dataSet,notNullValue());
@@ -242,6 +244,8 @@ public class IssueHandlerTest {
 		assertThat(newHelper.property(IT.ISSUE_TITLE).firstValue(String.class),equalTo("title"));
 		assertThat(newHelper.property(DCTERMS.DESCRIPTION).firstValue(String.class),equalTo("description"));
 		assertThat(newHelper.property(IT.DESCRIPTION).firstValue(String.class),equalTo("description"));
+		assertThat(newHelper.property(DCTERMS.CREATED).firstValue(DateTime.class),equalTo(expected));
+		assertThat(newHelper.property(IT.DATE_CREATION).firstValue(DateTime.class),equalTo(expected));
 	}
 
 	@Test
