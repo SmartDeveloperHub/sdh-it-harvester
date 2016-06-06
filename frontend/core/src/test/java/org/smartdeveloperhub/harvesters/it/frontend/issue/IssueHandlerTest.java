@@ -68,6 +68,7 @@ import org.smartdeveloperhub.harvesters.it.frontend.contributor.ContributorHandl
 import org.smartdeveloperhub.harvesters.it.frontend.util.IdentityUtil;
 import org.smartdeveloperhub.harvesters.it.frontend.version.VersionHandler;
 import org.smartdeveloperhub.harvesters.it.frontend.version.VersionKey;
+import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.DCTERMS;
 import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.IT;
 
 import com.google.common.collect.Iterables;
@@ -226,6 +227,7 @@ public class IssueHandlerTest {
 	public void testToDataSet$regularData() throws Exception {
 		new Expectations() {{
 			IssueHandlerTest.this.entity.getId();this.result=IssueHandlerTest.this.key.getIssueId();
+			IssueHandlerTest.this.entity.getTitle();this.result="title";
 			IssueHandlerTest.this.entity.getEstimatedTime();this.result=null;
 		}};
 		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
@@ -235,6 +237,8 @@ public class IssueHandlerTest {
 		assertThat(newHelper.types(),hasItem(URI.create(IT.ISSUE_TYPE)));
 		assertThat(newHelper.property(IT.ID).firstValue(String.class),equalTo("issueId"));
 		assertThat(newHelper.property(IT.ISSUE_ID).firstValue(String.class),equalTo("issueId"));
+		assertThat(newHelper.property(DCTERMS.TITLE).firstValue(String.class),equalTo("title"));
+		assertThat(newHelper.property(IT.ISSUE_TITLE).firstValue(String.class),equalTo("title"));
 	}
 
 	@Test

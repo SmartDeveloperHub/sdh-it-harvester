@@ -44,6 +44,7 @@ import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
 import org.smartdeveloperhub.harvesters.it.frontend.project.ProjectHandler;
 import org.smartdeveloperhub.harvesters.it.frontend.util.AbstractEntityResourceHandler;
 import org.smartdeveloperhub.harvesters.it.frontend.util.IdentityUtil;
+import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.DCTERMS;
 import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.IT;
 import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.RDF;
 
@@ -84,6 +85,8 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 						withLiteral(issue.getId()).
 					property(IT.ISSUE_ID).
 						withLiteral(issue.getId()).
+					property(DCTERMS.TITLE).
+						withLiteral(issue.getTitle()).
 					property(IT.ISSUE_TITLE).
 						withLiteral(issue.getTitle()).
 					property(IT.DESCRIPTION).

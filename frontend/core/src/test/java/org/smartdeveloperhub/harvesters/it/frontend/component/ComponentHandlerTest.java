@@ -47,6 +47,7 @@ import org.ldp4j.application.session.ResourceSnapshot;
 import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
 import org.smartdeveloperhub.harvesters.it.frontend.util.IdentityUtil;
+import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.DCTERMS;
 import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.IT;
 
 import mockit.Expectations;
@@ -108,6 +109,7 @@ public class ComponentHandlerTest {
 		assertThat(newHelper.types(),hasItem(URI.create(IT.COMPONENT_TYPE)));
 		assertThat(newHelper.property(IT.ID).firstValue(String.class),equalTo("componentId"));
 		assertThat(newHelper.property(IT.COMPONENT_ID).firstValue(String.class),equalTo("componentId"));
+		assertThat(newHelper.property(DCTERMS.TITLE).firstValue(String.class),equalTo("title"));
 		assertThat(newHelper.property(IT.COMPONENT_TITLE).firstValue(String.class),equalTo("title"));
 	}
 }

@@ -49,6 +49,7 @@ import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
 import org.smartdeveloperhub.harvesters.it.frontend.issue.IssueHandler;
 import org.smartdeveloperhub.harvesters.it.frontend.issue.IssueKey;
 import org.smartdeveloperhub.harvesters.it.frontend.util.IdentityUtil;
+import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.DCTERMS;
 import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.IT;
 
 import com.google.common.collect.Sets;
@@ -126,6 +127,7 @@ public class ProjectHandlerTest {
 		assertThat(newHelper.types(),hasItem(URI.create(IT.PROJECT_TYPE)));
 		assertThat(newHelper.property(IT.ID).firstValue(String.class),equalTo(this.key));
 		assertThat(newHelper.property(IT.PROJECT_ID).firstValue(String.class),equalTo(this.key));
+		assertThat(newHelper.property(DCTERMS.TITLE).firstValue(String.class),equalTo("title"));
 		assertThat(newHelper.property(IT.PROJECT_TITLE).firstValue(String.class),equalTo("title"));
 		assertThat(
 			individual.

@@ -46,6 +46,7 @@ import org.smartdeveloperhub.harvesters.it.frontend.issue.IssueKey;
 import org.smartdeveloperhub.harvesters.it.frontend.util.AbstractEntityResourceHandler;
 import org.smartdeveloperhub.harvesters.it.frontend.util.IdentityUtil;
 import org.smartdeveloperhub.harvesters.it.frontend.version.VersionContainerHandler;
+import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.DCTERMS;
 import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.IT;
 import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.RDF;
 
@@ -107,6 +108,8 @@ public final class ProjectHandler extends AbstractEntityResourceHandler<Project,
 						withLiteral(project.getId()).
 					property(IT.PROJECT_ID).
 						withLiteral(project.getId()).
+					property(DCTERMS.TITLE).
+						withLiteral(project.getTitle()).
 					property(IT.PROJECT_TITLE).
 						withLiteral(project.getTitle());
 

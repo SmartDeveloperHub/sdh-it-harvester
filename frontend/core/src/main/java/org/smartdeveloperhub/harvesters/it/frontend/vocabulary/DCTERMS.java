@@ -26,13 +26,13 @@
  */
 package org.smartdeveloperhub.harvesters.it.frontend.vocabulary;
 
-
 public final class DCTERMS {
 
 	public static final String NAMESPACE = "http://purl.org/dc/terms/";
 	public static final String PREFIX    = "dctype";
 
 	public static final String SOURCE = term("source");
+	public static final String TITLE  = term("title");
 
 	private DCTERMS() {
 	}

@@ -39,6 +39,7 @@ import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
 import org.smartdeveloperhub.harvesters.it.frontend.util.AbstractEntityResourceHandler;
 import org.smartdeveloperhub.harvesters.it.frontend.util.IdentityUtil;
+import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.DCTERMS;
 import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.IT;
 import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.RDF;
 
@@ -76,6 +77,8 @@ public final class ComponentHandler extends AbstractEntityResourceHandler<Compon
 					withLiteral(component.getId()).
 				property(IT.COMPONENT_ID).
 					withLiteral(component.getId()).
+				property(DCTERMS.TITLE).
+					withLiteral(component.getTitle()).
 				property(IT.COMPONENT_TITLE).
 					withLiteral(component.getTitle());
 
