@@ -378,6 +378,7 @@ public class IssueHandlerTest {
 		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
 		assertThat(dataSet,notNullValue());
 		final Individual<?,?> individual=dataSet.individualOfId(issueId());
+		assertThat(individual.property(URI.create(DCTERMS.DATE)).hasLiteralValue(Literals.newLiteral(expected)),equalTo(true));
 		assertThat(individual.property(URI.create(IT.DATE_OPEN)).hasLiteralValue(Literals.newLiteral(expected)),equalTo(true));
 	}
 
@@ -403,6 +404,7 @@ public class IssueHandlerTest {
 		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
 		assertThat(dataSet,notNullValue());
 		final Individual<?,?> individual=dataSet.individualOfId(issueId());
+		assertThat(individual.property(URI.create(DCTERMS.DATE)).hasLiteralValue(Literals.newLiteral(this.entity.getOpened())),equalTo(true));
 		assertThat(individual.property(URI.create(DCTERMS.DATE)).hasLiteralValue(Literals.newLiteral(expected)),equalTo(true));
 		assertThat(individual.property(URI.create(IT.DATE_CLOSED)).hasLiteralValue(Literals.newLiteral(expected)),equalTo(true));
 	}
@@ -416,6 +418,7 @@ public class IssueHandlerTest {
 		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
 		assertThat(dataSet,notNullValue());
 		final Individual<?,?> individual=dataSet.individualOfId(issueId());
+		assertThat(individual.property(URI.create(DCTERMS.DATE)).hasLiteralValue(Literals.newLiteral(this.entity.getOpened())),equalTo(true));
 		assertThat(individual.property(URI.create(DCTERMS.DATE)).hasLiteralValue(Literals.newLiteral(expected)),equalTo(true));
 		assertThat(individual.property(URI.create(IT.DUE_TO)).hasLiteralValue(Literals.newLiteral(expected)),equalTo(true));
 	}
@@ -431,7 +434,7 @@ public class IssueHandlerTest {
 		final Individual<?,?> individual=dataSet.individualOfId(issueId());
 		assertThat(individual.hasProperty(URI.create(IT.DATE_CLOSED)),equalTo(false));
 		assertThat(individual.hasProperty(URI.create(IT.DUE_TO)),equalTo(false));
-		assertThat(individual.hasProperty(URI.create(DCTERMS.DATE)),equalTo(false));
+		assertThat(individual.property(URI.create(DCTERMS.DATE)).hasLiteralValue(Literals.newLiteral(this.entity.getOpened())),equalTo(true));
 	}
 
 	@Test
@@ -445,6 +448,7 @@ public class IssueHandlerTest {
 		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
 		assertThat(dataSet,notNullValue());
 		final Individual<?,?> individual=dataSet.individualOfId(issueId());
+		assertThat(individual.property(URI.create(DCTERMS.DATE)).hasLiteralValue(Literals.newLiteral(this.entity.getOpened())),equalTo(true));
 		assertThat(individual.property(URI.create(DCTERMS.DATE)).hasLiteralValue(Literals.newLiteral(closedDate)),equalTo(true));
 		assertThat(individual.property(URI.create(DCTERMS.DATE)).hasLiteralValue(Literals.newLiteral(dueTo)),equalTo(true));
 		assertThat(individual.property(URI.create(IT.DATE_CLOSED)).hasLiteralValue(Literals.newLiteral(closedDate)),equalTo(true));
