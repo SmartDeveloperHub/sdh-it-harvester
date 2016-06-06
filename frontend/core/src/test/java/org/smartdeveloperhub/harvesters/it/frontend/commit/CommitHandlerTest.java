@@ -107,6 +107,7 @@ public class CommitHandlerTest {
 		final Individual<?,?> individual=dataSet.individualOfId(commitId());
 		final IndividualHelper newHelper = DataSetUtils.newHelper(individual);
 		assertThat(newHelper.types(),hasItem(URI.create(IT.COMMIT_TYPE)));
+		assertThat(newHelper.property(IT.ID).firstValue(String.class),equalTo(this.key));
 		assertThat(newHelper.property(IT.COMMIT_ID).firstValue(String.class),equalTo(this.key));
 		assertThat(newHelper.property(IT.REPOSITORY).firstValue(URI.class),equalTo(URI.create("repository")));
 		assertThat(newHelper.property(IT.BRANCH).firstValue(String.class),equalTo("branch"));

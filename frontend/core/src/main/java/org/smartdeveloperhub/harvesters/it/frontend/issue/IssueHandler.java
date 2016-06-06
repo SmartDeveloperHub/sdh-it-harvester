@@ -80,6 +80,8 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 				managedIndividual(issueName,IssueHandler.ID).
 					property(RDF.TYPE).
 						withIndividual(IT.ISSUE_TYPE).
+					property(IT.ID).
+						withLiteral(issue.getId()).
 					property(IT.ISSUE_ID).
 						withLiteral(issue.getId()).
 					property(IT.ISSUE_TITLE).

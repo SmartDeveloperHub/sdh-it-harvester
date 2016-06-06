@@ -202,13 +202,19 @@ public final class IT {
 	public static final String HAS_PROJECT_ISSUE       = "http://www.smartdeveloperhub.org/vocabulary/it#hasProjectIssue";
 	public static final String HAS_PROJECT_TOP_ISSUE   = term("hasProjectTopIssue");
 
+	public static final String ID                      = term("id");
+
 	public static final String CONTRIBUTOR_ID          = term("contributorId");
 	public static final String MBOX                    = term("mbox");
+
 	public static final String PROJECT_ID              = term("projectId");
 	public static final String PROJECT_TITLE           = term("projectTitle");
+
 	public static final String VERSION_ID              = term("versionId");
+
 	public static final String COMPONENT_ID            = term("componentId");
 	public static final String COMPONENT_TITLE         = term("componentTitle");
+
 	public static final String ISSUE_ID                = term("issueId");
 	public static final String ISSUE_TITLE             = term("issueTitle");
 	public static final String DESCRIPTION             = term("description");
@@ -230,7 +236,7 @@ public final class IT {
 	public static final String BLOCKS_ISSUE            = term("blocksIssue");
 	public static final String IS_COMPOSED_OF_ISSUE    = term("isComposedOfIssue");
 
-	public static final String COMMIT_ID                      = term("commitId");
+	public static final String COMMIT_ID               = term("commitId");
 	public static final String REPOSITORY              = term("repository");
 	public static final String HASH                    = term("branch");
 	public static final String BRANCH                  = term("hash");
@@ -246,6 +252,7 @@ public final class IT {
 	public static final String NEW_VALUE                      = term("newValue");
 	public static final String ADDED_VALUE                    = term("addedValue");
 	public static final String DELETED_VALUE                  = term("deletedValue");
+
 	private IT() {
 	}
 

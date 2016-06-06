@@ -106,6 +106,7 @@ public class ComponentHandlerTest {
 		final Individual<?,?> individual=dataSet.individualOfId(componentId());
 		final IndividualHelper newHelper = DataSetUtils.newHelper(individual);
 		assertThat(newHelper.types(),hasItem(URI.create(IT.COMPONENT_TYPE)));
+		assertThat(newHelper.property(IT.ID).firstValue(String.class),equalTo("componentId"));
 		assertThat(newHelper.property(IT.COMPONENT_ID).firstValue(String.class),equalTo("componentId"));
 		assertThat(newHelper.property(IT.COMPONENT_TITLE).firstValue(String.class),equalTo("title"));
 	}

@@ -78,6 +78,8 @@ public final class ContributorHandler extends AbstractEntityResourceHandler<Cont
 				managedIndividual(contributorName,ContributorHandler.ID).
 					property(RDF.TYPE).
 						withIndividual(IT.CONTRIBUTOR_TYPE).
+					property(IT.ID).
+						withLiteral(contributor.getId()).
 					property(IT.CONTRIBUTOR_ID).
 						withLiteral(contributor.getId());
 

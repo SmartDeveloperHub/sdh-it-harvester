@@ -103,6 +103,8 @@ public final class ProjectHandler extends AbstractEntityResourceHandler<Project,
 				managedIndividual(projectName,ProjectHandler.ID).
 					property(RDF.TYPE).
 						withIndividual(IT.PROJECT_TYPE).
+					property(IT.ID).
+						withLiteral(project.getId()).
 					property(IT.PROJECT_ID).
 						withLiteral(project.getId()).
 					property(IT.PROJECT_TITLE).

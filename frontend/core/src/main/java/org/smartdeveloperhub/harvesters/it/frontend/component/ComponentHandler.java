@@ -72,6 +72,8 @@ public final class ComponentHandler extends AbstractEntityResourceHandler<Compon
 			managedIndividual(componentName,ComponentHandler.ID).
 				property(RDF.TYPE).
 					withIndividual(IT.COMPONENT_TYPE).
+				property(IT.ID).
+					withLiteral(component.getId()).
 				property(IT.COMPONENT_ID).
 					withLiteral(component.getId()).
 				property(IT.COMPONENT_TITLE).

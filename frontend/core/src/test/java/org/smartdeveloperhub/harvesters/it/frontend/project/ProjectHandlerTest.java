@@ -124,6 +124,7 @@ public class ProjectHandlerTest {
 		final Individual<?,?> individual=dataSet.individualOfId(projectId());
 		final IndividualHelper newHelper = DataSetUtils.newHelper(individual);
 		assertThat(newHelper.types(),hasItem(URI.create(IT.PROJECT_TYPE)));
+		assertThat(newHelper.property(IT.ID).firstValue(String.class),equalTo(this.key));
 		assertThat(newHelper.property(IT.PROJECT_ID).firstValue(String.class),equalTo(this.key));
 		assertThat(newHelper.property(IT.PROJECT_TITLE).firstValue(String.class),equalTo("title"));
 		assertThat(

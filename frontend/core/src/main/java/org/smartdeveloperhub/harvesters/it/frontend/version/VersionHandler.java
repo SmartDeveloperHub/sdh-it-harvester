@@ -72,6 +72,8 @@ public final class VersionHandler extends AbstractEntityResourceHandler<Version,
 			managedIndividual(versionName,VersionHandler.ID).
 				property(RDF.TYPE).
 					withIndividual(IT.VERSION_TYPE).
+				property(IT.ID).
+					withLiteral(version.getId()).
 				property(IT.VERSION_ID).
 					withLiteral(version.getId());
 

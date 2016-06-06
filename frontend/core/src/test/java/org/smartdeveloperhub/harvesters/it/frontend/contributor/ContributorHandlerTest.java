@@ -109,6 +109,7 @@ public class ContributorHandlerTest {
 		final Individual<?,?> individual=dataSet.individualOfId(contributorId());
 		final IndividualHelper newHelper = DataSetUtils.newHelper(individual);
 		assertThat(newHelper.types(),hasItem(URI.create(IT.CONTRIBUTOR_TYPE)));
+		assertThat(newHelper.property(IT.ID).firstValue(String.class),equalTo(this.key));
 		assertThat(newHelper.property(IT.CONTRIBUTOR_ID).firstValue(String.class),equalTo(this.key));
 		assertThat(newHelper.property(IT.CONTRIBUTOR_ID).firstValue(String.class),equalTo(this.key));
 	}

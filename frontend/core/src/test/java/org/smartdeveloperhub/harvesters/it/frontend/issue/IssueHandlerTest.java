@@ -233,6 +233,7 @@ public class IssueHandlerTest {
 		final Individual<?,?> individual=dataSet.individualOfId(issueId());
 		final IndividualHelper newHelper = DataSetUtils.newHelper(individual);
 		assertThat(newHelper.types(),hasItem(URI.create(IT.ISSUE_TYPE)));
+		assertThat(newHelper.property(IT.ID).firstValue(String.class),equalTo("issueId"));
 		assertThat(newHelper.property(IT.ISSUE_ID).firstValue(String.class),equalTo("issueId"));
 	}
 

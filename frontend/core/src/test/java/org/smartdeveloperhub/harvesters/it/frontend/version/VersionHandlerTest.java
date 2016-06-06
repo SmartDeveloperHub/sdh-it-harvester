@@ -105,6 +105,7 @@ public class VersionHandlerTest {
 		final Individual<?,?> individual=dataSet.individualOfId(versionId());
 		final IndividualHelper newHelper = DataSetUtils.newHelper(individual);
 		assertThat(newHelper.types(),hasItem(URI.create(IT.VERSION_TYPE)));
+		assertThat(newHelper.property(IT.ID).firstValue(String.class),equalTo("versionId"));
 		assertThat(newHelper.property(IT.VERSION_ID).firstValue(String.class),equalTo("versionId"));
 	}
 }
