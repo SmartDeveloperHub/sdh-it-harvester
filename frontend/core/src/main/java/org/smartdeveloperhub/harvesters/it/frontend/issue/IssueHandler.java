@@ -89,6 +89,8 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 						withLiteral(issue.getTitle()).
 					property(IT.ISSUE_TITLE).
 						withLiteral(issue.getTitle()).
+					property(DCTERMS.DESCRIPTION).
+						withLiteral(issue.getDescription()).
 					property(IT.DESCRIPTION).
 						withLiteral(issue.getDescription()).
 					property(IT.IS_ISSUE_OF_PROJECT).
