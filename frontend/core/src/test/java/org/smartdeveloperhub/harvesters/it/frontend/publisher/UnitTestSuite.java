@@ -32,7 +32,9 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	PublisherFactoryTest.class
+	PublisherFactoryTest.class,
+	PublisherHelperTest.class,
+	PublishingNotificationListenerTest.class
 })
 public class UnitTestSuite {
 }
