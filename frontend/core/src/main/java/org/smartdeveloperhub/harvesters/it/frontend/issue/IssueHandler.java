@@ -202,6 +202,10 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 					property(RDF.TYPE).
 						withIndividual(IT.CHANGE_LOG_TYPE);
 
+		if(issue.getChanges()==null) {
+			return;
+		}
+
 		int entryCount=0;
 		for(final Entry entry:issue.getChanges().getEntries()) {
 			final Name<String> entryName=
