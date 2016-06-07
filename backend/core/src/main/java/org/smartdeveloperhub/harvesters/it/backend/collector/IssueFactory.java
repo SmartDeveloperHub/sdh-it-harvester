@@ -27,6 +27,7 @@
 package org.smartdeveloperhub.harvesters.it.backend.collector;
 
 import com.atlassian.jira.rest.client.api.domain.ChangelogItem;
+import com.atlassian.jira.rest.client.api.domain.Version;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -47,7 +48,6 @@ import org.smartdeveloperhub.harvesters.it.backend.Status;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -114,6 +114,7 @@ public class IssueFactory {
 		issue.setPriority(fromMap(jiraIssue.getPriority().getName(), priorityMapping));
 		issue.setSeverity(fromMap(jiraIssue.getPriority().getName(), severityMapping));
 		issue.setType(fromMap(jiraIssue.getIssueType().getName(), typeMapping));
+		issue.setVersions(getVersions(jiraIssue));
 
 		// TODO: explore it
 //		issue.setChildIssues(childIssues);
@@ -121,7 +122,6 @@ public class IssueFactory {
 //		issue.setCommits(commits);
 //		issue.setComponent(component);
 //		issue.setTags(tags);
-//		issue.setVersion(version);
 
 
 //		System.out.println("Estimate: " + jiraIssue.getTimeTracking().getOriginalEstimateMinutes());
@@ -129,6 +129,17 @@ public class IssueFactory {
 //		System.out.println("TimeSpent: " + jiraIssue.getTimeTracking().getTimeSpentMinutes());
 
 		return issue;
+	}
+
+	private Set<String> getVersions(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
+
+		Set<String> versions = new HashSet<>();
+
+		for (Version version : jiraIssue.getAffectedVersions()) {
+			versions.add(version.getName());
+		}
+
+		return versions;
 	}
 
 	private Status createStatus(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {

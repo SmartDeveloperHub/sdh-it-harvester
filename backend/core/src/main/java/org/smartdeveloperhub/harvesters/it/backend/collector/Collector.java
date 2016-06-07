@@ -97,7 +97,8 @@ public class Collector implements Runnable {
 					org.smartdeveloperhub.harvesters.it.backend.Issue issue = issueFactory.createIssue(jiraIssue);
 
 					// TODO: Store issue
-					System.out.println(issue);
+					if (!issue.getVersions().isEmpty())
+						System.out.println(issue);
 				}
 			}
 
