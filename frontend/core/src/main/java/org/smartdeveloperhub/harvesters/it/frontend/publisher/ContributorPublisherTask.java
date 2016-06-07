@@ -40,7 +40,7 @@ final class ContributorPublisherTask extends PublisherTask {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ContributorPublisherTask.class);
 
 	ContributorPublisherTask(final BackendController controller) {
-		super("Contribution publication",controller);
+		super("Contributor publication",controller);
 	}
 
 	@Override
