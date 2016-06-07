@@ -150,7 +150,7 @@ public final class IT {
 	}
 
 	public static final String NAMESPACE = "http://www.smartdeveloperhub.org/vocabulary/it#";
-	public static final String PREFIX    = "platform";
+	public static final String PREFIX    = "it";
 
 	public static final String VOCABULARY_TYPE         = term("ITVocabulary");
 	public static final String HARVESTER_TYPE          = term("ITHarvester");
