@@ -178,13 +178,13 @@ final class PublisherHelper {
 	}
 
 	static void publishProjects(final WriteSession session, final URI target, final List<String> projectIds) {
-		final ContainerSnapshot repositoryContainer=findProjectContainer(session, target);
+		final ContainerSnapshot projectContainer=findProjectContainer(session, target);
 		for(final String projectId:projectIds) {
 			final Name<String> projectName = IdentityUtil.projectName(projectId);
 			final ResourceSnapshot projectSnapshot = session.find(ResourceSnapshot.class,projectName,ProjectHandler.class);
 			if(projectSnapshot==null) {
 				PublisherHelper.
-					publishProject(repositoryContainer,projectId);
+					publishProject(projectContainer,projectId);
 			}
 		}
 	}
@@ -206,7 +206,6 @@ final class PublisherHelper {
 			throw new IOException("Project "+event.getProject()+" does not exist");
 		}
 
-
 		final Set<String> addedComponents=Sets.newLinkedHashSet();
 		final Set<String> deletedComponents=Sets.newLinkedHashSet();
 		final Set<String> addedVersions=Sets.newLinkedHashSet();
@@ -222,12 +221,13 @@ final class PublisherHelper {
 			case VERSION:
 				populateEntityChanges(entry.getValue(), addedVersions, deletedVersions);
 				break;
+			case ISSUE:
+				populateEntityChanges(entry.getValue(), addedIssues, deletedIssues);
+				break;
 			case TOP_ISSUE:
 				/**
 				 * TODO: Check what do we do when facing changes in top issues
 				 */
-			case ISSUE:
-				populateEntityChanges(entry.getValue(), addedIssues, deletedIssues);
 			default:
 				break;
 			}
