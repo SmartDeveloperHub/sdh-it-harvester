@@ -35,15 +35,19 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.StatusChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
+import org.smartdeveloperhub.harvesters.it.backend.Issue.Type;
 import org.smartdeveloperhub.harvesters.it.backend.Priority;
 import org.smartdeveloperhub.harvesters.it.backend.Severity;
 import org.smartdeveloperhub.harvesters.it.backend.Status;
-import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry;
-import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
-import org.smartdeveloperhub.harvesters.it.backend.Issue.Type;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -103,12 +107,13 @@ public class IssueFactory {
 			issue.setAssignee(jiraIssue.getAssignee().getEmailAddress());
 		}
 		issue.setChanges(createChangeLog(jiraIssue));
-		issue.setOpened(getOpenedDate(jiraIssue));
-		issue.setClosed(getClosedDate(jiraIssue));
+		issue.setOpened(getOpenedDate(jiraIssue, issue.getChanges()));
+		issue.setClosed(getClosedDate(jiraIssue, issue.getChanges()));
 		issue.setDueTo(jiraIssue.getDueDate());
 		issue.setStatus(createStatus(jiraIssue));
 		issue.setPriority(fromMap(jiraIssue.getPriority().getName(), priorityMapping));
 		issue.setSeverity(fromMap(jiraIssue.getPriority().getName(), severityMapping));
+		issue.setType(fromMap(jiraIssue.getIssueType().getName(), typeMapping));
 
 		// TODO: explore it
 //		issue.setChildIssues(childIssues);
@@ -116,7 +121,6 @@ public class IssueFactory {
 //		issue.setCommits(commits);
 //		issue.setComponent(component);
 //		issue.setTags(tags);
-//		issue.setType(type);
 //		issue.setVersion(version);
 
 
@@ -165,7 +169,7 @@ public class IssueFactory {
 
 		return value;
 	}
-	
+
 	private ChangeLog createChangeLog(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
 		
 		ChangeLog changeLog = new ChangeLog();
@@ -197,10 +201,10 @@ public class IssueFactory {
 						}
 
 					} catch (IllegalStateException e) {
-						logger.error("¡Exception! IllegalState.\n" + 
-											"Property: " + jiraItem.getField() + "\n" +
-											"\t- oldValue: " + jiraItem.getFromString() + "\n" +
-											"\t- newValue: " + jiraItem.getToString() + ".\n {}", e);
+//						logger.error("¡Exception! IllegalState.\n" + 
+//											"Property: " + jiraItem.getField() + "\n" +
+//											"\t- oldValue: " + jiraItem.getFromString() + "\n" +
+//											"\t- newValue: " + jiraItem.getToString() + ".\n {}", e);
 					}
 				}
 			}
@@ -348,14 +352,42 @@ public class IssueFactory {
 		return item;
 	}
 
-	private DateTime getOpenedDate(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
-		// TODO: Last Open Date
-		return null;
+	private DateTime getLastStatusDate(Status status, ChangeLog changeLog) {
+
+		LinkedList<DateTime> dates = new LinkedList<>(); 
+
+		for (Entry entry : changeLog.getEntries()) {
+
+			for (Item item : entry.getItems()) {
+
+				if (item instanceof StatusChangeItem && item.getNewValue() == status) {
+
+					dates.add(entry.getTimeStamp());
+				}
+			}
+		}
+
+		Collections.sort(dates);
+
+		return dates.isEmpty() ? null : dates.getLast();
 	}
 
-	private DateTime getClosedDate(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
 
-		// TODO: Date only if status is closed
+	private DateTime getOpenedDate(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue,
+									ChangeLog changeLog) {
+
+		DateTime openDate = getLastStatusDate(Status.OPEN, changeLog);
+
+		return openDate != null ? openDate : jiraIssue.getCreationDate();
+	}
+
+	private DateTime getClosedDate(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue,
+									ChangeLog changeLog) {
+
+		if (fromMap(jiraIssue.getStatus().getName(), statusMapping) == Status.CLOSED) {
+
+			return getLastStatusDate(Status.CLOSED, changeLog);
+		}
 		return null;
 	}
 }
