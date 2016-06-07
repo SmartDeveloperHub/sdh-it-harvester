@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
 
 import com.google.common.collect.Lists;
@@ -107,25 +108,42 @@ public class StaticBackendController implements BackendController {
 		final Project project = new Project();
 		project.setId(projectId);
 		project.setTitle("Project "+idNumber(projectId));
+		project.getComponents().add("component."+idNumber(projectId)+".1");
+		project.getComponents().add("component."+idNumber(projectId)+".2");
+		project.getVersions().add("version."+idNumber(projectId)+".1");
+		project.getVersions().add("version."+idNumber(projectId)+".2");
+		project.getIssues().add("issue."+idNumber(projectId)+".1");
+		project.getIssues().add("issue."+idNumber(projectId)+".2");
 		return project;
 	}
 
 	@Override
 	public Component getProjectComponent(final String projectId, final String componentId) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		final Component component = new Component();
+		component.setProjectId(projectId);
+		component.setId(componentId);
+		component.setTitle("Component "+idNumber(componentId)+" of Project "+idNumber(projectId));
+		return component;
 	}
 
 	@Override
 	public Version getProjectVersion(final String projectId, final String versionId) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		final Version version = new Version();
+		version.setProjectId(projectId);
+		version.setId(versionId);
+		return version;
 	}
 
 	@Override
 	public Issue getProjectIssue(final String projectId, final String issueId) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		final Issue issue = new Issue();
+		issue.setProjectId(projectId);
+		issue.setId(issueId);
+		issue.setTitle("Issue "+idNumber(issueId)+" of Project "+idNumber(projectId));
+		issue.setCreationDate(new DateTime());
+		issue.setOpened(new DateTime());
+		issue.setChanges(new ChangeLog());
+		return issue;
 	}
 
 }

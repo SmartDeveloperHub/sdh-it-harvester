@@ -70,18 +70,38 @@ public class HarvesterApplicationITest {
 	@OperateOnDeployment("default")
 	public void checkTwoContributorsArePublished(@ArquillianResource final URL contextURL) throws Exception {
 		final List<String> contributors = getContributors(contextURL);
-		assertThat(contributors,hasSize(2));
-		LDPUtil.assertIsAccessible(contributors.get(0));
-		LDPUtil.assertIsAccessible(contributors.get(1));
+		verifyElements(contributors);
 	}
 
 	@Test
 	@OperateOnDeployment("default")
 	public void checkTwoCommitsArePublished(@ArquillianResource final URL contextURL) throws Exception {
-		final List<String> contributors = getCommits(contextURL);
-		assertThat(contributors,hasSize(2));
-		LDPUtil.assertIsAccessible(contributors.get(0));
-		LDPUtil.assertIsAccessible(contributors.get(1));
+		final List<String> commits = getCommits(contextURL);
+		verifyElements(commits);
+	}
+
+	@Test
+	@OperateOnDeployment("default")
+	public void checkTwoProjectsArePublished(@ArquillianResource final URL contextURL) throws Exception {
+		final List<String> projects = getProjects(contextURL);
+		assertThat(projects,hasSize(2));
+		checkProject(projects.get(0));
+		checkProject(projects.get(1));
+	}
+
+	private void checkProject(final String project) throws IOException {
+		final List<String> components = queryResourceVariable(project, "queries/components.sparql", "component");
+		verifyElements(components);
+		final List<String> versions = queryResourceVariable(project, "queries/versions.sparql", "version");
+		verifyElements(versions);
+		final List<String> issues = queryResourceVariable(project, "queries/issues.sparql", "issue");
+		verifyElements(issues);
+	}
+
+	private void verifyElements(final List<String> components) {
+		assertThat(components,hasSize(2));
+		LDPUtil.assertIsAccessible(components.get(0));
+		LDPUtil.assertIsAccessible(components.get(1));
 	}
 
 	private static final List<String> getContributors(final URL contextURL) throws IOException {
@@ -90,6 +110,10 @@ public class HarvesterApplicationITest {
 
 	private static final List<String> getCommits(final URL contextURL) throws IOException {
 		return queryResourceVariable(TestingUtil.resolve(contextURL,SERVICE), "queries/commits.sparql", "commit");
+	}
+
+	private static final List<String> getProjects(final URL contextURL) throws IOException {
+		return queryResourceVariable(TestingUtil.resolve(contextURL,SERVICE), "queries/projects.sparql", "project");
 	}
 
 	private static List<String> queryResourceVariable(final String resource, final String query, final String variable) throws IOException {
