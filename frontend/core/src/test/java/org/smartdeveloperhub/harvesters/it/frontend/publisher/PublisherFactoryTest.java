@@ -33,6 +33,7 @@ import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.net.URI;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,13 +73,16 @@ public class PublisherFactoryTest {
 	@Test
 	public void createsDynamicPublisherIfCanConnect(@Mocked final BackendController controller) throws Exception {
 		final Collector collector = Fixture.defaultCollector();
+		final URI target = URI.create("target");
 		new Expectations() {{
 			controller.getCollector();this.result=collector;
+			controller.getTarget();this.result=target;
 		}};
 		new MockUp<DynamicPublisher>() {
 			@Mock
 			void $init(final BackendController aController, final CollectorConfiguration config) {
 				assertThat(aController,sameInstance(controller));
+				assertThat(config.getInstance(),equalTo(target.toString()));
 				assertThat(config.getBrokerHost(),equalTo(collector.getNotifications().getBrokerHost()));
 				assertThat(config.getBrokerPort(),equalTo(collector.getNotifications().getBrokerPort()));
 				assertThat(config.getVirtualHost(),equalTo(collector.getNotifications().getVirtualHost()));

@@ -27,6 +27,7 @@
 package org.smartdeveloperhub.harvesters.it.frontend.publisher;
 
 import java.io.IOException;
+import java.net.URI;
 
 import org.smartdeveloperhub.harvesters.it.backend.Notifications;
 import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
@@ -42,13 +43,15 @@ public final class PublisherFactory {
 			new DynamicPublisher(
 				controller,
 				toConfiguration(
+					controller.getTarget(),
 					controller.
 						getCollector().
 							getNotifications()));
 	}
 
-	private static CollectorConfiguration toConfiguration(final Notifications notifications) {
+	private static CollectorConfiguration toConfiguration(final URI instance, final Notifications notifications) {
 		final CollectorConfiguration result = new CollectorConfiguration();
+		result.setInstance(instance.toString());
 		result.setBrokerHost(notifications.getBrokerHost());
 		result.setBrokerPort(notifications.getBrokerPort());
 		result.setVirtualHost(notifications.getVirtualHost());
