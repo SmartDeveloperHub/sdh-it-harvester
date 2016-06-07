@@ -197,10 +197,10 @@ public class IssueFactory {
 						}
 
 					} catch (IllegalStateException e) {
-//						logger.error("¡Exception! IllegalState.\n" + 
-//											"Property: " + jiraItem.getField() + "\n" +
-//											"\t- oldValue: " + jiraItem.getFromString() + "\n" +
-//											"\t- newValue: " + jiraItem.getToString() + ".\n {}", e);
+						logger.error("¡Exception! IllegalState.\n" + 
+											"Property: " + jiraItem.getField() + "\n" +
+											"\t- oldValue: " + jiraItem.getFromString() + "\n" +
+											"\t- newValue: " + jiraItem.getToString() + ".\n {}", e);
 					}
 				}
 			}

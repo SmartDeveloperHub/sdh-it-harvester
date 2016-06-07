@@ -32,7 +32,6 @@ import com.atlassian.jira.rest.client.api.domain.BasicProject;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,6 +100,7 @@ public class Collector implements Runnable {
 				}
 			}
 
+			lastUpdateTimeStamp = System.currentTimeMillis();
 		} catch(Exception e) {
 
 			logger.error("Exception in Collector. {}", e);
