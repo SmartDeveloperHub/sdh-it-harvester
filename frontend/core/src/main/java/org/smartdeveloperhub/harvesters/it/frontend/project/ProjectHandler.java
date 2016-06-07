@@ -65,7 +65,7 @@ import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.RDF;
 			handler=VersionContainerHandler.class
 		),
 		@Attachment(
-			id=ProjectHandler.PROJECT_VERSIONS,
+			id=ProjectHandler.PROJECT_ISSUES,
 			path="issues/",
 			handler=IssueContainerHandler.class
 		)
