@@ -87,6 +87,8 @@ public class Collector implements Runnable {
 																	username,
 																	password)) {
 
+			client.getSessionClient()
+			
 			for (BasicProject project : getProjects(client)) {
 
 				for (String issueId : getProjectIssues(client, project.getKey(),
@@ -97,8 +99,7 @@ public class Collector implements Runnable {
 					org.smartdeveloperhub.harvesters.it.backend.Issue issue = issueFactory.createIssue(jiraIssue);
 
 					// TODO: Store issue
-					if (!issue.getVersions().isEmpty())
-						System.out.println(issue);
+//					System.out.println(issue);
 				}
 			}
 
@@ -114,6 +115,7 @@ public class Collector implements Runnable {
 
 	private Iterable<BasicProject> getProjects(JiraRestClient client)
 							throws InterruptedException, ExecutionException {
+
 		return client.getProjectClient().getAllProjects().get();
 	}
 

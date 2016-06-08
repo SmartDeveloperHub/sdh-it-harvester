@@ -26,7 +26,9 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend.collector;
 
+import com.atlassian.jira.rest.client.api.domain.BasicComponent;
 import com.atlassian.jira.rest.client.api.domain.ChangelogItem;
+import com.atlassian.jira.rest.client.api.domain.Component;
 import com.atlassian.jira.rest.client.api.domain.Version;
 
 import org.joda.time.DateTime;
@@ -114,15 +116,16 @@ public class IssueFactory {
 		issue.setPriority(fromMap(jiraIssue.getPriority().getName(), priorityMapping));
 		issue.setSeverity(fromMap(jiraIssue.getPriority().getName(), severityMapping));
 		issue.setType(fromMap(jiraIssue.getIssueType().getName(), typeMapping));
+
+		// Version and Component by name. would be ID a better option?
 		issue.setVersions(getVersions(jiraIssue));
+		issue.setComponents(getComponents(jiraIssue));
 
 		// TODO: explore it
 //		issue.setChildIssues(childIssues);
 //		issue.setBlockedIssues(blockedIssues);
 //		issue.setCommits(commits);
-//		issue.setComponent(component);
 //		issue.setTags(tags);
-
 
 //		System.out.println("Estimate: " + jiraIssue.getTimeTracking().getOriginalEstimateMinutes());
 //		System.out.println("Remaining: " + jiraIssue.getTimeTracking().getRemainingEstimateMinutes());
@@ -131,12 +134,24 @@ public class IssueFactory {
 		return issue;
 	}
 
+	private Set<String> getComponents(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
+
+		Set<String> components = new HashSet<>();
+
+		for (BasicComponent component : jiraIssue.getComponents()) {
+
+			components.add(String.valueOf(component.getId()));
+		}
+		return components;
+	}
+
 	private Set<String> getVersions(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
 
 		Set<String> versions = new HashSet<>();
 
 		for (Version version : jiraIssue.getAffectedVersions()) {
-			versions.add(version.getName());
+
+			versions.add(String.valueOf(version.getId()));
 		}
 
 		return versions;
@@ -186,14 +201,16 @@ public class IssueFactory {
 		ChangeLog changeLog = new ChangeLog();
 		Set<Entry> entries = new HashSet<>();
 		Set<String> failed = new HashSet<>();
-		for (com.atlassian.jira.rest.client.api.domain.ChangelogGroup group : jiraIssue.getChangelog()) {
+		for (com.atlassian.jira.rest.client.api.domain.ChangelogGroup group :
+													jiraIssue.getChangelog()) {
 
 			Entry entry = new Entry();
 			entry.setTimeStamp(group.getCreated());
 			entry.setAuthor(group.getAuthor().getDisplayName());
 
 			Set<Item> items = new HashSet<>();
-			for (com.atlassian.jira.rest.client.api.domain.ChangelogItem jiraItem : group.getItems()) {
+			for (com.atlassian.jira.rest.client.api.domain.ChangelogItem jiraItem :
+															group.getItems()) {
 
 				// Register only changes on Jira Attributes
 				if (jiraItem.getFieldType() == com.atlassian.jira.rest.client.api.domain.FieldType.JIRA) {
@@ -237,37 +254,46 @@ public class IssueFactory {
 
 			item = Item.builder()
 							.status()
-								.oldValue(fromMap(jiraItem.getFromString(), statusMapping))
-								.newValue(fromMap(jiraItem.getToString(), statusMapping))
+								.oldValue(fromMap(jiraItem.getFromString(),
+													statusMapping))
+								.newValue(fromMap(jiraItem.getToString(),
+													statusMapping))
 								.build();
 
 		} else if (ChangeLogProperty.PRIORITY.is(field)) {
 
 			item = Item.builder()
 							.priority()
-								.oldValue(fromMap(jiraItem.getFromString(), priorityMapping))
-								.newValue(fromMap(jiraItem.getToString(), priorityMapping))
+								.oldValue(fromMap(jiraItem.getFromString(),
+													priorityMapping))
+								.newValue(fromMap(jiraItem.getToString(),
+													priorityMapping))
 								.build();
 
 		} else if (ChangeLogProperty.SEVERITY.is(field)) {
 
 			item = Item.builder()
 							.severity()
-								.oldValue(fromMap(jiraItem.getFromString(), severityMapping))
-								.newValue(fromMap(jiraItem.getToString(), severityMapping))
+								.oldValue(fromMap(jiraItem.getFromString(),
+													severityMapping))
+								.newValue(fromMap(jiraItem.getToString(),
+													severityMapping))
 								.build();
 
 		} else if (ChangeLogProperty.ISSUE_TYPE.is(field)) {
 
 			item = Item.builder()
 							.type()
-							.oldValue(fromMap(jiraItem.getFromString(), typeMapping))
-							.newValue(fromMap(jiraItem.getToString(), typeMapping))
+								.oldValue(fromMap(jiraItem.getFromString(),
+													typeMapping))
+								.newValue(fromMap(jiraItem.getToString(),
+													typeMapping))
 								.build();
 
 		} else if (ChangeLogProperty.DUE_DATE.is(field)) {
 
-			DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SS");
+			DateTimeFormatter formatter =
+							DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SS");
 
 			DateTime fromDate = (jiraItem.getFromString() != null ?
 									formatter.parseDateTime(jiraItem.getFromString()) :
@@ -341,8 +367,10 @@ public class IssueFactory {
 		} else if (ChangeLogProperty.BLOCKERS.is(field)) {
 
 			// Remove null values
-			String fromValue = (jiraItem.getFromString() != null ? jiraItem.getFromString() : "");
-			String toValue = (jiraItem.getToString() != null ? jiraItem.getToString() : "");
+			String fromValue = (jiraItem.getFromString() != null ?
+												jiraItem.getFromString() : "");
+			String toValue = (jiraItem.getToString() != null ?
+												jiraItem.getToString() : "");
 
 			// Only takes the "is blocked" relation
 			String oldLink = (fromValue.contains("This issue is blocked by") ?
