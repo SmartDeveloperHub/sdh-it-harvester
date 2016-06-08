@@ -172,9 +172,9 @@ public final class IT {
 	public static final String CHANGE_LOG_TYPE         = term("ChangeLog");
 	public static final String CHANGE_LOG_ENTRY_TYPE   = term("ChangeLogEntry");
 	public static final String CHANGE_LOG_ITEM_TYPE    = term("ChangeLogItem");
-	public static final String UPDATE_LOG_ITEM_TYPE    = term("UpdateLogItem");
-	public static final String ADD_LOG_ITEM_TYPE       = term("AddLogItem");
-	public static final String DELETE_LOG_ITEM_TYPE    = term("DeleteLogItem");
+	public static final String UPDATE_LOG_ITEM_TYPE    = term("ChangeLogItemUpdateValue");
+	public static final String ADD_LOG_ITEM_TYPE       = term("ChangeLogItemAddValue");
+	public static final String DELETE_LOG_ITEM_TYPE    = term("ChangeLogItemDeleteValue");
 
 	public static final String STATUS_TYPE             = term("Status");
 	public static final String OPEN                    = term("open");
