@@ -28,12 +28,14 @@ package org.smartdeveloperhub.harvesters.it.frontend.publisher;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -71,7 +73,7 @@ public class PublisherFactoryTest {
 	}
 
 	@Test
-	public void createsDynamicPublisherIfCanConnect(@Mocked final BackendController controller) throws Exception {
+	public void createsDynamicPublisherIfCollectorDefinesNotifications(@Mocked final BackendController controller) throws Exception {
 		final Collector collector = Fixture.defaultCollector();
 		final URI target = URI.create("target");
 		new Expectations() {{
@@ -80,13 +82,33 @@ public class PublisherFactoryTest {
 		}};
 		new MockUp<DynamicPublisher>() {
 			@Mock
-			void $init(final BackendController aController, final CollectorConfiguration config) {
+			void $init(final BackendController aController, final List<CollectorConfiguration> configurations) {
+				assertThat(configurations,hasSize(1));
+				final CollectorConfiguration aConfig=configurations.get(0);
 				assertThat(aController,sameInstance(controller));
-				assertThat(config.getInstance(),equalTo(target.toString()));
-				assertThat(config.getBrokerHost(),equalTo(collector.getNotifications().getBrokerHost()));
-				assertThat(config.getBrokerPort(),equalTo(collector.getNotifications().getBrokerPort()));
-				assertThat(config.getVirtualHost(),equalTo(collector.getNotifications().getVirtualHost()));
-				assertThat(config.getExchangeName(),equalTo(collector.getNotifications().getExchangeName()));
+				assertThat(aConfig.getInstance(),equalTo(target.toString()));
+				assertThat(aConfig.getBrokerHost(),equalTo(collector.getNotifications().getBrokerHost()));
+				assertThat(aConfig.getBrokerPort(),equalTo(collector.getNotifications().getBrokerPort()));
+				assertThat(aConfig.getVirtualHost(),equalTo(collector.getNotifications().getVirtualHost()));
+				assertThat(aConfig.getExchangeName(),equalTo(collector.getNotifications().getExchangeName()));
+			}
+		};
+		final Publisher created = PublisherFactory.createPublisher(controller);
+		assertThat(created,notNullValue());
+	}
+
+	@Test
+	public void createsDynamicPublisherIfCollectorDoesNotDefineNotifications(@Mocked final BackendController controller, @Mocked final Collector collector) throws Exception {
+		final URI target = URI.create("target");
+		new Expectations() {{
+			controller.getCollector();this.result=collector;
+			collector.getNotifications();this.result=null;
+			controller.getTarget();this.result=target;
+		}};
+		new MockUp<DynamicPublisher>() {
+			@Mock
+			void $init(final BackendController aController, final List<CollectorConfiguration> configurations) {
+				assertThat(configurations,hasSize(0));
 			}
 		};
 		final Publisher created = PublisherFactory.createPublisher(controller);

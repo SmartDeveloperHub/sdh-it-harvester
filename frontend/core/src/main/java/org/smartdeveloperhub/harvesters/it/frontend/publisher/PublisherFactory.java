@@ -28,10 +28,13 @@ package org.smartdeveloperhub.harvesters.it.frontend.publisher;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 
 import org.smartdeveloperhub.harvesters.it.backend.Notifications;
 import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
 import org.smartdeveloperhub.harvesters.it.notification.CollectorConfiguration;
+
+import com.google.common.collect.ImmutableList;
 
 public final class PublisherFactory {
 
@@ -49,14 +52,18 @@ public final class PublisherFactory {
 							getNotifications()));
 	}
 
-	private static CollectorConfiguration toConfiguration(final URI instance, final Notifications notifications) {
-		final CollectorConfiguration result = new CollectorConfiguration();
-		result.setInstance(instance.toString());
-		result.setBrokerHost(notifications.getBrokerHost());
-		result.setBrokerPort(notifications.getBrokerPort());
-		result.setVirtualHost(notifications.getVirtualHost());
-		result.setExchangeName(notifications.getExchangeName());
-		return result;
+	private static List<CollectorConfiguration> toConfiguration(final URI instance, final Notifications notifications) {
+		final ImmutableList.Builder<CollectorConfiguration> builder=ImmutableList.builder();
+		if(notifications!=null) {
+			final CollectorConfiguration result = new CollectorConfiguration();
+			result.setInstance(instance.toString());
+			result.setBrokerHost(notifications.getBrokerHost());
+			result.setBrokerPort(notifications.getBrokerPort());
+			result.setVirtualHost(notifications.getVirtualHost());
+			result.setExchangeName(notifications.getExchangeName());
+			builder.add(result);
+		}
+		return builder.build();
 	}
 
 }

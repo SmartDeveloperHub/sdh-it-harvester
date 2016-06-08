@@ -40,7 +40,6 @@ import org.smartdeveloperhub.harvesters.it.notification.CollectorConfiguration;
 import org.smartdeveloperhub.harvesters.it.notification.NotificationManager;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -91,7 +90,7 @@ final class DynamicPublisher implements Publisher {
 
 	private final BackendController controller;
 
-	DynamicPublisher(final BackendController controller, final CollectorConfiguration config) {
+	DynamicPublisher(final BackendController controller, final List<CollectorConfiguration> config) {
 		this.controller = controller;
 		this.pool =
 			MoreExecutors.
@@ -102,13 +101,13 @@ final class DynamicPublisher implements Publisher {
 							new ThreadFactoryBuilder().
 								setNameFormat("Publisher-thread-%d").
 								build()
-							)
+						)
 				);
 		this.publishingCompleted = new CountDownLatch(1);
 		this.manager=
 			NotificationManager.
 				newInstance(
-					ImmutableList.of(config),
+					config,
 					new PublishingNotificationListener(
 						this.publishingCompleted,
 						controller.getTarget()));

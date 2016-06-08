@@ -28,7 +28,7 @@ package org.smartdeveloperhub.harvesters.it.frontend.publisher;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -81,6 +81,7 @@ public class DynamicPublisherTest {
 
 	private final Random random = new Random(System.nanoTime());
 	private CollectorConfiguration configuration;
+	private final List<CollectorConfiguration> configurations=Lists.newArrayList();
 
 	@Rule
 	public TestName name=new TestName();
@@ -128,6 +129,7 @@ public class DynamicPublisherTest {
 	@Before
 	public void setUp() {
 		this.configuration=new CollectorConfiguration();
+		this.configuration.setInstance(ENDPOINT);
 		this.configuration.setBrokerHost("localhost");
 		this.configuration.setExchangeName("test");
 		this.configuration.setVirtualHost("/");
@@ -136,7 +138,7 @@ public class DynamicPublisherTest {
 
 	@Test
 	public void testInitialize(@Mocked final PublisherHelper helper, @Mocked final WriteSession session, @Mocked final BackendController controller) throws Exception {
-		final DynamicPublisher sut = new DynamicPublisher(controller,this.configuration);
+		final DynamicPublisher sut = new DynamicPublisher(controller,this.configurations);
 		final List<String> projects=Arrays.asList("1","2");
 		new Expectations() {{
 			controller.getTarget();this.result=JIRA_COLLECTOR;
@@ -186,7 +188,7 @@ public class DynamicPublisherTest {
 			snapshot.attachmentById((String)this.any);this.result=attachmentSnapshot;
 			attachmentSnapshot.resource();this.result=snapshot;
 		}};
-		final DynamicPublisher sut=new DynamicPublisher(controller,this.configuration);
+		final DynamicPublisher sut=new DynamicPublisher(controller,this.configurations);
 		sut.start();
 		try {
 			sut.awaitPublicationCompletion();
@@ -236,7 +238,7 @@ public class DynamicPublisherTest {
 			snapshot.attachmentById((String)this.any);this.result=attachmentSnapshot;
 			attachmentSnapshot.resource();this.result=snapshot;
 		}};
-		final DynamicPublisher sut=new DynamicPublisher(controller,this.configuration);
+		final DynamicPublisher sut=new DynamicPublisher(controller,this.configurations);
 		sut.start();
 		final Thread thread=new Thread() {
 			@Override
@@ -297,7 +299,7 @@ public class DynamicPublisherTest {
 			snapshot.attachmentById((String)this.any);this.result=attachmentSnapshot;
 			attachmentSnapshot.resource();this.result=snapshot;
 		}};
-		final DynamicPublisher sut=new DynamicPublisher(controller,this.configuration);
+		final DynamicPublisher sut=new DynamicPublisher(controller,this.configurations);
 		sut.start();
 		try {
 			sut.awaitPublicationCompletion();
@@ -346,7 +348,7 @@ public class DynamicPublisherTest {
 			snapshot.attachmentById((String)this.any);this.result=attachmentSnapshot;
 			attachmentSnapshot.resource();this.result=snapshot;
 		}};
-		final DynamicPublisher sut=new DynamicPublisher(controller,this.configuration);
+		final DynamicPublisher sut=new DynamicPublisher(controller,this.configurations);
 		sut.start();
 		try {
 			sut.awaitPublicationCompletion();
@@ -371,12 +373,12 @@ public class DynamicPublisherTest {
 			NotificationManager.newInstance((List<CollectorConfiguration>)this.any, (NotificationListener)this.any);this.result=manager;
 			manager.start();this.result=new IOException("Failure");
 		}};
-		final DynamicPublisher sut=new DynamicPublisher(controller,this.configuration);
+		final DynamicPublisher sut=new DynamicPublisher(controller,this.configurations);
 		sut.start();
 		new Verifications() {{
 			List<CollectorConfiguration> collectors;
 			NotificationManager.newInstance(collectors=withCapture(), (NotificationListener)this.any);
-			assertThat(collectors,hasItem(DynamicPublisherTest.this.configuration));
+			assertThat(collectors,sameInstance(DynamicPublisherTest.this.configurations));
 		}};
 	}
 
@@ -395,7 +397,7 @@ public class DynamicPublisherTest {
 			NotificationManager.newInstance((List<CollectorConfiguration>)this.any, (NotificationListener)this.any);this.result=manager;
 			manager.start();this.result=new RuntimeException("Failure");
 		}};
-		final DynamicPublisher sut=new DynamicPublisher(controller,this.configuration);
+		final DynamicPublisher sut=new DynamicPublisher(controller,this.configurations);
 		try {
 			sut.start();
 			fail("Should not start if something prevents start-up");
@@ -405,7 +407,7 @@ public class DynamicPublisherTest {
 		new Verifications() {{
 			List<CollectorConfiguration> collectors;
 			NotificationManager.newInstance(collectors=withCapture(), (NotificationListener)this.any);
-			assertThat(collectors,hasItem(DynamicPublisherTest.this.configuration));
+			assertThat(collectors,sameInstance(DynamicPublisherTest.this.configurations));
 		}};
 	}
 
