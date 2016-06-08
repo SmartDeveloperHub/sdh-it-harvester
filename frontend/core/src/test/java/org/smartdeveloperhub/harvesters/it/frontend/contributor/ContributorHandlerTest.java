@@ -41,6 +41,7 @@ import org.ldp4j.application.data.DataSet;
 import org.ldp4j.application.data.DataSetUtils;
 import org.ldp4j.application.data.Individual;
 import org.ldp4j.application.data.IndividualHelper;
+import org.ldp4j.application.data.Literals;
 import org.ldp4j.application.data.ManagedIndividualId;
 import org.ldp4j.application.data.Name;
 import org.ldp4j.application.data.NamingScheme;
@@ -110,7 +111,7 @@ public class ContributorHandlerTest {
 		assertThat(newHelper.types(),hasItem(URI.create(IT.CONTRIBUTOR_TYPE)));
 		assertThat(newHelper.property(IT.ID).firstValue(String.class),equalTo(this.key));
 		assertThat(newHelper.property(IT.CONTRIBUTOR_ID).firstValue(String.class),equalTo(this.key));
-		assertThat(newHelper.property(IT.CONTRIBUTOR_ID).firstValue(String.class),equalTo(this.key));
+		assertThat(individual.property(URI.create(IT.MBOX)).hasLiteralValue(Literals.newLiteral(URI.create("email1"))),equalTo(true));
 	}
 
 	@Test
