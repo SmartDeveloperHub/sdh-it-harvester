@@ -24,7 +24,7 @@
  *   Bundle      : it-frontend-core-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.frontend;
+package org.smartdeveloperhub.harvesters.it.frontend.controller;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -32,18 +32,9 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	UnitTestSuite.class,
-	org.smartdeveloperhub.harvesters.it.frontend.util.UnitTestSuite.class,
-	org.smartdeveloperhub.harvesters.it.frontend.vocabulary.UnitTestSuite.class,
-	org.smartdeveloperhub.harvesters.it.frontend.publisher.UnitTestSuite.class,
-	org.smartdeveloperhub.harvesters.it.frontend.harvester.UnitTestSuite.class,
-	org.smartdeveloperhub.harvesters.it.frontend.component.UnitTestSuite.class,
-	org.smartdeveloperhub.harvesters.it.frontend.version.UnitTestSuite.class,
-	org.smartdeveloperhub.harvesters.it.frontend.issue.UnitTestSuite.class,
-	org.smartdeveloperhub.harvesters.it.frontend.project.UnitTestSuite.class,
-	org.smartdeveloperhub.harvesters.it.frontend.contributor.UnitTestSuite.class,
-	org.smartdeveloperhub.harvesters.it.frontend.commit.UnitTestSuite.class,
-	org.smartdeveloperhub.harvesters.it.frontend.controller.UnitTestSuite.class
+	LocalDataTest.class,
+	LocalBackendControllerTest.class,
+	LocalBackendControllerFactoryTest.class
 })
-public class AllUnitTestSuites {
+public class UnitTestSuite {
 }
