@@ -33,9 +33,6 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smartdeveloperhub.harvesters.it.backend.StaticBackendController;
-import org.smartdeveloperhub.harvesters.it.backend.StaticBackendControllerFactory;
-import org.smartdeveloperhub.harvesters.it.frontend.spi.BackendControllerFactory;
 
 public class SmokeTest {
 
@@ -55,10 +52,7 @@ public class SmokeTest {
 				ShrinkWrap.
 					create(WebArchive.class,archiveName).
 						addAsLibraries(files).
-						addClass(StaticBackendControllerFactory.class).
-						addClass(StaticBackendController.class).
 						addAsResource("log4j.properties").
-						addAsServiceProvider(BackendControllerFactory.class,StaticBackendControllerFactory.class).
 						setWebXML(new File("src/main/webapp/WEB-INF/web.xml"));
 		} catch (final Exception e) {
 			LOGGER.error("Could not create archive",e);

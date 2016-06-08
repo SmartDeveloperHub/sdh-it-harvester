@@ -248,6 +248,7 @@
 						<maven.repo.local>${settings.localRepository}</maven.repo.local>
 						<undertow.http.port>${undertow.http.port}</undertow.http.port>
 						<it.harvester.collector>http://localhost:${undertow.http.port}/collector/api</it.harvester.collector>
+						<it.harvester.localController>src${file.separator}test${file.separator}resources${file.separator}data${file.separator}local-data.json</it.harvester.localController>
 					</systemPropertyVariables>
 				</configuration>
 			</plugin>
