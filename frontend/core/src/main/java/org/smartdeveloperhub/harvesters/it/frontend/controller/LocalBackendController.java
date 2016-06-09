@@ -28,6 +28,7 @@ package org.smartdeveloperhub.harvesters.it.frontend.controller;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,6 +40,7 @@ import org.smartdeveloperhub.harvesters.it.backend.Collector;
 import org.smartdeveloperhub.harvesters.it.backend.Commit;
 import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
+import org.smartdeveloperhub.harvesters.it.backend.Entities;
 import org.smartdeveloperhub.harvesters.it.backend.Identifiable;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
 import org.smartdeveloperhub.harvesters.it.backend.Project;
@@ -46,8 +48,8 @@ import org.smartdeveloperhub.harvesters.it.backend.State;
 import org.smartdeveloperhub.harvesters.it.backend.Version;
 import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
 
 final class LocalBackendController implements BackendController {
 
@@ -81,9 +83,13 @@ final class LocalBackendController implements BackendController {
 			LOGGER.error("Could not find local configuration file '{}'",path);
 			throw new IOException("Could not find local configuration file '"+path+"'");
 		}
-		final ObjectMapper objectMapper = new ObjectMapper();
 		try {
-			return objectMapper.readValue(path.toFile(),LocalData.class);
+			final String content=
+				Resources.
+					toString(
+						path.toFile().toURI().toURL(),
+						StandardCharsets.UTF_8);
+			return Entities.unmarshallEntity(content,LocalData.class);
 		} catch (final IOException e) {
 			LOGGER.error("Could not load local configuration file '{}'. Full stacktrace follows",path,e);
 			throw new IOException("Could not load local configuration file '"+path+"'",e);

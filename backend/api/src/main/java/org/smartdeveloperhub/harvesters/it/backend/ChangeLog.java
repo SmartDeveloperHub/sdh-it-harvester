@@ -289,7 +289,7 @@ public final class ChangeLog extends Entity {
 				return this.oldValue;
 			}
 
-			public final void setOldValue(final T oldValue) {
+			public void setOldValue(final T oldValue) {
 				this.oldValue = oldValue;
 			}
 
@@ -298,7 +298,7 @@ public final class ChangeLog extends Entity {
 				return this.newValue;
 			}
 
-			public final void setNewValue(final T newValue) {
+			public void setNewValue(final T newValue) {
 				this.newValue = newValue;
 			}
 
@@ -330,6 +330,20 @@ public final class ChangeLog extends Entity {
 
 		}
 
+		public static abstract class DateTimeChangeItem extends AbstractItem<DateTime> {
+
+			@Override
+			public void setOldValue(final DateTime oldValue) {
+				super.setOldValue(DateTimes.toUTC(oldValue));
+			}
+
+			@Override
+			public void setNewValue(final DateTime newValue) {
+				super.setNewValue(DateTimes.toUTC(newValue));
+			}
+
+		}
+
 		public static final class TitleChangeItem extends AbstractItem<String> {
 			@Override
 			public void accept(final ItemVisitor visitor) {
@@ -344,14 +358,14 @@ public final class ChangeLog extends Entity {
 			}
 		}
 
-		public static final class OpenedDateChangeItem extends AbstractItem<DateTime> {
+		public static final class OpenedDateChangeItem extends DateTimeChangeItem {
 			@Override
 			public void accept(final ItemVisitor visitor) {
 				visitor.visitOpenedDateChange(this);
 			}
 		}
 
-		public static final class ClosedDateChangeItem extends AbstractItem<DateTime> {
+		public static final class ClosedDateChangeItem extends DateTimeChangeItem {
 			@Override
 			public void accept(final ItemVisitor visitor) {
 				visitor.visitClosedDateChange(this);
@@ -467,7 +481,7 @@ public final class ChangeLog extends Entity {
 		}
 
 		public void setTimeStamp(final DateTime timeStamp) {
-			this.timeStamp = timeStamp;
+			this.timeStamp = DateTimes.toUTC(timeStamp);
 		}
 
 		public String getAuthor() {

@@ -26,27 +26,45 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assume.assumeThat;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	DateTimesTest.class,
-	PriorityTest.class,
-	SeverityTest.class,
-	StatusTest.class,
-	ComponentTest.class,
-	ContributorTest.class,
-	VersionTest.class,
-	CommitTest.class,
-	NotificationsTest.class,
-	CollectorTest.class,
-	StateTest.class,
-	ProjectTest.class,
-	ChangeLogTest.class,
-	IssueTest.class,
-	EntitiesTest.class
-})
-public class UnitTests {
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.junit.Test;
+import org.ldp4j.commons.testing.Utils;
+
+public class DateTimesTest {
+
+	@Test
+	public void isValidUtilityClass() {
+		assertThat(Utils.isUtilityClass(DateTimes.class),equalTo(true));
+	}
+
+	@Test
+	public void shouldReturnNullDateTimeForNullDateTime() throws Exception {
+		assertThat(DateTimes.toUTC(null),nullValue());
+	}
+
+	@Test
+	public void shouldReturnUTCDateTimeForNonUTCDateTime() throws Exception {
+		final DateTimeZone zone = DateTimeZone.forID("Europe/London");
+		final DateTime original = new DateTime(zone);
+		final DateTime normalized = DateTimes.toUTC(original);
+		assumeThat(original.getZone(),equalTo(zone));
+		assertThat(normalized,not(equalTo(original)));
+		assertThat(normalized.getZone(),equalTo(DateTimeZone.UTC));
+		assertThat(normalized.getMillis(),equalTo(original.getMillis()));
+	}
+
+	@Test
+	public void shouldReturnSameDateTimeForUTCDateTime() throws Exception {
+		final DateTime original = new DateTime(DateTimeZone.UTC);
+		final DateTime normalized = DateTimes.toUTC(original);
+		assertThat(normalized,equalTo(original));
+	}
+
 }

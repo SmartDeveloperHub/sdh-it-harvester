@@ -26,27 +26,19 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	DateTimesTest.class,
-	PriorityTest.class,
-	SeverityTest.class,
-	StatusTest.class,
-	ComponentTest.class,
-	ContributorTest.class,
-	VersionTest.class,
-	CommitTest.class,
-	NotificationsTest.class,
-	CollectorTest.class,
-	StateTest.class,
-	ProjectTest.class,
-	ChangeLogTest.class,
-	IssueTest.class,
-	EntitiesTest.class
-})
-public class UnitTests {
+final class DateTimes {
+
+	private DateTimes() {
+	}
+
+	static DateTime toUTC(final DateTime timeStamp) {
+		return
+			timeStamp==null?
+				null:
+				timeStamp.withZone(DateTimeZone.UTC);
+	}
+
 }

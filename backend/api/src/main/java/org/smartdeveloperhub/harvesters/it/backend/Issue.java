@@ -133,7 +133,7 @@ public final class Issue extends Titled<String> implements ProjectScoped {
 	}
 
 	public void setCreationDate(final DateTime createdAt) {
-		this.creationDate = createdAt;
+		this.creationDate = DateTimes.toUTC(createdAt);
 	}
 
 	public DateTime getOpened() {
@@ -141,7 +141,7 @@ public final class Issue extends Titled<String> implements ProjectScoped {
 	}
 
 	public void setOpened(final DateTime opened) {
-		this.opened = opened;
+		this.opened = DateTimes.toUTC(opened);
 	}
 
 	public DateTime getClosed() {
@@ -149,7 +149,7 @@ public final class Issue extends Titled<String> implements ProjectScoped {
 	}
 
 	public void setClosed(final DateTime closed) {
-		this.closed = closed;
+		this.closed = DateTimes.toUTC(closed);
 	}
 
 	public DateTime getDueTo() {
@@ -157,7 +157,7 @@ public final class Issue extends Titled<String> implements ProjectScoped {
 	}
 
 	public void setDueTo(final DateTime dueTo) {
-		this.dueTo = dueTo;
+		this.dueTo = DateTimes.toUTC(dueTo);
 	}
 
 	public Duration getEstimatedTime() {

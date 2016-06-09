@@ -79,8 +79,8 @@
       "status" : "IN_PROGRESS",
       "severity" : "BLOCKER",
       "priority" : "VERY_HIGH",
-      "creationDate" : 1465370423887,
-      "opened" : 1465370423887,
+      "creationDate" : "2016-06-08T18:01:49.053Z",
+      "opened" : "2016-06-08T18:01:49.053Z",
       "closed" : null,
       "dueTo" : null,
       "estimatedTime" : null,
@@ -103,7 +103,7 @@
             "oldValue" : "OPEN",
             "newValue" : "IN_PROGRESS"
           } ],
-          "timeStamp" : 1465374023984
+          "timeStamp" : "2016-06-08T19:01:49.149Z"
         }, {
           "author" : "contributor2",
           "items" : [ {
@@ -113,14 +113,14 @@
             "property" : "components",
             "newValue" : "component1"
           } ],
-          "timeStamp" : 1465381223984
+          "timeStamp" : "2016-06-08T21:01:49.149Z"
         }, {
           "author" : "contributor2",
           "items" : [ {
             "property" : "commits",
             "newValue" : "commit1"
           } ],
-          "timeStamp" : 1465388423984
+          "timeStamp" : "2016-06-08T23:01:49.149Z"
         } ]
       },
       "id" : "issue1",
@@ -132,8 +132,8 @@
       "status" : "IN_PROGRESS",
       "severity" : "BLOCKER",
       "priority" : "VERY_HIGH",
-      "creationDate" : 1465370424000,
-      "opened" : 1465370424000,
+      "creationDate" : "2016-06-08T18:01:49.167Z",
+      "opened" : "2016-06-08T18:01:49.167Z",
       "closed" : null,
       "dueTo" : null,
       "estimatedTime" : null,
@@ -156,7 +156,7 @@
             "oldValue" : "OPEN",
             "newValue" : "IN_PROGRESS"
           } ],
-          "timeStamp" : 1465374024000
+          "timeStamp" : "2016-06-08T19:01:49.167Z"
         }, {
           "author" : "contributor2",
           "items" : [ {
@@ -166,14 +166,14 @@
             "property" : "components",
             "newValue" : "component1"
           } ],
-          "timeStamp" : 1465381224000
+          "timeStamp" : "2016-06-08T21:01:49.167Z"
         }, {
           "author" : "contributor2",
           "items" : [ {
             "property" : "commits",
             "newValue" : "commit1"
           } ],
-          "timeStamp" : 1465388424000
+          "timeStamp" : "2016-06-08T23:01:49.167Z"
         } ]
       },
       "id" : "issue2",
@@ -186,8 +186,8 @@
       "status" : "IN_PROGRESS",
       "severity" : "BLOCKER",
       "priority" : "VERY_HIGH",
-      "creationDate" : 1465370424000,
-      "opened" : 1465370424000,
+      "creationDate" : "2016-06-08T18:01:49.167Z",
+      "opened" : "2016-06-08T18:01:49.167Z",
       "closed" : null,
       "dueTo" : null,
       "estimatedTime" : null,
@@ -210,7 +210,7 @@
             "oldValue" : "OPEN",
             "newValue" : "IN_PROGRESS"
           } ],
-          "timeStamp" : 1465374024000
+          "timeStamp" : "2016-06-08T19:01:49.167Z"
         }, {
           "author" : "contributor2",
           "items" : [ {
@@ -220,14 +220,14 @@
             "property" : "components",
             "newValue" : "component1"
           } ],
-          "timeStamp" : 1465381224000
+          "timeStamp" : "2016-06-08T21:01:49.167Z"
         }, {
           "author" : "contributor2",
           "items" : [ {
             "property" : "commits",
             "newValue" : "commit1"
           } ],
-          "timeStamp" : 1465388424000
+          "timeStamp" : "2016-06-08T23:01:49.167Z"
         } ]
       },
       "id" : "issue1",
@@ -239,8 +239,8 @@
       "status" : "IN_PROGRESS",
       "severity" : "BLOCKER",
       "priority" : "VERY_HIGH",
-      "creationDate" : 1465370424000,
-      "opened" : 1465370424000,
+      "creationDate" : "2016-06-08T18:01:49.167Z",
+      "opened" : "2016-06-08T18:01:49.167Z",
       "closed" : null,
       "dueTo" : null,
       "estimatedTime" : null,
@@ -263,7 +263,7 @@
             "oldValue" : "OPEN",
             "newValue" : "IN_PROGRESS"
           } ],
-          "timeStamp" : 1465374024000
+          "timeStamp" : "2016-06-08T19:01:49.167Z"
         }, {
           "author" : "contributor2",
           "items" : [ {
@@ -273,14 +273,14 @@
             "property" : "components",
             "newValue" : "component1"
           } ],
-          "timeStamp" : 1465381224000
+          "timeStamp" : "2016-06-08T21:01:49.167Z"
         }, {
           "author" : "contributor2",
           "items" : [ {
             "property" : "commits",
             "newValue" : "commit1"
           } ],
-          "timeStamp" : 1465388424000
+          "timeStamp" : "2016-06-08T23:01:49.167Z"
         } ]
       },
       "id" : "issue2",
