@@ -29,17 +29,22 @@ package org.smartdeveloperhub.harvesters.it.backend.crawler.jira;
 import com.atlassian.jira.rest.client.api.IssueRestClient.Expandos;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.ProjectRestClient;
+import com.atlassian.jira.rest.client.api.domain.BasicComponent;
 import com.atlassian.jira.rest.client.api.domain.BasicProject;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.Project;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
+import com.atlassian.jira.rest.client.api.domain.Version;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.Crawler;
+import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ComponentFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.IssueFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ProjectFactory;
+import org.smartdeveloperhub.harvesters.it.backend.factories.jira.VersionFactory;
+import org.smartdeveloperhub.harvesters.it.backend.storage.Storage;
 
 import java.io.IOException;
 import java.net.URI;
@@ -65,11 +70,15 @@ public class JiraCrawler implements Crawler {
 	private URI uri;
 	private String username;
 	private String password;
+	private Storage storage;
 	private ProjectFactory projectFactory;
 	private IssueFactory issueFactory;
+	private VersionFactory versionFactory;
+	private ComponentFactory componentFactory;
 
-	public JiraCrawler(String url, String username, String password,
-					ProjectFactory projectFactory, IssueFactory issueFactory)
+	public JiraCrawler(String url, String username, String password, Storage storage,
+					ProjectFactory projectFactory, IssueFactory issueFactory,
+					VersionFactory versionFactory, ComponentFactory componentFactory)
 													throws URISyntaxException {
 
 		this.uri = new URI(url);
@@ -77,10 +86,21 @@ public class JiraCrawler implements Crawler {
 												"Username can't be null.");
 		this.password = Objects.requireNonNull(password,
 												"Password can't be null.");
+
+		// Storage
+		this.storage = Objects.requireNonNull(storage, "Storage cannot be null");
+		
+		// Jira Factories
 		this.projectFactory = Objects.requireNonNull(projectFactory,
 												"ProjectFactory cannot be null");
 		this.issueFactory = Objects.requireNonNull(issueFactory,
 												"IssueFactory cannot be null.");
+		this.versionFactory = Objects.requireNonNull(versionFactory,
+												"VersionFactory cannot be null.");
+		this.componentFactory = Objects.requireNonNull(componentFactory,
+												"ComponentFactory cannot be null.");
+
+		// Jira Client
 		this.jiraClientFactory = new AsynchronousJiraRestClientFactory();
 	}
 
@@ -113,24 +133,46 @@ public class JiraCrawler implements Crawler {
 															issues));
 
 				// Store components
-//				database.store(getAllComponents(Components));
+				storage.storeComponents(getAllComponents(jiraProject.getKey(), jiraProject.getComponents()));
 				// Store versions
-//				database.store(getAllVersions(versions))
+				storage.storeVersions(getAllVersions(jiraProject.getKey(), jiraProject.getVersions()));
 				// Store new issues
-//				database.store(issues);
+				storage.storeIssues(issues);
 			}
 
 			// Store Project
-			System.out.println(projects);
-//			database.store(projects)
+			storage.storeProjects(projects);
 
-			lastUpdateTimeStamp = System.currentTimeMillis();
 		} catch (IOException e) {
 
 			logger.error("Exception in client connection. {}", e);
 		}
 
 		logger.info("Finished crawling services.");
+	}
+
+	private Set<org.smartdeveloperhub.harvesters.it.backend.Component> getAllComponents(String projectId, Iterable<BasicComponent> jiraComponents) {
+
+		Set<org.smartdeveloperhub.harvesters.it.backend.Component> components = new HashSet<>();
+
+		for (BasicComponent component : jiraComponents) {
+
+			components.add(componentFactory.createComponent(projectId, component));
+		}
+
+		return components;
+	}
+
+	private Set<org.smartdeveloperhub.harvesters.it.backend.Version> getAllVersions(String projectId, Iterable<Version> jiraVersions) {
+
+		Set<org.smartdeveloperhub.harvesters.it.backend.Version> versions = new HashSet<>();
+
+		for (Version version : jiraVersions) {
+
+			versions.add(versionFactory.createVersion(projectId, version));
+		}
+
+		return versions;
 	}
 
 	private Set<Project> getProjects(JiraRestClient client) {
@@ -152,7 +194,7 @@ public class JiraCrawler implements Crawler {
 
 		Set<Issue> issues = new HashSet<>();
 
-		Date update=new Date(lastUpdate);
+		Date update = new Date(lastUpdate);
 		SimpleDateFormat df2 = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		String updateStr = df2.format(update);
 

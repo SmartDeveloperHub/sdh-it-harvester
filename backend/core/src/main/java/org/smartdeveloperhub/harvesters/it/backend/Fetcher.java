@@ -16,5 +16,6 @@ public class Fetcher implements Runnable {
 	public void run() {
 
 		collector.collect(lastUpdate);
+		lastUpdate = System.currentTimeMillis();
 	}
 }

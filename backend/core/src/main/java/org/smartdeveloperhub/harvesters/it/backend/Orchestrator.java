@@ -31,8 +31,12 @@ import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.backend.Issue.Type;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.Crawler;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.JiraCrawler;
+import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ComponentFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.IssueFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ProjectFactory;
+import org.smartdeveloperhub.harvesters.it.backend.factories.jira.VersionFactory;
+import org.smartdeveloperhub.harvesters.it.backend.storage.Storage;
+import org.smartdeveloperhub.harvesters.it.backend.storage.redis.RedisStorage;
 import org.smartdeveloperhub.harvesters.it.backend.utils.MappingLoader;
 
 import java.io.IOException;
@@ -113,11 +117,15 @@ public class Orchestrator {
 													priorityMapping,
 													severityMapping,
 													typeMapping);
+		VersionFactory versionFactory = new VersionFactory();
+		ComponentFactory componentFactory = new ComponentFactory();
+		Storage storage = new RedisStorage();
 
 		try {
 
-			Crawler crawler = new JiraCrawler(url, username, password,
-												projectFactory, issueFactory);
+			Crawler crawler = new JiraCrawler(url, username, password, storage,
+												projectFactory, issueFactory,
+												versionFactory, componentFactory);
 			fetcher = new Fetcher(crawler);
 
 		((ScheduledThreadPoolExecutor) executorService).scheduleAtFixedRate(

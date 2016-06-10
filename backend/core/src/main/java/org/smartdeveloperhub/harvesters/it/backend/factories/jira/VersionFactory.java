@@ -9,11 +9,11 @@ import org.smartdeveloperhub.harvesters.it.backend.Version;
  */
 public class VersionFactory {
 
-	public Version createVersion(com.atlassian.jira.rest.client.api.domain.Version jiraVersion, com.atlassian.jira.rest.client.api.domain.Project jiraProject) {
+	public Version createVersion(String projectId, com.atlassian.jira.rest.client.api.domain.Version jiraVersion) {
 
 		Version version = new Version();
 		version.setId(jiraVersion.getName());
-		version.setProjectId(jiraProject.getKey());
+		version.setProjectId(projectId);
 		return version;
 	}
 }

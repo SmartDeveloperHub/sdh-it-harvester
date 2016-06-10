@@ -61,9 +61,6 @@ import java.util.Set;
  */
 public class IssueFactory {
 
-	private static final Logger logger =
-								LoggerFactory.getLogger(IssueFactory.class);
-
 	private Map<String, Status> statusMapping;
 	private Map<String, Priority> priorityMapping;
 	private Map<String, Severity> severityMapping;
