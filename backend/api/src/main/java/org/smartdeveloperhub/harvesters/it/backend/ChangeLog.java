@@ -330,7 +330,7 @@ public final class ChangeLog extends Entity {
 
 		}
 
-		public static abstract class DateTimeChangeItem extends AbstractItem<DateTime> {
+		public abstract static class DateTimeChangeItem extends AbstractItem<DateTime> {
 
 			@Override
 			public void setOldValue(final DateTime oldValue) {
