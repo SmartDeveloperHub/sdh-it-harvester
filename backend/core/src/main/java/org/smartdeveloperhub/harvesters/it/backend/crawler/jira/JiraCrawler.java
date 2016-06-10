@@ -24,18 +24,24 @@
  *   Bundle      : it-harvester-backend-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.backend.collector;
+package org.smartdeveloperhub.harvesters.it.backend.crawler.jira;
 
 import com.atlassian.jira.rest.client.api.IssueRestClient.Expandos;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
+import com.atlassian.jira.rest.client.api.ProjectRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicProject;
 import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.Project;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smartdeveloperhub.harvesters.it.backend.crawler.Crawler;
+import org.smartdeveloperhub.harvesters.it.backend.factories.jira.IssueFactory;
+import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ProjectFactory;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
@@ -44,41 +50,41 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Class for crawling information from the issue tracker Jira. 
  * @author imolina
  *
  */
-public class Collector implements Runnable {
+public class JiraCrawler implements Crawler {
 
 	private static final Logger logger =
-									LoggerFactory.getLogger(Collector.class);
+									LoggerFactory.getLogger(JiraCrawler.class);
 
 	private AsynchronousJiraRestClientFactory jiraClientFactory;
 	private URI uri;
 	private String username;
 	private String password;
+	private ProjectFactory projectFactory;
 	private IssueFactory issueFactory;
-	private long lastUpdateTimeStamp;
 
-	public Collector(String url, String username, String password,
-					IssueFactory issueFactory) throws URISyntaxException {
+	public JiraCrawler(String url, String username, String password,
+					ProjectFactory projectFactory, IssueFactory issueFactory)
+													throws URISyntaxException {
 
 		this.uri = new URI(url);
 		this.username = Objects.requireNonNull(username,
 												"Username can't be null.");
 		this.password = Objects.requireNonNull(password,
 												"Password can't be null.");
+		this.projectFactory = Objects.requireNonNull(projectFactory,
+												"ProjectFactory cannot be null");
 		this.issueFactory = Objects.requireNonNull(issueFactory,
 												"IssueFactory cannot be null.");
 		this.jiraClientFactory = new AsynchronousJiraRestClientFactory();
-		this.lastUpdateTimeStamp = 0L;
 	}
 
-	@Override
-	public void run() {
+	public void collect(long lastUpdateTimeStamp) {
 
 		logger.info("Started crawling services...");
 
@@ -87,47 +93,68 @@ public class Collector implements Runnable {
 																	username,
 																	password)) {
 
-			client.getSessionClient()
-			
-			for (BasicProject project : getProjects(client)) {
+			Set<org.smartdeveloperhub.harvesters.it.backend.Project> projects = new HashSet<>();
 
-				for (String issueId : getProjectIssues(client, project.getKey(),
+			for (Project jiraProject : getProjects(client)) {
+
+				Set<org.smartdeveloperhub.harvesters.it.backend.Issue> topIssues = new HashSet<org.smartdeveloperhub.harvesters.it.backend.Issue>();
+				Set<org.smartdeveloperhub.harvesters.it.backend.Issue> issues = new HashSet<org.smartdeveloperhub.harvesters.it.backend.Issue>();
+
+				for (Issue jiraIssue : getProjectIssues(client, jiraProject.getKey(),
 														lastUpdateTimeStamp)) {
-
-					Issue jiraIssue = client.getIssueClient().getIssue(issueId, Arrays.asList(new Expandos[] {Expandos.CHANGELOG})).get();
 
 					org.smartdeveloperhub.harvesters.it.backend.Issue issue = issueFactory.createIssue(jiraIssue);
 
-					// TODO: Store issue
-//					System.out.println(issue);
+					topIssues.add(issue);
 				}
+
+				projects.add(projectFactory.createProject(jiraProject,
+															topIssues,
+															issues));
+
+				// Store components
+//				database.store(getAllComponents(Components));
+				// Store versions
+//				database.store(getAllVersions(versions))
+				// Store new issues
+//				database.store(issues);
 			}
 
+			// Store Project
+			System.out.println(projects);
+//			database.store(projects)
+
 			lastUpdateTimeStamp = System.currentTimeMillis();
-		} catch(Exception e) {
+		} catch (IOException e) {
 
-			logger.error("Exception in Collector. {}", e);
-
+			logger.error("Exception in client connection. {}", e);
 		}
 
 		logger.info("Finished crawling services.");
 	}
 
-	private Iterable<BasicProject> getProjects(JiraRestClient client)
-							throws InterruptedException, ExecutionException {
+	private Set<Project> getProjects(JiraRestClient client) {
 
-		return client.getProjectClient().getAllProjects().get();
+		Set<Project> projects = new HashSet<>();
+		ProjectRestClient projectClient = client.getProjectClient();
+		
+		for (BasicProject project : projectClient.getAllProjects().claim()) {
+			
+			projects.add(projectClient.getProject(project.getKey()).claim());
+		}
+
+		return projects;
 	}
 
-	private Iterable<String> getProjectIssues(JiraRestClient client,
+	private Iterable<Issue> getProjectIssues(JiraRestClient client,
 												String projectId,
 												long lastUpdate) {
 
-		Set<String> issuesIds = new HashSet<>();
+		Set<Issue> issues = new HashSet<>();
 
-        Date update=new Date(lastUpdate);
-        SimpleDateFormat df2 = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        String updateStr = df2.format(update);
+		Date update=new Date(lastUpdate);
+		SimpleDateFormat df2 = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		String updateStr = df2.format(update);
 
 		// Filters separated by (and, or, not, empty, null, order by)
 		String query = "project = \"" + projectId + "\" and updated > \" " +
@@ -143,15 +170,22 @@ public class Collector implements Runnable {
 		for (int i= 0; i < total; i += maxResult) {
 
 			for (Issue issue : searchResult.getIssues()) {
-				issuesIds.add(issue.getKey());
+
+				// Retrieve changeLog information
+					Issue jiraIssue = client.getIssueClient()
+												.getIssue(issue.getKey(),
+														Arrays.asList(new Expandos[] {
+																Expandos.CHANGELOG}))
+														.claim();
+					issues.add(jiraIssue);
 			}
 
 			searchResult = client.getSearchClient()
-									.searchJql(query, maxResult,
-											i + maxResult, null)
-									.claim();
+									.searchJql(query, maxResult, i + maxResult,
+												null)
+										.claim();
 		}
 
-		return issuesIds;
+		return issues;
 	}
 }

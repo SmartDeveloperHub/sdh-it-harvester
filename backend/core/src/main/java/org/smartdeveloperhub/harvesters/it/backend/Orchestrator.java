@@ -29,8 +29,10 @@ package org.smartdeveloperhub.harvesters.it.backend;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.backend.Issue.Type;
-import org.smartdeveloperhub.harvesters.it.backend.collector.Collector;
-import org.smartdeveloperhub.harvesters.it.backend.collector.IssueFactory;
+import org.smartdeveloperhub.harvesters.it.backend.crawler.Crawler;
+import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.JiraCrawler;
+import org.smartdeveloperhub.harvesters.it.backend.factories.jira.IssueFactory;
+import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ProjectFactory;
 import org.smartdeveloperhub.harvesters.it.backend.utils.MappingLoader;
 
 import java.io.IOException;
@@ -61,9 +63,9 @@ public class Orchestrator {
 //	private final static String REDIS_URL = "redisUrl";
 //	private final static String SERVLET_PORT = "servletPort";
 //	private final static String SERVLET_PATH = "servletPath";
-	private final static String COLLECTOR_PERIOD = "collectorPeriodicity";
+	private final static String CRAWLER_PERIOD = "collectorPeriodicity";
 	
-	private Collector collector;
+	private Fetcher fetcher;
 	private ExecutorService executorService;
 
 	public Orchestrator(ExecutorService executor) {
@@ -89,7 +91,7 @@ public class Orchestrator {
 
 //		int servletPort = Integer.parseInt(properties.getProperty(SERVLET_PORT));
 //		String servletPath = properties.getProperty(SERVLET_PATH);
-		long collectorTime = Long.parseLong(properties.getProperty(COLLECTOR_PERIOD));
+		long crawlerTime = Long.parseLong(properties.getProperty(CRAWLER_PERIOD));
 
 		// Loading mappings values
 		MappingLoader mappingLoader = new MappingLoader();
@@ -106,6 +108,7 @@ public class Orchestrator {
 								mappingLoader.load("/mappings/type.properties",
 													Type.class);
 
+		ProjectFactory projectFactory = new ProjectFactory();
 		IssueFactory issueFactory = new IssueFactory(statusMapping,
 													priorityMapping,
 													severityMapping,
@@ -113,10 +116,12 @@ public class Orchestrator {
 
 		try {
 
-			collector = new Collector(url, username, password, issueFactory);
+			Crawler crawler = new JiraCrawler(url, username, password,
+												projectFactory, issueFactory);
+			fetcher = new Fetcher(crawler);
 
 		((ScheduledThreadPoolExecutor) executorService).scheduleAtFixedRate(
-				collector, 0, collectorTime, TimeUnit.MINUTES);
+				fetcher, 0, crawlerTime, TimeUnit.MINUTES);
 
 		} catch (URISyntaxException e) {
 

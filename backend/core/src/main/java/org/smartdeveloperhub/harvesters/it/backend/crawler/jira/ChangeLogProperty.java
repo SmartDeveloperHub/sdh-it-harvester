@@ -1,4 +1,4 @@
-package org.smartdeveloperhub.harvesters.it.backend.collector;
+package org.smartdeveloperhub.harvesters.it.backend.crawler.jira;
 
 public enum ChangeLogProperty {
 

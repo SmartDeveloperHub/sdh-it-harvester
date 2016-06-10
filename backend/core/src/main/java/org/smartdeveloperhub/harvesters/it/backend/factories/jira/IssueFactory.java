@@ -24,11 +24,10 @@
  *   Bundle      : it-harvester-backend-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.backend.collector;
+package org.smartdeveloperhub.harvesters.it.backend.factories.jira;
 
 import com.atlassian.jira.rest.client.api.domain.BasicComponent;
 import com.atlassian.jira.rest.client.api.domain.ChangelogItem;
-import com.atlassian.jira.rest.client.api.domain.Component;
 import com.atlassian.jira.rest.client.api.domain.Version;
 
 import org.joda.time.DateTime;
@@ -43,6 +42,7 @@ import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.StatusChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
 import org.smartdeveloperhub.harvesters.it.backend.Issue.Type;
+import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.ChangeLogProperty;
 import org.smartdeveloperhub.harvesters.it.backend.Priority;
 import org.smartdeveloperhub.harvesters.it.backend.Severity;
 import org.smartdeveloperhub.harvesters.it.backend.Status;
@@ -55,7 +55,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Class factory for bulding Issues.
+ * Class factory for building {@link Issue}s.
  * @author imolina
  *
  */
@@ -63,7 +63,7 @@ public class IssueFactory {
 
 	private static final Logger logger =
 								LoggerFactory.getLogger(IssueFactory.class);
-	
+
 	private Map<String, Status> statusMapping;
 	private Map<String, Priority> priorityMapping;
 	private Map<String, Severity> severityMapping;
@@ -90,9 +90,9 @@ public class IssueFactory {
 	}
 
 	/**
-	 * This method creates an {@link Issue} from a Jira Issues.
-	 * @param jiraIssue
-	 * @return
+	 * This method creates an {@link Issue} from Jira issues.
+	 * @param jiraIssue for retrieve issue information.
+	 * @return {@link Issue}
 	 */
 	public Issue createIssue(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
 
@@ -105,9 +105,7 @@ public class IssueFactory {
 		issue.setReporter(jiraIssue.getReporter().getEmailAddress());
 
 		issue.setTitle(jiraIssue.getSummary());
-		if (jiraIssue.getAssignee() != null) {
-			issue.setAssignee(jiraIssue.getAssignee().getEmailAddress());
-		}
+		issue.setAssignee(getAssignee(jiraIssue));
 		issue.setChanges(createChangeLog(jiraIssue));
 		issue.setOpened(getOpenedDate(jiraIssue, issue.getChanges()));
 		issue.setClosed(getClosedDate(jiraIssue, issue.getChanges()));
@@ -116,14 +114,14 @@ public class IssueFactory {
 		issue.setPriority(fromMap(jiraIssue.getPriority().getName(), priorityMapping));
 		issue.setSeverity(fromMap(jiraIssue.getPriority().getName(), severityMapping));
 		issue.setType(fromMap(jiraIssue.getIssueType().getName(), typeMapping));
-
-		// Version and Component by name. would be ID a better option?
 		issue.setVersions(getVersions(jiraIssue));
 		issue.setComponents(getComponents(jiraIssue));
 
 		// TODO: explore it
 //		issue.setChildIssues(childIssues);
 //		issue.setBlockedIssues(blockedIssues);
+		
+		// TODO: not available.
 //		issue.setCommits(commits);
 //		issue.setTags(tags);
 
@@ -134,6 +132,12 @@ public class IssueFactory {
 		return issue;
 	}
 
+	private String getAssignee(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
+
+		return jiraIssue.getAssignee() != null ?
+				jiraIssue.getAssignee().getEmailAddress() : null;
+	}
+
 	private Set<String> getComponents(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
 
 		Set<String> components = new HashSet<>();
@@ -142,6 +146,7 @@ public class IssueFactory {
 
 			components.add(String.valueOf(component.getId()));
 		}
+
 		return components;
 	}
 
@@ -324,7 +329,30 @@ public class IssueFactory {
 								.oldValue(oldDuration)
 								.newValue(newDuration)
 								.build();
-			
+
+		} else if (ChangeLogProperty.BLOCKERS.is(field)) {
+
+			// Remove null values
+			String fromValue = (jiraItem.getFromString() != null ?
+												jiraItem.getFromString() : "");
+			String toValue = (jiraItem.getToString() != null ?
+												jiraItem.getToString() : "");
+
+			// Only takes the "is blocked" relation
+			String oldLink = (fromValue.contains("This issue is blocked by") ?
+												jiraItem.getFrom() : null);
+			String newLink = (toValue.contains("This issue is blocked by") ?
+												jiraItem.getTo() : null);
+
+			if (oldLink != null || newLink != null) {
+
+				item = Item.builder()
+								.blockedIssues()
+									.oldValue(oldLink)
+									.newValue(newLink)
+									.build();
+			}
+
 		} else if (ChangeLogProperty.COMPONENT.is(field)) {
 
 			item = Item.builder()
@@ -364,29 +392,8 @@ public class IssueFactory {
 								.oldValue(jiraItem.getFromString())
 								.newValue(jiraItem.getToString())
 								.build();
-		} else if (ChangeLogProperty.BLOCKERS.is(field)) {
 
-			// Remove null values
-			String fromValue = (jiraItem.getFromString() != null ?
-												jiraItem.getFromString() : "");
-			String toValue = (jiraItem.getToString() != null ?
-												jiraItem.getToString() : "");
-
-			// Only takes the "is blocked" relation
-			String oldLink = (fromValue.contains("This issue is blocked by") ?
-												jiraItem.getFrom() : null);
-			String newLink = (toValue.contains("This issue is blocked by") ?
-												jiraItem.getTo() : null);
-
-			if (oldLink != null || newLink != null) {
-
-				item = Item.builder()
-								.blockedIssues()
-									.oldValue(oldLink)
-									.newValue(newLink)
-									.build();
-			}
-		}
+		} 
 
 		return item;
 	}
