@@ -35,6 +35,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -114,6 +115,7 @@ public final class State extends Entity {
 
 	public State() {
 		this.activity=Lists.newArrayList();
+		this.statusMappings=Maps.newLinkedHashMap();
 	}
 
 	public String getJiraApiVersion() {
