@@ -26,16 +26,24 @@
  */
 package org.smartdeveloperhub.harvesters.it.frontend.util;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	ServiceableTest.class,
-	AbstractEntityResourceHandlerTest.class,
-	IdentityUtilTest.class,
-	CloseablesTest.class
-})
-public class UnitTestSuite {
+public final class Closeables {
+
+	private static final Logger LOGGER=LoggerFactory.getLogger(Closeables.class);
+
+	private Closeables() {
+	}
+
+	public static void closeQuietly(final AutoCloseable client) {
+		if(client!=null) {
+			try {
+				client.close();
+			} catch (final Exception e) {
+				LOGGER.warn("Swallowed exception",e);
+			}
+		}
+	}
+
 }

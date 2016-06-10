@@ -34,7 +34,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
 	LocalDataTest.class,
 	LocalBackendControllerTest.class,
-	LocalBackendControllerFactoryTest.class
+	LocalBackendControllerFactoryTest.class,
+	ClientTest.class
 })
 public class UnitTestSuite {
 }

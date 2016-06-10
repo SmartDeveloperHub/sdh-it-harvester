@@ -24,18 +24,31 @@
  *   Bundle      : it-frontend-core-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.frontend.util;
+package org.smartdeveloperhub.harvesters.it.frontend.controller;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import java.io.IOException;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	ServiceableTest.class,
-	AbstractEntityResourceHandlerTest.class,
-	IdentityUtilTest.class,
-	CloseablesTest.class
-})
-public class UnitTestSuite {
+import org.apache.http.StatusLine;
+
+public final class ServiceFailureException extends IOException {
+
+	private static final long serialVersionUID = 2079023043902094249L;
+
+	private final String resource;
+	private final int status;
+
+	public ServiceFailureException(final String resource, final StatusLine statusLine) {
+		super("Resource '"+resource+"' retrieval failed with status "+statusLine);
+		this.resource=resource;
+		this.status=statusLine.getStatusCode();
+	}
+
+	public String getResource() {
+		return this.resource;
+	}
+
+	public int getStatus() {
+		return this.status;
+	}
+
 }

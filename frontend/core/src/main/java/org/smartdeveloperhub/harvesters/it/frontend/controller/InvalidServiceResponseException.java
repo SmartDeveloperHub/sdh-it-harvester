@@ -24,18 +24,35 @@
  *   Bundle      : it-frontend-core-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.frontend.util;
+package org.smartdeveloperhub.harvesters.it.frontend.controller;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import java.io.IOException;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	ServiceableTest.class,
-	AbstractEntityResourceHandlerTest.class,
-	IdentityUtilTest.class,
-	CloseablesTest.class
-})
-public class UnitTestSuite {
+public class InvalidServiceResponseException extends IOException {
+
+	private static final long serialVersionUID = 7805038189941021718L;
+
+	private final String resource;
+	private final String response;
+	private final String expectation;
+
+	public InvalidServiceResponseException(final String resource, final String response, final String expectation, final Throwable cause) {
+		super("Invalid service response for resource '"+resource+"' for '"+expectation+"':\n"+response,cause);
+		this.resource = resource;
+		this.response = response;
+		this.expectation = expectation;
+	}
+
+	public String getResource() {
+		return this.resource;
+	}
+
+	public String getResponse() {
+		return this.response;
+	}
+
+	public String getExpectation() {
+		return this.expectation;
+	}
+
 }
