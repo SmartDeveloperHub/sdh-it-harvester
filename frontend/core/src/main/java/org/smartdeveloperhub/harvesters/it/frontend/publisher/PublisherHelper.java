@@ -229,6 +229,7 @@ final class PublisherHelper {
 				 * TODO: Check what do we do when facing changes in top issues
 				 */
 			default:
+				LOGGER.warn("Ignored entity {} changes {}",entry.getKey(),entry.getValue());
 				break;
 			}
 		}
@@ -280,6 +281,7 @@ final class PublisherHelper {
 					 * TODO: Check what do we do when facing update changes
 					 */
 				default:
+					LOGGER.warn("Ignored {} change {}",change.getAction(),change);
 					break;
 				}
 			}

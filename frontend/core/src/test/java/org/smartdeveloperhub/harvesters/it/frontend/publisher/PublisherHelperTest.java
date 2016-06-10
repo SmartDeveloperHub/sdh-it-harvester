@@ -118,8 +118,8 @@ public class PublisherHelperTest {
 	@Test
 	public void testPublishProject$notExists(@Mocked final WriteSession session, @Mocked final ResourceSnapshot resource, @Mocked final ContainerSnapshot container) throws IOException {
 		final URI target = URI.create("target");
-		final Project repository=new Project();
-		repository.setId("1");
+		final Project project=new Project();
+		project.setId("1");
 		new Expectations() {{
 			session.find(ResourceSnapshot.class,IdentityUtil.projectName("1"),ProjectHandler.class);this.result=null;
 			session.find(ContainerSnapshot.class,IdentityUtil.collectorName(target),ProjectContainerHandler.class);this.result=container;
@@ -129,19 +129,19 @@ public class PublisherHelperTest {
 			resource.createAttachedResource(ContainerSnapshot.class, ProjectHandler.PROJECT_ISSUES, IdentityUtil.projectName("1"), IssueContainerHandler.class);
 		}};
 		PublisherHelper.
-			publishProject(session, target, repository);
+			publishProject(session, target, project);
 	}
 
 	@Test
 	public void testPublishProject$exists(@Mocked final WriteSession session, @Mocked final ResourceSnapshot resource, @Mocked final ContainerSnapshot container) throws IOException {
 		final URI target = URI.create("target");
-		final Project repository=new Project();
-		repository.setId("1");
+		final Project project=new Project();
+		project.setId("1");
 		new Expectations() {{
 			session.find(ResourceSnapshot.class,IdentityUtil.projectName("1"),ProjectHandler.class);this.result=resource;
 		}};
 		PublisherHelper.
-			publishProject(session, target, repository);
+			publishProject(session, target, project);
 	}
 
 	@Test
@@ -218,7 +218,7 @@ public class PublisherHelperTest {
 	}
 
 	@Test
-	public void testUpdateProjects$projectNotFound(@Mocked final WriteSession session, @Mocked final ResourceSnapshot repository, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
+	public void testUpdateProjects$projectNotFound(@Mocked final WriteSession session, @Mocked final ResourceSnapshot project, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
 		final URI target = URI.create("target");
 		final ProjectUpdatedEvent event=new ProjectUpdatedEvent();
 		event.setInstance(target.toString());
@@ -237,7 +237,7 @@ public class PublisherHelperTest {
 	}
 
 	@Test
-	public void testUpdateProjects$newComponents(@Mocked final WriteSession session, @Mocked final ResourceSnapshot repository, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
+	public void testUpdateProjects$newComponents(@Mocked final WriteSession session, @Mocked final ResourceSnapshot project, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
 		final URI target = URI.create("target");
 		final ProjectUpdatedEvent event=new ProjectUpdatedEvent();
 		event.setInstance(target.toString());
@@ -245,8 +245,8 @@ public class PublisherHelperTest {
 		event.append(Modification.create().component("component1"));
 		event.append(Modification.create().component("component2"));
 		new Expectations() {{
-			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=repository;
-			repository.attachmentById(ProjectHandler.PROJECT_COMPONENTS);this.result=attachment;
+			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=project;
+			project.attachmentById(ProjectHandler.PROJECT_COMPONENTS);this.result=attachment;
 			attachment.resource();this.result=container;
 			container.addMember(IdentityUtil.componentName(new ComponentKey("1","component1")));
 			container.addMember(IdentityUtil.componentName(new ComponentKey("1","component2")));
@@ -256,7 +256,7 @@ public class PublisherHelperTest {
 	}
 
 	@Test
-	public void testUpdateProjects$newComponentsWithFailure(@Mocked final WriteSession session, @Mocked final ResourceSnapshot repository, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
+	public void testUpdateProjects$newComponentsWithFailure(@Mocked final WriteSession session, @Mocked final ResourceSnapshot project, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
 		final URI target = URI.create("target");
 		final ProjectUpdatedEvent event=new ProjectUpdatedEvent();
 		event.setInstance(target.toString());
@@ -264,8 +264,8 @@ public class PublisherHelperTest {
 		event.append(Modification.create().component("component1"));
 		event.append(Modification.create().component("component2"));
 		new Expectations() {{
-			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=repository;
-			repository.attachmentById(ProjectHandler.PROJECT_COMPONENTS);this.result=attachment;
+			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=project;
+			project.attachmentById(ProjectHandler.PROJECT_COMPONENTS);this.result=attachment;
 			attachment.resource();this.result=container;
 			container.addMember(IdentityUtil.componentName(new ComponentKey("1","component1")));this.result=new IOException("Failure");
 		}};
@@ -281,7 +281,7 @@ public class PublisherHelperTest {
 	}
 
 	@Test
-	public void testUpdateProjects$newVersions(@Mocked final WriteSession session, @Mocked final ResourceSnapshot repository, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
+	public void testUpdateProjects$newVersions(@Mocked final WriteSession session, @Mocked final ResourceSnapshot project, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
 		final URI target = URI.create("target");
 		final ProjectUpdatedEvent event=new ProjectUpdatedEvent();
 		event.setInstance(target.toString());
@@ -289,8 +289,8 @@ public class PublisherHelperTest {
 		event.append(Modification.create().version("version1"));
 		event.append(Modification.create().version("version2"));
 		new Expectations() {{
-			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=repository;
-			repository.attachmentById(ProjectHandler.PROJECT_VERSIONS);this.result=attachment;
+			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=project;
+			project.attachmentById(ProjectHandler.PROJECT_VERSIONS);this.result=attachment;
 			attachment.resource();this.result=container;
 			container.addMember(IdentityUtil.versionName(new VersionKey("1","version1")));
 			container.addMember(IdentityUtil.versionName(new VersionKey("1","version2")));
@@ -300,7 +300,7 @@ public class PublisherHelperTest {
 	}
 
 	@Test
-	public void testUpdateProjects$newVersionsWithFailure(@Mocked final WriteSession session, @Mocked final ResourceSnapshot repository, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
+	public void testUpdateProjects$newVersionsWithFailure(@Mocked final WriteSession session, @Mocked final ResourceSnapshot project, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
 		final URI target = URI.create("target");
 		final ProjectUpdatedEvent event=new ProjectUpdatedEvent();
 		event.setInstance(target.toString());
@@ -308,8 +308,8 @@ public class PublisherHelperTest {
 		event.append(Modification.create().version("version1"));
 		event.append(Modification.create().version("version2"));
 		new Expectations() {{
-			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=repository;
-			repository.attachmentById(ProjectHandler.PROJECT_VERSIONS);this.result=attachment;
+			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=project;
+			project.attachmentById(ProjectHandler.PROJECT_VERSIONS);this.result=attachment;
 			attachment.resource();this.result=container;
 			container.addMember(IdentityUtil.versionName(new VersionKey("1","version1")));this.result=new IOException("Failure");
 		}};
@@ -325,7 +325,7 @@ public class PublisherHelperTest {
 	}
 
 	@Test
-	public void testUpdateProjects$newIssues(@Mocked final WriteSession session, @Mocked final ResourceSnapshot repository, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
+	public void testUpdateProjects$newIssues(@Mocked final WriteSession session, @Mocked final ResourceSnapshot project, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
 		final URI target = URI.create("target");
 		final ProjectUpdatedEvent event=new ProjectUpdatedEvent();
 		event.setInstance(target.toString());
@@ -333,8 +333,8 @@ public class PublisherHelperTest {
 		event.append(Modification.create().issue("issue1"));
 		event.append(Modification.create().issue("issue2"));
 		new Expectations() {{
-			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=repository;
-			repository.attachmentById(ProjectHandler.PROJECT_ISSUES);this.result=attachment;
+			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=project;
+			project.attachmentById(ProjectHandler.PROJECT_ISSUES);this.result=attachment;
 			attachment.resource();this.result=container;
 			container.addMember(IdentityUtil.issueName(new IssueKey("1","issue1")));
 			container.addMember(IdentityUtil.issueName(new IssueKey("1","issue2")));
@@ -344,7 +344,23 @@ public class PublisherHelperTest {
 	}
 
 	@Test
-	public void testUpdateProjects$newIssuesWithFailure(@Mocked final WriteSession session, @Mocked final ResourceSnapshot repository, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
+	public void testUpdateProjects$newTopIssues(@Mocked final WriteSession session, @Mocked final ResourceSnapshot project, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
+		final URI target = URI.create("target");
+		final ProjectUpdatedEvent event=new ProjectUpdatedEvent();
+		event.setInstance(target.toString());
+		event.setProject("1");
+		event.append(Modification.create().topIssue("issue1"));
+		event.append(Modification.create().topIssue("issue2"));
+		new Expectations() {{
+			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=project;
+			project.attachmentById(ProjectHandler.PROJECT_ISSUES);this.maxTimes=0;
+		}};
+		PublisherHelper.
+			updateProject(session, event);
+	}
+
+	@Test
+	public void testUpdateProjects$newIssuesWithFailure(@Mocked final WriteSession session, @Mocked final ResourceSnapshot project, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
 		final URI target = URI.create("target");
 		final ProjectUpdatedEvent event=new ProjectUpdatedEvent();
 		event.setInstance(target.toString());
@@ -352,8 +368,8 @@ public class PublisherHelperTest {
 		event.append(Modification.create().issue("issue1"));
 		event.append(Modification.create().issue("issue2"));
 		new Expectations() {{
-			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=repository;
-			repository.attachmentById(ProjectHandler.PROJECT_ISSUES);this.result=attachment;
+			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=project;
+			project.attachmentById(ProjectHandler.PROJECT_ISSUES);this.result=attachment;
 			attachment.resource();this.result=container;
 			container.addMember(IdentityUtil.issueName(new IssueKey("1","issue1")));this.result=new IOException("Failure");
 		}};
@@ -488,6 +504,22 @@ public class PublisherHelperTest {
 			assertThat(e.getCause(),instanceOf(IOException.class));
 			assertThat(e.getCause().getMessage(),equalTo("Failure"));
 		}
+	}
+
+	@Test
+	public void testUpdateProjects$updateComponents(@Mocked final WriteSession session, @Mocked final ResourceSnapshot project, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
+		final URI target = URI.create("target");
+		final ProjectUpdatedEvent event=new ProjectUpdatedEvent();
+		event.setInstance(target.toString());
+		event.setProject("1");
+		event.append(Modification.update().component("component1"));
+		event.append(Modification.update().component("component2"));
+		new Expectations() {{
+			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=project;
+			project.attachmentById(ProjectHandler.PROJECT_COMPONENTS);this.maxTimes=0;
+		}};
+		PublisherHelper.
+			updateProject(session, event);
 	}
 
 }
