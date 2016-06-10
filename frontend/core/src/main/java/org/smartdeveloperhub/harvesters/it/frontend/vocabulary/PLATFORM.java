@@ -26,7 +26,6 @@
  */
 package org.smartdeveloperhub.harvesters.it.frontend.vocabulary;
 
-
 public final class PLATFORM {
 
 	public static final String NAMESPACE = "http://www.smartdeveloperhub.org/vocabulary/platform#";
@@ -44,6 +43,7 @@ public final class PLATFORM {
 	public static final String HAS_RESOURCE                   = term("hasResource");
 	public static final String SOURCE                         = term("source");
 	public static final String IMPLEMENTS                     = term("implements");
+	public static final String NAME                           = term("name");
 
 	private PLATFORM() {
 	}

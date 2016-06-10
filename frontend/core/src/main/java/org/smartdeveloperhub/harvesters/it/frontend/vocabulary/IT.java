@@ -211,6 +211,7 @@ public final class IT {
 	public static final String PROJECT_TITLE           = term("projectTitle");
 
 	public static final String VERSION_ID              = term("versionId");
+	public static final String VERSION_NAME            = term("versionName");
 
 	public static final String COMPONENT_ID            = term("componentId");
 	public static final String COMPONENT_TITLE         = term("componentTitle");
