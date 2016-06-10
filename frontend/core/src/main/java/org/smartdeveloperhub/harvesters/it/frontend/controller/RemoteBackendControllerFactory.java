@@ -26,18 +26,16 @@
  */
 package org.smartdeveloperhub.harvesters.it.frontend.controller;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import java.net.URI;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	LocalDataTest.class,
-	LocalBackendControllerTest.class,
-	LocalBackendControllerFactoryTest.class,
-	ClientTest.class,
-	RemoteBackendControllerTest.class,
-	RemoteBackendControllerFactoryTest.class
-})
-public class UnitTestSuite {
+import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
+import org.smartdeveloperhub.harvesters.it.frontend.spi.BackendControllerFactory;
+
+public final class RemoteBackendControllerFactory implements BackendControllerFactory {
+
+	@Override
+	public BackendController create(final URI target) {
+		return new RemoteBackendController(target);
+	}
+
 }

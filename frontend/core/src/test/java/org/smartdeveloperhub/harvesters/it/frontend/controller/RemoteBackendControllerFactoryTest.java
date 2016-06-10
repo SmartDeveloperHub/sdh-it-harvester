@@ -26,18 +26,34 @@
  */
 package org.smartdeveloperhub.harvesters.it.frontend.controller;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 
-@RunWith(Suite.class)
-@SuiteClasses({
-	LocalDataTest.class,
-	LocalBackendControllerTest.class,
-	LocalBackendControllerFactoryTest.class,
-	ClientTest.class,
-	RemoteBackendControllerTest.class,
-	RemoteBackendControllerFactoryTest.class
-})
-public class UnitTestSuite {
+import java.net.URI;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
+
+import mockit.Mock;
+import mockit.MockUp;
+import mockit.integration.junit4.JMockit;
+
+@RunWith(JMockit.class)
+public class RemoteBackendControllerFactoryTest {
+
+	@Test
+	public void testCreate() throws Exception {
+		final URI target=URI.create("exampleURI");
+		new MockUp<RemoteBackendController>() {
+			@Mock
+			void $init(final URI aTarget) {
+				assertThat(aTarget,equalTo(target));
+			}
+		};
+		final BackendController created = new RemoteBackendControllerFactory().create(target);
+		assertThat(created,instanceOf(RemoteBackendController.class));
+	}
+
 }
