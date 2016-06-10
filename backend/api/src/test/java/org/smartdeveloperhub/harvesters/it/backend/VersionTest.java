@@ -43,6 +43,7 @@ public class VersionTest {
 		final String str = Entities.marshallEntity(one);
 		final Version other = Entities.unmarshallEntity(str,Version.class);
 		assertThat(other.getId(),equalTo(one.getId()));
+		assertThat(other.getName(),equalTo(one.getName()));
 		assertThat(other.getProjectId(),equalTo(one.getProjectId()));
 	}
 
