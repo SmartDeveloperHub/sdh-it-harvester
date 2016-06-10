@@ -96,12 +96,14 @@ final class LocalBackendController implements BackendController {
 		}
 	}
 
-	private <V,T extends Identifiable<V>> List<V> getIdentifiers(final List<T> projects) {
+	private <V,T extends Identifiable<V>> List<V> getIdentifiers(final List<T> identifiables) {
 		final List<V> result=Lists.newArrayList();
-		for(final T identifiable:projects) {
-			final V id = identifiable.getId();
-			if(id!=null) {
-				result.add(id);
+		if(identifiables!=null) {
+			for(final T identifiable:identifiables) {
+				final V id = identifiable.getId();
+				if(id!=null) {
+					result.add(id);
+				}
 			}
 		}
 		return result;
@@ -150,7 +152,7 @@ final class LocalBackendController implements BackendController {
 		return
 			checkNotNull(
 				findIdentifiable(getLocalData().getContributors(),contributorId),
-				"contributor with id %s",contributorId);
+				"contributor '%s'",contributorId);
 	}
 
 	@Override
@@ -163,7 +165,7 @@ final class LocalBackendController implements BackendController {
 		return
 			checkNotNull(
 				findIdentifiable(getLocalData().getCommits(),commitId),
-				"commit with id %s",commitId);
+				"commit '%s'",commitId);
 	}
 
 	@Override
@@ -176,7 +178,7 @@ final class LocalBackendController implements BackendController {
 		return
 			checkNotNull(
 				findIdentifiable(getLocalData().getProjects(),projectId),
-				"project with id %s",projectId);
+				"project '%s'",projectId);
 	}
 
 	@Override
@@ -184,7 +186,7 @@ final class LocalBackendController implements BackendController {
 		return
 			checkNotNull(
 				findIdentifiable(getLocalData().getProjectComponents().get(projectId),componentId),
-				"component %s of project %s",componentId,projectId);
+				"component '%s' of project '%s'",componentId,projectId);
 	}
 
 	@Override
@@ -192,7 +194,7 @@ final class LocalBackendController implements BackendController {
 		return
 			checkNotNull(
 				findIdentifiable(getLocalData().getProjectVersions().get(projectId),versionId),
-				"version %s of project %s",versionId,projectId);
+				"version '%s' of project '%s'",versionId,projectId);
 	}
 
 	@Override
@@ -200,7 +202,7 @@ final class LocalBackendController implements BackendController {
 		return
 			checkNotNull(
 				findIdentifiable(getLocalData().getProjectIssues().get(projectId),issueId),
-				"issue %s of project %s",issueId,projectId);
+				"issue '%s' of project '%s'",issueId,projectId);
 	}
 
 }

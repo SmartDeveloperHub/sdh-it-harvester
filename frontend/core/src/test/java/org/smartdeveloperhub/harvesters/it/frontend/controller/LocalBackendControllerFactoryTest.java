@@ -28,12 +28,13 @@ package org.smartdeveloperhub.harvesters.it.frontend.controller;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.instanceOf;
 
 import java.net.URI;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
 
 import mockit.Mock;
 import mockit.MockUp;
@@ -51,8 +52,8 @@ public class LocalBackendControllerFactoryTest {
 				assertThat(aTarget,equalTo(target));
 			}
 		};
-		final LocalBackendController created = new LocalBackendController(target);
-		assertThat(created,notNullValue());
+		final BackendController created = new LocalBackendControllerFactory().create(target);
+		assertThat(created,instanceOf(LocalBackendController.class));
 	}
 
 }
