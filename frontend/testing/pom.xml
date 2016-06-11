@@ -59,6 +59,8 @@
 
 	<properties>
 		<sonar.skip>true</sonar.skip>
+		<undertow.version>1.3.22.Final</undertow.version>
+		<app.main>org.smartdeveloperhub.harvesters.it.frontend.testing.StandaloneTestingService</app.main>
 	</properties>
 
 	<dependencies>
@@ -70,30 +72,79 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.smartdeveloperhub.harvesters.it</groupId>
+			<artifactId>it-harvester-notification</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>org.ldp4j.commons</groupId>
-			<artifactId>ldp4j-commons-testing</artifactId>
+			<groupId>me.atrox.haikunator</groupId>
+			<artifactId>Haikunator</artifactId>
+			<version>1.2</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.jmockit</groupId>
-			<artifactId>jmockit</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>hamcrest-integration</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
+			<groupId>io.undertow</groupId>
+			<artifactId>undertow-core</artifactId>
+			<version>${undertow.version}</version>
 		</dependency>
 
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.4.0</version>
+				<configuration>
+					<mainClass>${app.main}</mainClass>
+					<systemProperties>
+						<systemProperty>
+							<key>service.version</key>
+							<value>${project.version}</value>
+						</systemProperty>
+					</systemProperties>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>appassembler-maven-plugin</artifactId>
+				<version>1.10</version>
+				<configuration>
+					<assembleDirectory>${project.build.directory}${file.separator}client</assembleDirectory>
+					<binFileExtensions>
+						<unix>.sh</unix>
+					</binFileExtensions>
+					<repositoryLayout>flat</repositoryLayout>
+					<repositoryName>lib</repositoryName>
+					<programs>
+						<program>
+							<id>TestingJiraCollector</id>
+							<mainClass>${app.main}</mainClass>
+							<jvmSettings>
+								<extraArguments>
+									<extraArgument>-Dservice.version=${project.version}</extraArgument>
+									<extraArgument>-Dservice.build=${git.commitsCount} (${git.branch}@${git.buildnumber})</extraArgument>
+								</extraArguments>
+							</jvmSettings>
+						</program>
+					</programs>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>assemble</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>
