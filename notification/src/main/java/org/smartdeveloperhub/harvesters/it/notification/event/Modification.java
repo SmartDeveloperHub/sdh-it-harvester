@@ -28,6 +28,7 @@ package org.smartdeveloperhub.harvesters.it.notification.event;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -83,6 +84,10 @@ public final class Modification {
 
 	public Modification authors(final String... authors) {
 		return new Modification(this.action,this.entity,this.target,authors);
+	}
+
+	public Modification authors(final Collection<String> authors) {
+		return new Modification(this.action,this.entity,this.target,authors.toArray(new String[authors.size()]));
 	}
 
 	void attach(final ProjectUpdatedEvent event) {

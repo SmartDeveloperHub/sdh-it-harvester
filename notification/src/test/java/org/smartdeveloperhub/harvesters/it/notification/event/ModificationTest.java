@@ -72,4 +72,26 @@ public class ModificationTest {
 		assertThat(issueChanges.get(1).getAuthors(),hasItems("another author"));
 	}
 
+
+	@Test
+	public void testManagesAuthorCollections() {
+		final Map<Entity,Map<String,List<Change>>> changes=Maps.newLinkedHashMap();
+		final Map<String,List<Change>> entityChanges = Maps.newLinkedHashMap();
+		final List<Change> issueChanges = Lists.newArrayList();
+		issueChanges.add(Change.create(Action.CREATED,"author"));
+		entityChanges.put("issue",issueChanges);
+		changes.put(Entity.ISSUE,entityChanges);
+		new Expectations() {{
+			ModificationTest.this.event.getChanges();this.result=changes;
+		}};
+		Modification.
+			update().
+				issue("issue").
+					authors(Lists.newArrayList("author1","author2")).
+					attach(this.event);
+		assertThat(issueChanges.size(),equalTo(2));
+		assertThat(issueChanges.get(1).getAction(),equalTo(Action.UPDATED));
+		assertThat(issueChanges.get(1).getAuthors(),hasItems("author1","author2"));
+	}
+
 }
