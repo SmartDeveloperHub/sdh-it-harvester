@@ -246,6 +246,7 @@ public class PublisherHelperTest {
 		event.append(Modification.create().component("component2"));
 		new Expectations() {{
 			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=project;
+			session.modify(project);
 			project.attachmentById(ProjectHandler.PROJECT_COMPONENTS);this.result=attachment;
 			attachment.resource();this.result=container;
 			container.addMember(IdentityUtil.componentName(new ComponentKey("1","component1")));
@@ -265,6 +266,7 @@ public class PublisherHelperTest {
 		event.append(Modification.create().component("component2"));
 		new Expectations() {{
 			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=project;
+			session.modify(project);
 			project.attachmentById(ProjectHandler.PROJECT_COMPONENTS);this.result=attachment;
 			attachment.resource();this.result=container;
 			container.addMember(IdentityUtil.componentName(new ComponentKey("1","component1")));this.result=new IOException("Failure");
@@ -290,6 +292,7 @@ public class PublisherHelperTest {
 		event.append(Modification.create().version("version2"));
 		new Expectations() {{
 			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=project;
+			session.modify(project);
 			project.attachmentById(ProjectHandler.PROJECT_VERSIONS);this.result=attachment;
 			attachment.resource();this.result=container;
 			container.addMember(IdentityUtil.versionName(new VersionKey("1","version1")));
@@ -309,6 +312,7 @@ public class PublisherHelperTest {
 		event.append(Modification.create().version("version2"));
 		new Expectations() {{
 			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=project;
+			session.modify(project);
 			project.attachmentById(ProjectHandler.PROJECT_VERSIONS);this.result=attachment;
 			attachment.resource();this.result=container;
 			container.addMember(IdentityUtil.versionName(new VersionKey("1","version1")));this.result=new IOException("Failure");
@@ -334,6 +338,7 @@ public class PublisherHelperTest {
 		event.append(Modification.create().issue("issue2"));
 		new Expectations() {{
 			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=project;
+			session.modify(project);
 			project.attachmentById(ProjectHandler.PROJECT_ISSUES);this.result=attachment;
 			attachment.resource();this.result=container;
 			container.addMember(IdentityUtil.issueName(new IssueKey("1","issue1")));
@@ -353,6 +358,7 @@ public class PublisherHelperTest {
 		event.append(Modification.create().topIssue("issue2"));
 		new Expectations() {{
 			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=project;
+			session.modify(project);
 			project.attachmentById(ProjectHandler.PROJECT_ISSUES);this.maxTimes=0;
 		}};
 		PublisherHelper.
@@ -369,6 +375,7 @@ public class PublisherHelperTest {
 		event.append(Modification.create().issue("issue2"));
 		new Expectations() {{
 			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=project;
+			session.modify(project);
 			project.attachmentById(ProjectHandler.PROJECT_ISSUES);this.result=attachment;
 			attachment.resource();this.result=container;
 			container.addMember(IdentityUtil.issueName(new IssueKey("1","issue1")));this.result=new IOException("Failure");
@@ -516,6 +523,7 @@ public class PublisherHelperTest {
 		event.append(Modification.update().component("component2"));
 		new Expectations() {{
 			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=project;
+			session.modify(project);
 			project.attachmentById(ProjectHandler.PROJECT_COMPONENTS);this.maxTimes=0;
 		}};
 		PublisherHelper.

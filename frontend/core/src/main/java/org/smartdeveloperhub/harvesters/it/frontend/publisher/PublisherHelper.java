@@ -206,6 +206,12 @@ final class PublisherHelper {
 			throw new IOException("Project "+event.getProject()+" does not exist");
 		}
 
+		/**
+		 * The project resource is always updated to cater for modifications
+		 * that do not affect child resources.
+		 */
+		session.modify(projectSnapshot);
+
 		final Set<String> addedComponents=Sets.newLinkedHashSet();
 		final Set<String> deletedComponents=Sets.newLinkedHashSet();
 		final Set<String> addedVersions=Sets.newLinkedHashSet();
