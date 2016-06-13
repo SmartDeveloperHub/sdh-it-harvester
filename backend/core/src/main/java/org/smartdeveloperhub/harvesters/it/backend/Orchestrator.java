@@ -64,7 +64,7 @@ public class Orchestrator {
 	private final static String JIRA_URL = "jiraUrl";
 	private final static String JIRA_USERNAME = "jiraUsername";
 	private final static String JIRA_PASSWORD = "jiraPassword";
-//	private final static String REDIS_URL = "redisUrl";
+	private final static String REDIS_URL = "redisUrl";
 //	private final static String SERVLET_PORT = "servletPort";
 //	private final static String SERVLET_PATH = "servletPath";
 	private final static String CRAWLER_PERIOD = "collectorPeriodicity";
@@ -91,7 +91,7 @@ public class Orchestrator {
 		String username = properties.getProperty(JIRA_USERNAME);
 		String password = properties.getProperty(JIRA_PASSWORD);
 
-//		String redisServer = properties.getProperty(REDIS_URL);
+		String redisServer = properties.getProperty(REDIS_URL);
 
 //		int servletPort = Integer.parseInt(properties.getProperty(SERVLET_PORT));
 //		String servletPath = properties.getProperty(SERVLET_PATH);
@@ -119,7 +119,7 @@ public class Orchestrator {
 													typeMapping);
 		VersionFactory versionFactory = new VersionFactory();
 		ComponentFactory componentFactory = new ComponentFactory();
-		Storage storage = new RedisStorage();
+		Storage storage = new RedisStorage(redisServer);
 
 		try {
 

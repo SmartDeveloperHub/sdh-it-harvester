@@ -1,10 +1,10 @@
 package org.smartdeveloperhub.harvesters.it.backend;
 
 /**
- * Unity Test for the main service class Orchestrator.
+ * Integration test of the collector service.
  * @author imolina
  *
  */
-public class OrchestratorTest {
+public class CollectorIT {
 
 }

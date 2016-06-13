@@ -10,6 +10,12 @@ import java.util.Set;
 
 public class RedisStorage implements Storage {
 
+	private String server;
+	
+	public RedisStorage(String server) {
+		this.server = server;
+	}
+
 	public void storeIssues(Set<Issue> issues) {
 		//TODO:
 		System.out.println("Issues Size: " + issues.size());

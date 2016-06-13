@@ -8,6 +8,11 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Unity Test for the mapping loader util class.
+ * @author imolina
+ *
+ */
 public class MappingLoaderTest {
 	
 	private static final String FILE_TEST = "/utils/mappingTest.properties";
