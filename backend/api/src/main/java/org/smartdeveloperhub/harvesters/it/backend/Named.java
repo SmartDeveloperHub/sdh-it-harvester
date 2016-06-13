@@ -29,39 +29,39 @@ package org.smartdeveloperhub.harvesters.it.backend;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-public abstract class Titled<T> extends Identifiable<T> {
+public abstract class Named<T> extends Identifiable<T> {
 
-	static final String TITLE="title";
+	static final String NAME="name";
 
-	@JsonProperty(TITLE)
-	private String title;
+	@JsonProperty(NAME)
+	private String name;
 
 	/**
-	 * Get the title of the entity
+	 * Get the name of the entity
 	 *
-	 * @return The title
+	 * @return The name
 	 */
-	@JsonProperty(TITLE)
-	public final String getTitle() {
-		return this.title;
+	@JsonProperty(NAME)
+	public final String getName() {
+		return this.name;
 	}
 
 	/**
-	 * Set the title of the entity
+	 * Set the name of the entity
 	 *
-	 * @param title
-	 *            The title of the entity
+	 * @param name
+	 *            The name of the entity
 	 */
-	@JsonProperty(TITLE)
-	public final void setTitle(final String title) {
-		this.title = title;
+	@JsonProperty(NAME)
+	public final void setName(final String name) {
+		this.name = name;
 	}
 
 	@Override
 	protected ToStringHelper stringHelper() {
 		return
 			super.stringHelper().
-				add(TITLE,this.title);
+				add(NAME,this.name);
 	}
 
 

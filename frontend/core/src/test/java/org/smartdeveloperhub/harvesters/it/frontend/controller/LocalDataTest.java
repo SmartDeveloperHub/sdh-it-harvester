@@ -62,7 +62,7 @@ public class LocalDataTest {
 	private void createProject(final String projectId, final LocalData entity) {
 		final Project project = new Project();
 		project.setId(projectId);
-		project.setTitle("Project '"+projectId+"'");
+		project.setName("Project '"+projectId+"'");
 		project.getComponents().add("component1");
 		project.getComponents().add("component2");
 		project.getVersions().add("version1");
@@ -107,7 +107,7 @@ public class LocalDataTest {
 		final Component component = new Component();
 		component.setId(componentId);
 		component.setProjectId(projectId);
-		component.setTitle("Component '"+componentId+"' of project '"+projectId+"'");
+		component.setName("Component '"+componentId+"' of project '"+projectId+"'");
 		return component;
 	}
 
@@ -115,6 +115,7 @@ public class LocalDataTest {
 		final Version component = new Version();
 		component.setId(versionId);
 		component.setProjectId(projectId);
+		component.setName("Version '"+versionId+"' of project '"+projectId+"'");
 		return component;
 	}
 
@@ -122,7 +123,7 @@ public class LocalDataTest {
 		final Issue issue = new Issue();
 		issue.setId(issueId);
 		issue.setProjectId(projectId);
-		issue.setTitle("Issue '"+issueId+"' of project '"+projectId+"'");
+		issue.setName("Issue '"+issueId+"' of project '"+projectId+"'");
 		issue.setCreationDate(new DateTime());
 		issue.setOpened(issue.getCreationDate());
 		issue.setStatus(Status.IN_PROGRESS);

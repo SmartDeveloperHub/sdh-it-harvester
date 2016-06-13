@@ -110,7 +110,7 @@ public class DynamicPublisherTest {
 	private Project createProject(final String projectId) {
 		final Project project = new Project();
 		project.setId(projectId);
-		project.setTitle(this.name.getMethodName());
+		project.setName(this.name.getMethodName());
 		project.getComponents().addAll(createIdentity(projectId,"component",1+this.random.nextInt(7)));
 		project.getVersions().addAll(createIdentity(projectId,"version",1+this.random.nextInt(7)));
 		project.getIssues().addAll(createIdentity(projectId,"issues",5+this.random.nextInt(50)));

@@ -227,11 +227,8 @@ final class PublisherHelper {
 			case VERSION:
 				populateEntityChanges(entry.getValue(), addedVersions, deletedVersions);
 				break;
-			case ISSUE:
+			default: // MUST BE ISSUE
 				populateEntityChanges(entry.getValue(), addedIssues, deletedIssues);
-				break;
-			default:
-				LOGGER.warn("Ignored entity {} changes {}",entry.getKey(),entry.getValue());
 				break;
 			}
 		}

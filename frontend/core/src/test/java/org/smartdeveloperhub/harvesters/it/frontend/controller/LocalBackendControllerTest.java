@@ -311,14 +311,14 @@ public class LocalBackendControllerTest {
 		final LocalData data = new LocalData();
 		final Project entity = new Project();
 		entity.setId("id");
-		entity.setTitle("title");
+		entity.setName("name");
 		data.getProjects().add(entity);
 		export(data);
 		final LocalBackendController sut = new LocalBackendController(BASE);
 		final Project result = sut.getProject(entity.getId());
 		assertThat(result,notNullValue());
 		assertThat(result.getId(),equalTo(entity.getId()));
-		assertThat(result.getTitle(),equalTo(entity.getTitle()));
+		assertThat(result.getName(),equalTo(entity.getName()));
 	}
 
 	@Test
@@ -326,14 +326,14 @@ public class LocalBackendControllerTest {
 		final LocalData data = new LocalData();
 		final Component entity = new Component();
 		entity.setId("id");
-		entity.setTitle("title");
+		entity.setName("name");
 		data.getProjectComponents().put("pid", Lists.newArrayList(entity));
 		export(data);
 		final LocalBackendController sut = new LocalBackendController(BASE);
 		final Component result = sut.getProjectComponent("pid",entity.getId());
 		assertThat(result,notNullValue());
 		assertThat(result.getId(),equalTo(entity.getId()));
-		assertThat(result.getTitle(),equalTo(entity.getTitle()));
+		assertThat(result.getName(),equalTo(entity.getName()));
 	}
 
 	@Test
@@ -341,12 +341,14 @@ public class LocalBackendControllerTest {
 		final LocalData data = new LocalData();
 		final Version entity = new Version();
 		entity.setId("id");
+		entity.setName("name");
 		data.getProjectVersions().put("pid", Lists.newArrayList(entity));
 		export(data);
 		final LocalBackendController sut = new LocalBackendController(BASE);
 		final Version result = sut.getProjectVersion("pid",entity.getId());
 		assertThat(result,notNullValue());
 		assertThat(result.getId(),equalTo(entity.getId()));
+		assertThat(result.getName(),equalTo(entity.getName()));
 	}
 
 	@Test
@@ -354,14 +356,14 @@ public class LocalBackendControllerTest {
 		final LocalData data = new LocalData();
 		final Issue entity = new Issue();
 		entity.setId("id");
-		entity.setTitle("title");
+		entity.setName("name");
 		data.getProjectIssues().put("pid", Lists.newArrayList(entity));
 		export(data);
 		final LocalBackendController sut = new LocalBackendController(BASE);
 		final Issue result = sut.getProjectIssue("pid",entity.getId());
 		assertThat(result,notNullValue());
 		assertThat(result.getId(),equalTo(entity.getId()));
-		assertThat(result.getTitle(),equalTo(entity.getTitle()));
+		assertThat(result.getName(),equalTo(entity.getName()));
 	}
 
 }

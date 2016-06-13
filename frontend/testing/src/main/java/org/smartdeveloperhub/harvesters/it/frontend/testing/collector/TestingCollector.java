@@ -63,7 +63,7 @@ import com.google.common.collect.Maps;
 
 public final class TestingCollector implements BackendController {
 
-	private final class CustomStateContext<T extends Identifiable<String> & ProjectScoped > implements ProjectContext<T> {
+	private final class CustomStateContext<T extends ProjectScoped<String>> implements ProjectContext<T> {
 
 		private final Set<String> index;
 		private final Map<String,T> map;
@@ -190,7 +190,7 @@ public final class TestingCollector implements BackendController {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends Identifiable<String> & ProjectScoped> Optional<Modification> update(final Project project, final ProjectChange<T> genericChange) {
+	private <T extends ProjectScoped<String>> Optional<Modification> update(final Project project, final ProjectChange<T> genericChange) {
 		Optional<Modification> modification=Optional.absent();
 		if(genericChange.is(Component.class)) {
 			final ProjectChange<Component> aChange=(ProjectChange<Component>)genericChange;
@@ -217,7 +217,7 @@ public final class TestingCollector implements BackendController {
 		return modification;
 	}
 
-	private <T extends Identifiable<String> & ProjectScoped> Map<String, List<ProjectChange<T>>> organize( @SuppressWarnings("unchecked") final ProjectChange<T>... changes) {
+	private <T extends ProjectScoped<String>> Map<String, List<ProjectChange<T>>> organize( @SuppressWarnings("unchecked") final ProjectChange<T>... changes) {
 		final Map<String,List<ProjectChange<T>>> projectElements=Maps.newLinkedHashMap();
 		for(final ProjectChange<T> change:changes) {
 			List<ProjectChange<T>> pChange= projectElements.get(change.projectId());
@@ -230,7 +230,7 @@ public final class TestingCollector implements BackendController {
 		return projectElements;
 	}
 
-	private <T extends Identifiable<String> & ProjectScoped> ProjectUpdatedEvent updateProject(final String projectId, final List<ProjectChange<T>> changes) {
+	private <T extends ProjectScoped<String>> ProjectUpdatedEvent updateProject(final String projectId, final List<ProjectChange<T>> changes) {
 		final ProjectUpdatedEvent event=new ProjectUpdatedEvent();
 		event.setProject(projectId);
 		final Project project = this.projects.get(projectId);
@@ -382,7 +382,7 @@ public final class TestingCollector implements BackendController {
 		return event;
 	}
 
-	public <T extends Identifiable<String> & ProjectScoped> List<ProjectUpdatedEvent> updateProjects(@SuppressWarnings("unchecked") final ProjectChange<T>... changes) {
+	public <T extends ProjectScoped<String>> List<ProjectUpdatedEvent> updateProjects(@SuppressWarnings("unchecked") final ProjectChange<T>... changes) {
 		final Map<String, List<ProjectChange<T>>> projectElements = organize(changes);
 		final List<ProjectUpdatedEvent> events=Lists.newArrayList();
 		for(final Entry<String, List<ProjectChange<T>>> entry:projectElements.entrySet()) {

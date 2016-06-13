@@ -37,17 +37,13 @@ import com.google.common.collect.Sets;
 /**
  * TODO: For the time being, the issue only identifies the issues blocked from the same project.
  */
-public final class Issue extends Titled<String> implements ProjectScoped {
+public final class Issue extends ProjectScoped<String> {
 
 	public enum Type {
 		BUG,
 		IMPROVEMENT,
 		TASK
 	}
-
-	static final String PROJECT_ID="projectId";
-
-	private String projectId;
 
 	private Type type;
 	private String description;
@@ -76,16 +72,6 @@ public final class Issue extends Titled<String> implements ProjectScoped {
 		this.blockedIssues=Sets.newLinkedHashSet();
 		this.versions=Sets.newLinkedHashSet();
 		this.components=Sets.newLinkedHashSet();
-	}
-
-	@Override
-	public String getProjectId() {
-		return this.projectId;
-	}
-
-	@Override
-	public void setProjectId(final String projectId) {
-		this.projectId = projectId;
 	}
 
 	public Type getType() {
@@ -244,7 +230,6 @@ public final class Issue extends Titled<String> implements ProjectScoped {
 	protected ToStringHelper stringHelper() {
 		return
 			super.stringHelper().
-				add(PROJECT_ID,this.projectId).
 				add("type",this.type).
 				add("description",this.description).
 				add("status",this.status).

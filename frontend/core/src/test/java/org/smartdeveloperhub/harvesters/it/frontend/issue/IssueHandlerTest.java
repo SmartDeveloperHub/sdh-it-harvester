@@ -228,7 +228,7 @@ public class IssueHandlerTest {
 		final DateTime expected = new DateTime();
 		new Expectations() {{
 			IssueHandlerTest.this.entity.getId();this.result=IssueHandlerTest.this.key.getIssueId();
-			IssueHandlerTest.this.entity.getTitle();this.result="title";
+			IssueHandlerTest.this.entity.getName();this.result="title";
 			IssueHandlerTest.this.entity.getDescription();this.result="description";
 			IssueHandlerTest.this.entity.getEstimatedTime();this.result=null;
 			IssueHandlerTest.this.entity.getCreationDate();this.result=expected;

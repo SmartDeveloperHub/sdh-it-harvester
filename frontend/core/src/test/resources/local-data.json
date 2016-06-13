@@ -22,14 +22,14 @@
   } ],
   "projects" : [ {
     "id" : "project1",
-    "title" : "Project 'project1'",
+    "name" : "Project 'project1'",
     "versions" : [ "version1", "version2" ],
     "components" : [ "component1", "component2" ],
     "topIssues" : [ "issue1" ],
     "issues" : [ "issue1", "issue2" ]
   }, {
     "id" : "project2",
-    "title" : "Project 'project2'",
+    "name" : "Project 'project2'",
     "versions" : [ "version1", "version2" ],
     "components" : [ "component1", "component2" ],
     "topIssues" : [ "issue1" ],
@@ -39,35 +39,39 @@
     "project1" : [ {
       "id" : "component1",
       "projectId" : "project1",
-      "title" : "Component 'component1' of project 'project1'"
+      "name" : "Component 'component1' of project 'project1'"
     }, {
       "id" : "component2",
       "projectId" : "project1",
-      "title" : "Component 'component2' of project 'project1'"
+      "name" : "Component 'component2' of project 'project1'"
     } ],
     "project2" : [ {
       "id" : "component1",
       "projectId" : "project2",
-      "title" : "Component 'component1' of project 'project2'"
+      "name" : "Component 'component1' of project 'project2'"
     }, {
       "id" : "component2",
       "projectId" : "project2",
-      "title" : "Component 'component2' of project 'project2'"
+      "name" : "Component 'component2' of project 'project2'"
     } ]
   },
   "projectVersions" : {
     "project1" : [ {
       "id" : "version1",
+      "name" : "Version 'version1' of project 'project1'",
       "projectId" : "project1"
     }, {
       "id" : "version2",
+      "name" : "Version 'version2' of project 'project1'",
       "projectId" : "project1"
     } ],
     "project2" : [ {
       "id" : "version1",
+      "name" : "Version 'version1' of project 'project2'",
       "projectId" : "project2"
     }, {
       "id" : "version2",
+      "name" : "Version 'version2' of project 'project2'",
       "projectId" : "project2"
     } ]
   },
@@ -79,8 +83,8 @@
       "status" : "IN_PROGRESS",
       "severity" : "BLOCKER",
       "priority" : "VERY_HIGH",
-      "creationDate" : "2016-06-08T18:01:49.053Z",
-      "opened" : "2016-06-08T18:01:49.053Z",
+      "creationDate" : "2016-06-13T11:33:45.094Z",
+      "opened" : "2016-06-13T11:33:45.094Z",
       "closed" : null,
       "dueTo" : null,
       "estimatedTime" : null,
@@ -103,7 +107,7 @@
             "oldValue" : "OPEN",
             "newValue" : "IN_PROGRESS"
           } ],
-          "timeStamp" : "2016-06-08T19:01:49.149Z"
+          "timeStamp" : "2016-06-13T12:33:45.188Z"
         }, {
           "author" : "contributor2",
           "items" : [ {
@@ -113,18 +117,18 @@
             "property" : "components",
             "newValue" : "component1"
           } ],
-          "timeStamp" : "2016-06-08T21:01:49.149Z"
+          "timeStamp" : "2016-06-13T14:33:45.188Z"
         }, {
           "author" : "contributor2",
           "items" : [ {
             "property" : "commits",
             "newValue" : "commit1"
           } ],
-          "timeStamp" : "2016-06-08T23:01:49.149Z"
+          "timeStamp" : "2016-06-13T16:33:45.188Z"
         } ]
       },
       "id" : "issue1",
-      "title" : "Issue 'issue1' of project 'project1'"
+      "name" : "Issue 'issue1' of project 'project1'"
     }, {
       "projectId" : "project1",
       "type" : null,
@@ -132,8 +136,8 @@
       "status" : "IN_PROGRESS",
       "severity" : "BLOCKER",
       "priority" : "VERY_HIGH",
-      "creationDate" : "2016-06-08T18:01:49.167Z",
-      "opened" : "2016-06-08T18:01:49.167Z",
+      "creationDate" : "2016-06-13T11:33:45.204Z",
+      "opened" : "2016-06-13T11:33:45.204Z",
       "closed" : null,
       "dueTo" : null,
       "estimatedTime" : null,
@@ -156,7 +160,7 @@
             "oldValue" : "OPEN",
             "newValue" : "IN_PROGRESS"
           } ],
-          "timeStamp" : "2016-06-08T19:01:49.167Z"
+          "timeStamp" : "2016-06-13T12:33:45.204Z"
         }, {
           "author" : "contributor2",
           "items" : [ {
@@ -166,18 +170,18 @@
             "property" : "components",
             "newValue" : "component1"
           } ],
-          "timeStamp" : "2016-06-08T21:01:49.167Z"
+          "timeStamp" : "2016-06-13T14:33:45.204Z"
         }, {
           "author" : "contributor2",
           "items" : [ {
             "property" : "commits",
             "newValue" : "commit1"
           } ],
-          "timeStamp" : "2016-06-08T23:01:49.167Z"
+          "timeStamp" : "2016-06-13T16:33:45.204Z"
         } ]
       },
       "id" : "issue2",
-      "title" : "Issue 'issue2' of project 'project1'"
+      "name" : "Issue 'issue2' of project 'project1'"
     } ],
     "project2" : [ {
       "projectId" : "project2",
@@ -186,8 +190,8 @@
       "status" : "IN_PROGRESS",
       "severity" : "BLOCKER",
       "priority" : "VERY_HIGH",
-      "creationDate" : "2016-06-08T18:01:49.167Z",
-      "opened" : "2016-06-08T18:01:49.167Z",
+      "creationDate" : "2016-06-13T11:33:45.204Z",
+      "opened" : "2016-06-13T11:33:45.204Z",
       "closed" : null,
       "dueTo" : null,
       "estimatedTime" : null,
@@ -210,7 +214,7 @@
             "oldValue" : "OPEN",
             "newValue" : "IN_PROGRESS"
           } ],
-          "timeStamp" : "2016-06-08T19:01:49.167Z"
+          "timeStamp" : "2016-06-13T12:33:45.204Z"
         }, {
           "author" : "contributor2",
           "items" : [ {
@@ -220,18 +224,18 @@
             "property" : "components",
             "newValue" : "component1"
           } ],
-          "timeStamp" : "2016-06-08T21:01:49.167Z"
+          "timeStamp" : "2016-06-13T14:33:45.204Z"
         }, {
           "author" : "contributor2",
           "items" : [ {
             "property" : "commits",
             "newValue" : "commit1"
           } ],
-          "timeStamp" : "2016-06-08T23:01:49.167Z"
+          "timeStamp" : "2016-06-13T16:33:45.204Z"
         } ]
       },
       "id" : "issue1",
-      "title" : "Issue 'issue1' of project 'project2'"
+      "name" : "Issue 'issue1' of project 'project2'"
     }, {
       "projectId" : "project2",
       "type" : null,
@@ -239,8 +243,8 @@
       "status" : "IN_PROGRESS",
       "severity" : "BLOCKER",
       "priority" : "VERY_HIGH",
-      "creationDate" : "2016-06-08T18:01:49.167Z",
-      "opened" : "2016-06-08T18:01:49.167Z",
+      "creationDate" : "2016-06-13T11:33:45.205Z",
+      "opened" : "2016-06-13T11:33:45.205Z",
       "closed" : null,
       "dueTo" : null,
       "estimatedTime" : null,
@@ -263,7 +267,7 @@
             "oldValue" : "OPEN",
             "newValue" : "IN_PROGRESS"
           } ],
-          "timeStamp" : "2016-06-08T19:01:49.167Z"
+          "timeStamp" : "2016-06-13T12:33:45.205Z"
         }, {
           "author" : "contributor2",
           "items" : [ {
@@ -273,18 +277,18 @@
             "property" : "components",
             "newValue" : "component1"
           } ],
-          "timeStamp" : "2016-06-08T21:01:49.167Z"
+          "timeStamp" : "2016-06-13T14:33:45.205Z"
         }, {
           "author" : "contributor2",
           "items" : [ {
             "property" : "commits",
             "newValue" : "commit1"
           } ],
-          "timeStamp" : "2016-06-08T23:01:49.167Z"
+          "timeStamp" : "2016-06-13T16:33:45.205Z"
         } ]
       },
       "id" : "issue2",
-      "title" : "Issue 'issue2' of project 'project2'"
+      "name" : "Issue 'issue2' of project 'project2'"
     } ]
   }
 }

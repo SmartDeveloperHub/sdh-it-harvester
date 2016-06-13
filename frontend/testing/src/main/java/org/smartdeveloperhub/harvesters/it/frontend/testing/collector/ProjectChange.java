@@ -27,7 +27,6 @@
 package org.smartdeveloperhub.harvesters.it.frontend.testing.collector;
 
 import org.smartdeveloperhub.harvesters.it.backend.Component;
-import org.smartdeveloperhub.harvesters.it.backend.Identifiable;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
 import org.smartdeveloperhub.harvesters.it.backend.ProjectScoped;
 import org.smartdeveloperhub.harvesters.it.backend.Version;
@@ -36,7 +35,7 @@ import org.smartdeveloperhub.harvesters.it.notification.event.Modification.Entit
 
 import com.google.common.base.Optional;
 
-public class ProjectChange<T extends Identifiable<String> & ProjectScoped> {
+public class ProjectChange<T extends ProjectScoped<String>> {
 
 	interface ProjectContext<T> {
 
@@ -110,11 +109,11 @@ public class ProjectChange<T extends Identifiable<String> & ProjectScoped> {
 		return Optional.of(result);
 	}
 
-	public <E extends Identifiable<String> & ProjectScoped> ProjectChange<E> createOrUpdate(final E entity) {
+	public <E extends ProjectScoped<String>> ProjectChange<E> createOrUpdate(final E entity) {
 		return new ProjectChange<>(entity,false);
 	}
 
-	public <E extends Identifiable<String> & ProjectScoped> ProjectChange<E> delete(final E entity) {
+	public <E extends ProjectScoped<String>> ProjectChange<E> delete(final E entity) {
 		return new ProjectChange<>(entity,true);
 	}
 

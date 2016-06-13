@@ -43,7 +43,6 @@ import org.smartdeveloperhub.harvesters.it.backend.Collector;
 import org.smartdeveloperhub.harvesters.it.backend.Commit;
 import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
-import org.smartdeveloperhub.harvesters.it.backend.Identifiable;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
 import org.smartdeveloperhub.harvesters.it.backend.Project;
 import org.smartdeveloperhub.harvesters.it.backend.ProjectScoped;
@@ -349,7 +348,7 @@ public final class TestingService {
 		}
 	}
 
-	public <T extends Identifiable<String> & ProjectScoped> void updateProjects(@SuppressWarnings("unchecked") final ProjectChange<T>... changes) {
+	public <T extends ProjectScoped<String>> void updateProjects(@SuppressWarnings("unchecked") final ProjectChange<T>... changes) {
 		for(final ProjectUpdatedEvent event:this.collector.updateProjects(changes)) {
 			if(!event.isEmpty()) {
 				update(event);
