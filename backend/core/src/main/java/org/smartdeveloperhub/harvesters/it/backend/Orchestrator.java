@@ -44,6 +44,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -64,7 +65,9 @@ public class Orchestrator {
 	private final static String JIRA_URL = "jiraUrl";
 	private final static String JIRA_USERNAME = "jiraUsername";
 	private final static String JIRA_PASSWORD = "jiraPassword";
-	private final static String REDIS_URL = "redisUrl";
+	private final static String REDIS_SERVER = "redisServer";
+	private final static String REDIS_PORT = "redisPort";
+
 //	private final static String SERVLET_PORT = "servletPort";
 //	private final static String SERVLET_PATH = "servletPath";
 	private final static String CRAWLER_PERIOD = "collectorPeriodicity";
@@ -91,7 +94,8 @@ public class Orchestrator {
 		String username = properties.getProperty(JIRA_USERNAME);
 		String password = properties.getProperty(JIRA_PASSWORD);
 
-		String redisServer = properties.getProperty(REDIS_URL);
+		String redisServer = properties.getProperty(REDIS_SERVER);
+		int redisPort = Integer.parseInt(properties.getProperty(REDIS_PORT));
 
 //		int servletPort = Integer.parseInt(properties.getProperty(SERVLET_PORT));
 //		String servletPath = properties.getProperty(SERVLET_PATH);
@@ -119,7 +123,15 @@ public class Orchestrator {
 													typeMapping);
 		VersionFactory versionFactory = new VersionFactory();
 		ComponentFactory componentFactory = new ComponentFactory();
-		Storage storage = new RedisStorage(redisServer);
+		Storage storage = new RedisStorage(redisServer, redisPort);
+
+//		Set<Project> projects = storage.loadProjects();
+//		logger.info("projects number: " + projects.size());
+//
+//		for (Project project : projects) {
+//			Set<Issue> issues = storage.loadIssues(project.getId());
+//			logger.info("(" + project.getId() + ") issues number: " + issues.size());
+//		}
 
 		try {
 
@@ -141,7 +153,7 @@ public class Orchestrator {
 	public static void main(String[] args) {
 
 		Orchestrator orchestrator = new Orchestrator(
-				Executors.newScheduledThreadPool(1));
+										Executors.newScheduledThreadPool(1));
 
 		try {
 

@@ -133,11 +133,11 @@ public class JiraCrawler implements Crawler {
 															issues));
 
 				// Store components
-				storage.storeComponents(getAllComponents(jiraProject.getKey(), jiraProject.getComponents()));
+				storage.storeComponents(jiraProject.getKey(), getAllComponents(jiraProject.getKey(), jiraProject.getComponents()));
 				// Store versions
-				storage.storeVersions(getAllVersions(jiraProject.getKey(), jiraProject.getVersions()));
+				storage.storeVersions(jiraProject.getKey(), getAllVersions(jiraProject.getKey(), jiraProject.getVersions()));
 				// Store new issues
-				storage.storeIssues(issues);
+				storage.storeIssues(jiraProject.getKey(), topIssues);
 			}
 
 			// Store Project
