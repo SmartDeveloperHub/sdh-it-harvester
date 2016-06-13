@@ -43,11 +43,14 @@ import org.smartdeveloperhub.harvesters.it.backend.Collector;
 import org.smartdeveloperhub.harvesters.it.backend.Commit;
 import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
+import org.smartdeveloperhub.harvesters.it.backend.Identifiable;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
 import org.smartdeveloperhub.harvesters.it.backend.Project;
+import org.smartdeveloperhub.harvesters.it.backend.ProjectScoped;
 import org.smartdeveloperhub.harvesters.it.backend.State;
 import org.smartdeveloperhub.harvesters.it.backend.Version;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.ActivityListener;
+import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.ProjectChange;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.TestingCollector;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.handlers.EntityNotFoundException;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.handlers.EntityProvider;
@@ -62,6 +65,7 @@ import org.smartdeveloperhub.harvesters.it.notification.event.ContributorDeleted
 import org.smartdeveloperhub.harvesters.it.notification.event.Event;
 import org.smartdeveloperhub.harvesters.it.notification.event.ProjectCreatedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ProjectDeletedEvent;
+import org.smartdeveloperhub.harvesters.it.notification.event.ProjectUpdatedEvent;
 
 import com.google.common.collect.Maps;
 
@@ -317,9 +321,23 @@ public final class TestingService {
 		}
 	}
 
+	public void deleteCommits(final Commit... commits) {
+		final CommitDeletedEvent event=this.collector.deleteCommits(commits);
+		if(!event.getDeletedCommits().isEmpty()) {
+			update(event);
+		}
+	}
+
 	public void createContributors(final Contributor... contributors) {
 		final ContributorCreatedEvent event=this.collector.createContributors(contributors);
 		if(!event.getNewContributors().isEmpty()) {
+			update(event);
+		}
+	}
+
+	public void deleteContributors(final Contributor... contributors) {
+		final ContributorDeletedEvent event=this.collector.deleteContributors(contributors);
+		if(!event.getDeletedContributors().isEmpty()) {
 			update(event);
 		}
 	}
@@ -331,17 +349,11 @@ public final class TestingService {
 		}
 	}
 
-	public void deleteCommits(final Commit... commits) {
-		final CommitDeletedEvent event=this.collector.deleteCommits(commits);
-		if(!event.getDeletedCommits().isEmpty()) {
-			update(event);
-		}
-	}
-
-	public void deleteContributors(final Contributor... contributors) {
-		final ContributorDeletedEvent event=this.collector.deleteContributors(contributors);
-		if(!event.getDeletedContributors().isEmpty()) {
-			update(event);
+	public <T extends Identifiable<String> & ProjectScoped> void updateProjects(@SuppressWarnings("unchecked") final ProjectChange<T>... changes) {
+		for(final ProjectUpdatedEvent event:this.collector.updateProjects(changes)) {
+			if(!event.isEmpty()) {
+				update(event);
+			}
 		}
 	}
 

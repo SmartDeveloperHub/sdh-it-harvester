@@ -29,6 +29,8 @@ package org.smartdeveloperhub.harvesters.it.frontend.testing.collector;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.smartdeveloperhub.harvesters.it.backend.Collector;
 import org.smartdeveloperhub.harvesters.it.backend.Commit;
@@ -38,23 +40,62 @@ import org.smartdeveloperhub.harvesters.it.backend.Identifiable;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
 import org.smartdeveloperhub.harvesters.it.backend.Notifications;
 import org.smartdeveloperhub.harvesters.it.backend.Project;
+import org.smartdeveloperhub.harvesters.it.backend.ProjectScoped;
 import org.smartdeveloperhub.harvesters.it.backend.State;
 import org.smartdeveloperhub.harvesters.it.backend.Version;
 import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.ActivityTracker.ActivityContext;
+import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.ProjectChange.ProjectContext;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.handlers.EntityNotFoundException;
 import org.smartdeveloperhub.harvesters.it.notification.CollectorConfiguration;
 import org.smartdeveloperhub.harvesters.it.notification.event.CommitCreatedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.CommitDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorCreatedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorDeletedEvent;
+import org.smartdeveloperhub.harvesters.it.notification.event.Modification;
 import org.smartdeveloperhub.harvesters.it.notification.event.ProjectCreatedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ProjectDeletedEvent;
+import org.smartdeveloperhub.harvesters.it.notification.event.ProjectUpdatedEvent;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class TestingCollector implements BackendController {
+public final class TestingCollector implements BackendController {
+
+	private final class CustomStateContext<T extends Identifiable<String> & ProjectScoped > implements ProjectContext<T> {
+
+		private final Set<String> index;
+		private final Map<String,T> map;
+
+		private CustomStateContext(final Set<String> entityIndex, final Map<String,T> entityMap) {
+			this.map = entityMap;
+			this.index = entityIndex;
+		}
+
+		@Override
+		public boolean contains(final String id) {
+			return this.index.contains(id);
+		}
+
+		@Override
+		public void create(final T entity) {
+			this.index.add(entity.getId());
+			this.map.put(entity.getId(),entity);
+		}
+
+		@Override
+		public void delete(final T entity) {
+			this.index.remove(entity.getId());
+			this.map.remove(entity.getId());
+		}
+
+		@Override
+		public void update(final T entity) {
+			this.map.put(entity.getId(),entity);
+		}
+
+	}
 
 	private final class InnerOwner implements ActivityContext {
 
@@ -146,6 +187,62 @@ public class TestingCollector implements BackendController {
 		} finally {
 			ActivityTracker.remove();
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T extends Identifiable<String> & ProjectScoped> Optional<Modification> update(final Project project, final ProjectChange<T> genericChange) {
+		Optional<Modification> modification=Optional.absent();
+		if(genericChange.is(Component.class)) {
+			final ProjectChange<Component> aChange=(ProjectChange<Component>)genericChange;
+			modification =
+				aChange.apply(
+					new CustomStateContext<Component>(
+						project.getComponents(),
+						this.projectComponents.get(project.getId())));
+		} else if(genericChange.is(Version.class)) {
+			final ProjectChange<Version> aChange=(ProjectChange<Version>)genericChange;
+			modification =
+				aChange.apply(
+					new CustomStateContext<Version>(
+						project.getVersions(),
+						this.projectVersions.get(project.getId())));
+		} else if(genericChange.is(Issue.class)) {
+			final ProjectChange<Issue> aChange=(ProjectChange<Issue>)genericChange;
+			modification =
+				aChange.apply(
+					new CustomStateContext<Issue>(
+						project.getVersions(),
+						this.projectIssues.get(project.getId())));
+		}
+		return modification;
+	}
+
+	private <T extends Identifiable<String> & ProjectScoped> Map<String, List<ProjectChange<T>>> organize( @SuppressWarnings("unchecked") final ProjectChange<T>... changes) {
+		final Map<String,List<ProjectChange<T>>> projectElements=Maps.newLinkedHashMap();
+		for(final ProjectChange<T> change:changes) {
+			List<ProjectChange<T>> pChange= projectElements.get(change.projectId());
+			if(pChange==null) {
+				pChange=Lists.newLinkedList();
+				projectElements.put(change.projectId(),pChange);
+			}
+			pChange.add(change);
+		}
+		return projectElements;
+	}
+
+	private <T extends Identifiable<String> & ProjectScoped> ProjectUpdatedEvent updateProject(final String projectId, final List<ProjectChange<T>> changes) {
+		final ProjectUpdatedEvent event=new ProjectUpdatedEvent();
+		event.setProject(projectId);
+		final Project project = this.projects.get(projectId);
+		if(project!=null) {
+			for(final ProjectChange<T> genericChange:changes) {
+				final Optional<Modification> modification=update(project, genericChange);
+				if(modification.isPresent()) {
+					event.append(modification.get());
+				}
+			}
+		}
+		return event;
 	}
 
 	public TestingCollector registerListener(final ActivityListener listener) {
@@ -283,6 +380,15 @@ public class TestingCollector implements BackendController {
 			this.projectIssues.remove(deletedProject);
 		}
 		return event;
+	}
+
+	public <T extends Identifiable<String> & ProjectScoped> List<ProjectUpdatedEvent> updateProjects(@SuppressWarnings("unchecked") final ProjectChange<T>... changes) {
+		final Map<String, List<ProjectChange<T>>> projectElements = organize(changes);
+		final List<ProjectUpdatedEvent> events=Lists.newArrayList();
+		for(final Entry<String, List<ProjectChange<T>>> entry:projectElements.entrySet()) {
+			events.add(updateProject(entry.getKey(),entry.getValue()));
+		}
+		return events;
 	}
 
 }
