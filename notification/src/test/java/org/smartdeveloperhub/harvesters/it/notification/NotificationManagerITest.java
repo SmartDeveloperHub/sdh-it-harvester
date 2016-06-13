@@ -87,9 +87,6 @@ public class NotificationManagerITest {
 		}
 	}
 
-	/**
-	 * TODO: Update intialization logic
-	 */
 	@Test
 	public void testMultipleCollectors() throws IOException {
 		final List<CollectorConfiguration> collectors=
@@ -120,8 +117,6 @@ public class NotificationManagerITest {
 					publishEvent(aggregator, deleteProjectComponents(collector, "r"+i*rounds+2,"dpc1"+i,"dpc2"+i));
 					publishEvent(aggregator, createProjectVersions(collector, "r"+i*rounds+3,"cpv1"+i,"cpv2"+i));
 					publishEvent(aggregator, deleteProjectVersions(collector, "r"+i*rounds+4,"dpv1"+i,"dpv2"+i));
-					publishEvent(aggregator, createProjectTopIssues(collector, "r"+i*rounds+3,"cpti1"+i,"cpti2"+i));
-					publishEvent(aggregator, deleteProjectTopIssues(collector, "r"+i*rounds+4,"dpti1"+i,"dpti2"+i));
 					publishEvent(aggregator, createProjectIssues(collector, "r"+i*rounds+3,"cpi1"+i,"cpi2"+i));
 					publishEvent(aggregator, deleteProjectIssues(collector, "r"+i*rounds+4,"dpi1"+i,"dpi2"+i));
 				}
@@ -247,28 +242,6 @@ public class NotificationManagerITest {
 		event.setProject(id);
 		for(final String valueId:values) {
 			event.append(Modification.delete().version(valueId));
-		}
-		return event;
-	}
-
-	private ProjectUpdatedEvent createProjectTopIssues(final CollectorConfiguration collector, final String id, final String... values) {
-		final ProjectUpdatedEvent event = new ProjectUpdatedEvent();
-		event.setInstance(collector.getInstance());
-		event.setTimestamp(System.currentTimeMillis());
-		event.setProject(id);
-		for(final String valueId:values) {
-			event.append(Modification.create().topIssue(valueId));
-		}
-		return event;
-	}
-
-	private ProjectUpdatedEvent deleteProjectTopIssues(final CollectorConfiguration collector, final String id, final String... values) {
-		final ProjectUpdatedEvent event = new ProjectUpdatedEvent();
-		event.setInstance(collector.getInstance());
-		event.setTimestamp(System.currentTimeMillis());
-		event.setProject(id);
-		for(final String valueId:values) {
-			event.append(Modification.delete().topIssue(valueId));
 		}
 		return event;
 	}

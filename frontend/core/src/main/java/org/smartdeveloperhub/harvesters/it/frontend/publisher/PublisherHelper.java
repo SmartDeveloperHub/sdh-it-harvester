@@ -230,10 +230,6 @@ final class PublisherHelper {
 			case ISSUE:
 				populateEntityChanges(entry.getValue(), addedIssues, deletedIssues);
 				break;
-			case TOP_ISSUE:
-				/**
-				 * TODO: Check what do we do when facing changes in top issues
-				 */
 			default:
 				LOGGER.warn("Ignored entity {} changes {}",entry.getKey(),entry.getValue());
 				break;
@@ -271,8 +267,7 @@ final class PublisherHelper {
 			session);
 	}
 
-	private static void populateEntityChanges(final Map<String, List<Change>> typeChanges, final Set<String> addedEntities,
-			final Set<String> deletedEntities) {
+	private static void populateEntityChanges(final Map<String, List<Change>> typeChanges, final Set<String> addedEntities, final Set<String> deletedEntities) {
 		for(final Entry<String,List<Change>> entityChanges:typeChanges.entrySet()) {
 			for(final Change change:entityChanges.getValue()) {
 				switch(change.getAction()) {

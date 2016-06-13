@@ -349,23 +349,6 @@ public class PublisherHelperTest {
 	}
 
 	@Test
-	public void testUpdateProjects$newTopIssues(@Mocked final WriteSession session, @Mocked final ResourceSnapshot project, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
-		final URI target = URI.create("target");
-		final ProjectUpdatedEvent event=new ProjectUpdatedEvent();
-		event.setInstance(target.toString());
-		event.setProject("1");
-		event.append(Modification.create().topIssue("issue1"));
-		event.append(Modification.create().topIssue("issue2"));
-		new Expectations() {{
-			session.find(ResourceSnapshot.class, IdentityUtil.projectName("1"), ProjectHandler.class);this.result=project;
-			session.modify(project);
-			project.attachmentById(ProjectHandler.PROJECT_ISSUES);this.maxTimes=0;
-		}};
-		PublisherHelper.
-			updateProject(session, event);
-	}
-
-	@Test
 	public void testUpdateProjects$newIssuesWithFailure(@Mocked final WriteSession session, @Mocked final ResourceSnapshot project, @Mocked final AttachmentSnapshot attachment, @Mocked final ContainerSnapshot container) throws IOException {
 		final URI target = URI.create("target");
 		final ProjectUpdatedEvent event=new ProjectUpdatedEvent();
