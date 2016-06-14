@@ -228,7 +228,7 @@ public class IssueHandlerTest {
 		final DateTime expected = new DateTime();
 		new Expectations() {{
 			IssueHandlerTest.this.entity.getId();this.result=IssueHandlerTest.this.key.getIssueId();
-			IssueHandlerTest.this.entity.getTitle();this.result="title";
+			IssueHandlerTest.this.entity.getName();this.result="title";
 			IssueHandlerTest.this.entity.getDescription();this.result="description";
 			IssueHandlerTest.this.entity.getEstimatedTime();this.result=null;
 			IssueHandlerTest.this.entity.getCreationDate();this.result=expected;
@@ -457,6 +457,22 @@ public class IssueHandlerTest {
 		assertThat(individual.property(URI.create(DCTERMS.DATE)).hasLiteralValue(Literals.newLiteral(dueTo)),equalTo(true));
 		assertThat(individual.property(URI.create(IT.DATE_CLOSED)).hasLiteralValue(Literals.newLiteral(closedDate)),equalTo(true));
 		assertThat(individual.property(URI.create(IT.DUE_TO)).hasLiteralValue(Literals.newLiteral(dueTo)),equalTo(true));
+	}
+
+	@Test
+	public void testToDataSet$withoutChangeLog() throws Exception {
+		new Expectations() {{
+			IssueHandlerTest.this.entity.getChanges();this.result=null;
+		}};
+		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
+		assertThat(dataSet,notNullValue());
+		final Individual<?,?> individual=dataSet.individualOfId(issueId());
+		final Property property = individual.property(URI.create(IT.HAS_CHANGE_LOG));
+		assertThat(property.numberOfValues(),equalTo(1));
+		final LocalIndividual clInd = getFirstLocal(property);
+		assertThat(DataSetUtils.newHelper(clInd).types(),hasItem(URI.create(IT.CHANGE_LOG_TYPE)));
+		assertThat(clInd.property(URI.create(IT.HAS_CHANGE_LOG_ENTRY)),nullValue());
+		assertThat(clInd.property(URI.create(IT.IS_COMPOSED_BY_CHANGE_LOG_ITEM)),nullValue());
 	}
 
 	@Test

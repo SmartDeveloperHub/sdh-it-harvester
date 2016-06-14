@@ -78,9 +78,9 @@ public final class ComponentHandler extends AbstractEntityResourceHandler<Compon
 				property(IT.COMPONENT_ID).
 					withLiteral(component.getId()).
 				property(DCTERMS.TITLE).
-					withLiteral(component.getTitle()).
+					withLiteral(component.getName()).
 				property(IT.COMPONENT_TITLE).
-					withLiteral(component.getTitle());
+					withLiteral(component.getName());
 
 		return dataSet;
 	}

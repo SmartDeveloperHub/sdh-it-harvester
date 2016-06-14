@@ -28,36 +28,13 @@ package org.smartdeveloperhub.harvesters.it.backend;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.google.common.base.MoreObjects.ToStringHelper;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
 	Identifiable.ID,
-	Component.PROJECT_ID,
-	Titled.TITLE,
+	ProjectScoped.PROJECT_ID,
+	Named.NAME,
 })
-public final class Component extends Titled<String> implements ProjectScoped {
-
-	static final String PROJECT_ID="projectId";
-
-	private String projectId;
-
-	@Override
-	public String getProjectId() {
-		return this.projectId;
-	}
-
-	@Override
-	public void setProjectId(final String projectId) {
-		this.projectId = projectId;
-	}
-
-	@Override
-	protected ToStringHelper stringHelper() {
-		return
-			super.
-				stringHelper().
-					add(PROJECT_ID,this.projectId);
-	}
+public final class Component extends ProjectScoped<String> {
 
 }

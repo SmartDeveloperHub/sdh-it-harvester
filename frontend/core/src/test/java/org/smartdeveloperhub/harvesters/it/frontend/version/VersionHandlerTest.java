@@ -48,6 +48,7 @@ import org.smartdeveloperhub.harvesters.it.backend.Version;
 import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
 import org.smartdeveloperhub.harvesters.it.frontend.util.IdentityUtil;
 import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.IT;
+import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.PLATFORM;
 
 import mockit.Expectations;
 import mockit.Injectable;
@@ -99,6 +100,7 @@ public class VersionHandlerTest {
 		new Expectations() {{
 			IdentityUtil.versionName(VersionHandlerTest.this.key);this.result=versionName();
 			VersionHandlerTest.this.entity.getId();this.result="versionId";
+			VersionHandlerTest.this.entity.getName();this.result="name";
 		}};
 		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
 		assertThat(dataSet,notNullValue());
@@ -107,5 +109,7 @@ public class VersionHandlerTest {
 		assertThat(newHelper.types(),hasItem(URI.create(IT.VERSION_TYPE)));
 		assertThat(newHelper.property(IT.ID).firstValue(String.class),equalTo("versionId"));
 		assertThat(newHelper.property(IT.VERSION_ID).firstValue(String.class),equalTo("versionId"));
+		assertThat(newHelper.property(PLATFORM.NAME).firstValue(String.class),equalTo("name"));
+		assertThat(newHelper.property(IT.VERSION_NAME).firstValue(String.class),equalTo("name"));
 	}
 }

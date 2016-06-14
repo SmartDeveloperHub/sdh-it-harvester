@@ -40,6 +40,7 @@ import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
 import org.smartdeveloperhub.harvesters.it.frontend.util.AbstractEntityResourceHandler;
 import org.smartdeveloperhub.harvesters.it.frontend.util.IdentityUtil;
 import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.IT;
+import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.PLATFORM;
 import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.RDF;
 
 @Resource(id=VersionHandler.ID)
@@ -74,6 +75,10 @@ public final class VersionHandler extends AbstractEntityResourceHandler<Version,
 					withIndividual(IT.VERSION_TYPE).
 				property(IT.ID).
 					withLiteral(version.getId()).
+				property(PLATFORM.NAME).
+					withLiteral(version.getName()).
+				property(IT.VERSION_NAME).
+					withLiteral(version.getName()).
 				property(IT.VERSION_ID).
 					withLiteral(version.getId());
 

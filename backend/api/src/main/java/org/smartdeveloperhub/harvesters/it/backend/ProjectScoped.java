@@ -26,10 +26,28 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
-public interface ProjectScoped {
+import com.google.common.base.MoreObjects.ToStringHelper;
 
-	String getProjectId();
+public abstract class ProjectScoped<T> extends Named<T> {
 
-	void setProjectId(String projectId);
+	static final String PROJECT_ID="projectId";
+
+	private String projectId;
+
+	public final String getProjectId() {
+		return this.projectId;
+	}
+
+	public final void setProjectId(final String projectId) {
+		this.projectId = projectId;
+	}
+
+	@Override
+	protected ToStringHelper stringHelper() {
+		return
+			super.
+				stringHelper().
+					add(PROJECT_ID,this.projectId);
+	}
 
 }

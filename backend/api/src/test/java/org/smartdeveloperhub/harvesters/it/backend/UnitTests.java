@@ -32,6 +32,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+	DateTimesTest.class,
 	PriorityTest.class,
 	SeverityTest.class,
 	StatusTest.class,

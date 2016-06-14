@@ -126,7 +126,7 @@ public class ProjectUpdatedEventTest {
 
 	@Test
 	public void testEntityValues() {
-		assertThat(Arrays.asList(Entity.values()),contains(Entity.COMPONENT,Entity.VERSION,Entity.TOP_ISSUE,Entity.ISSUE));
+		assertThat(Arrays.asList(Entity.values()),contains(Entity.COMPONENT,Entity.VERSION,Entity.ISSUE));
 	}
 
 	@Test

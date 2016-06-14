@@ -117,7 +117,7 @@ public class ProjectHandlerTest {
 			IdentityUtil.issueName(issueKey("topIssue2"));this.result=projectName();
 			IdentityUtil.projectName(ProjectHandlerTest.this.key);this.result=projectName();
 			ProjectHandlerTest.this.entity.getId();this.result=ProjectHandlerTest.this.key;
-			ProjectHandlerTest.this.entity.getTitle();this.result="title";
+			ProjectHandlerTest.this.entity.getName();this.result="title";
 			ProjectHandlerTest.this.entity.getTopIssues();this.result=Sets.newHashSet("topIssue1","topIssue2");
 		}};
 		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
@@ -146,7 +146,7 @@ public class ProjectHandlerTest {
 		new Expectations() {{
 			IdentityUtil.projectName(ProjectHandlerTest.this.key);this.result=projectName();
 			ProjectHandlerTest.this.entity.getId();this.result=ProjectHandlerTest.this.key;
-			ProjectHandlerTest.this.entity.getTitle();this.result="title";
+			ProjectHandlerTest.this.entity.getName();this.result="title";
 			ProjectHandlerTest.this.entity.getTopIssues();this.result=Sets.newHashSet();
 		}};
 		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);

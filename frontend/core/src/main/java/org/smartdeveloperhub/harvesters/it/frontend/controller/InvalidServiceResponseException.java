@@ -20,50 +20,39 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
- *   Artifact    : org.smartdeveloperhub.harvesters.it.backend:it-backend-api:0.1.0-SNAPSHOT
- *   Bundle      : it-backend-api-0.1.0-SNAPSHOT.jar
+ *   Artifact    : org.smartdeveloperhub.harvesters.it.frontend:it-frontend-core:0.1.0-SNAPSHOT
+ *   Bundle      : it-frontend-core-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.backend;
+package org.smartdeveloperhub.harvesters.it.frontend.controller;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.MoreObjects.ToStringHelper;
+import java.io.IOException;
 
-public abstract class Titled<T> extends Identifiable<T> {
+public class InvalidServiceResponseException extends IOException {
 
-	static final String TITLE="title";
+	private static final long serialVersionUID = 7805038189941021718L;
 
-	@JsonProperty(TITLE)
-	private String title;
+	private final String resource;
+	private final String response;
+	private final String expectation;
 
-	/**
-	 * Get the title of the entity
-	 *
-	 * @return The title
-	 */
-	@JsonProperty(TITLE)
-	public final String getTitle() {
-		return this.title;
+	public InvalidServiceResponseException(final String resource, final String response, final String expectation, final Throwable cause) {
+		super("Invalid service response for resource '"+resource+"' for '"+expectation+"':\n"+response,cause);
+		this.resource = resource;
+		this.response = response;
+		this.expectation = expectation;
 	}
 
-	/**
-	 * Set the title of the entity
-	 *
-	 * @param title
-	 *            The title of the entity
-	 */
-	@JsonProperty(TITLE)
-	public final void setTitle(final String title) {
-		this.title = title;
+	public String getResource() {
+		return this.resource;
 	}
 
-	@Override
-	protected ToStringHelper stringHelper() {
-		return
-			super.stringHelper().
-				add(TITLE,this.title);
+	public String getResponse() {
+		return this.response;
 	}
 
-
+	public String getExpectation() {
+		return this.expectation;
+	}
 
 }

@@ -65,7 +65,7 @@ import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.RDF;
 			handler=VersionContainerHandler.class
 		),
 		@Attachment(
-			id=ProjectHandler.PROJECT_VERSIONS,
+			id=ProjectHandler.PROJECT_ISSUES,
 			path="issues/",
 			handler=IssueContainerHandler.class
 		)
@@ -109,9 +109,9 @@ public final class ProjectHandler extends AbstractEntityResourceHandler<Project,
 					property(IT.PROJECT_ID).
 						withLiteral(project.getId()).
 					property(DCTERMS.TITLE).
-						withLiteral(project.getTitle()).
+						withLiteral(project.getName()).
 					property(IT.PROJECT_TITLE).
-						withLiteral(project.getTitle());
+						withLiteral(project.getName());
 
 		for(final String issueId:project.getTopIssues()) {
 			final Name<IssueKey> issueName=

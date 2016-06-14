@@ -150,7 +150,7 @@ public final class IT {
 	}
 
 	public static final String NAMESPACE = "http://www.smartdeveloperhub.org/vocabulary/it#";
-	public static final String PREFIX    = "platform";
+	public static final String PREFIX    = "it";
 
 	public static final String VOCABULARY_TYPE         = term("ITVocabulary");
 	public static final String HARVESTER_TYPE          = term("ITHarvester");
@@ -172,9 +172,9 @@ public final class IT {
 	public static final String CHANGE_LOG_TYPE         = term("ChangeLog");
 	public static final String CHANGE_LOG_ENTRY_TYPE   = term("ChangeLogEntry");
 	public static final String CHANGE_LOG_ITEM_TYPE    = term("ChangeLogItem");
-	public static final String UPDATE_LOG_ITEM_TYPE    = term("UpdateLogItem");
-	public static final String ADD_LOG_ITEM_TYPE       = term("AddLogItem");
-	public static final String DELETE_LOG_ITEM_TYPE    = term("DeleteLogItem");
+	public static final String UPDATE_LOG_ITEM_TYPE    = term("ChangeLogItemUpdateValue");
+	public static final String ADD_LOG_ITEM_TYPE       = term("ChangeLogItemAddValue");
+	public static final String DELETE_LOG_ITEM_TYPE    = term("ChangeLogItemDeleteValue");
 
 	public static final String STATUS_TYPE             = term("Status");
 	public static final String OPEN                    = term("open");
@@ -211,6 +211,7 @@ public final class IT {
 	public static final String PROJECT_TITLE           = term("projectTitle");
 
 	public static final String VERSION_ID              = term("versionId");
+	public static final String VERSION_NAME            = term("versionName");
 
 	public static final String COMPONENT_ID            = term("componentId");
 	public static final String COMPONENT_TITLE         = term("componentTitle");

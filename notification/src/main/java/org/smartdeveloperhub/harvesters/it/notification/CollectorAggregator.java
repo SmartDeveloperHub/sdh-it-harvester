@@ -154,7 +154,7 @@ final class CollectorAggregator {
 				collector.getBrokerPort(),
 				collector.getVirtualHost(),
 				collector.getExchangeName());
-		return String.format("%s.collector.hash%8X",this.name,hash);
+		return String.format("%s.collector.hash%08X",this.name,hash);
 	}
 
 	private void shutdownGracefully() {

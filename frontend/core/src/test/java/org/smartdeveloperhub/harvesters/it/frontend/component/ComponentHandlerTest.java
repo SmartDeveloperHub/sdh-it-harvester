@@ -100,7 +100,7 @@ public class ComponentHandlerTest {
 		new Expectations() {{
 			IdentityUtil.componentName(ComponentHandlerTest.this.key);this.result=componentName();
 			ComponentHandlerTest.this.entity.getId();this.result="componentId";
-			ComponentHandlerTest.this.entity.getTitle();this.result="title";
+			ComponentHandlerTest.this.entity.getName();this.result="title";
 		}};
 		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
 		assertThat(dataSet,notNullValue());

@@ -39,6 +39,7 @@ public final class Fixture {
 	public static Version defaultVersion() {
 		final Version version = new Version();
 		version.setId("id");
+		version.setName("name");
 		version.setProjectId("projectId");
 		return version;
 	}

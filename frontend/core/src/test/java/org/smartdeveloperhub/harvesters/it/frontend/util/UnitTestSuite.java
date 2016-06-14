@@ -34,7 +34,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
 	ServiceableTest.class,
 	AbstractEntityResourceHandlerTest.class,
-	IdentityUtilTest.class
+	IdentityUtilTest.class,
+	CloseablesTest.class
 })
 public class UnitTestSuite {
 }

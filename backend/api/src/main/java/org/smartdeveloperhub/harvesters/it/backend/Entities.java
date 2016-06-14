@@ -51,7 +51,7 @@ public final class Entities {
 
 		@Override
 		public void serialize(final DateTime value, final JsonGenerator jgen, final SerializerProvider provider) throws IOException {
-			jgen.writeNumber(value.getMillis());
+			jgen.writeString(value.toString());
 		}
 
 	}
@@ -60,7 +60,7 @@ public final class Entities {
 
 		@Override
 		public DateTime deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
-			return new DateTime(jp.getLongValue());
+			return new DateTime(jp.getValueAsString());
 		}
 
 	}
@@ -69,7 +69,7 @@ public final class Entities {
 
 		@Override
 		public void serialize(final Duration value, final JsonGenerator jgen, final SerializerProvider provider) throws IOException {
-			jgen.writeNumber(value.getMillis());
+			jgen.writeString(value.toString());
 		}
 
 	}
@@ -78,7 +78,7 @@ public final class Entities {
 
 		@Override
 		public Duration deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
-			return new Duration(jp.getLongValue());
+			return new Duration(jp.getValueAsString());
 		}
 
 	}
@@ -133,5 +133,6 @@ public final class Entities {
 	public static String marshallEntity(final Entity entity) throws IOException {
 		return writingMapper().writeValueAsString(entity);
 	}
+
 
 }

@@ -89,7 +89,7 @@ public final class NotificationManager {
 	}
 
 	private static String managerName(final UUID id) {
-		return String.format("manager%s",id);
+		return String.format("manager.%s",id);
 	}
 
 	/**

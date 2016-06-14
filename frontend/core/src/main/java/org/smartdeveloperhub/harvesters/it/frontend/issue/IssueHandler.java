@@ -92,9 +92,9 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 					property(IT.ISSUE_ID).
 						withLiteral(issue.getId()).
 					property(DCTERMS.TITLE).
-						withLiteral(issue.getTitle()).
+						withLiteral(issue.getName()).
 					property(IT.ISSUE_TITLE).
-						withLiteral(issue.getTitle()).
+						withLiteral(issue.getName()).
 					property(DCTERMS.DESCRIPTION).
 						withLiteral(issue.getDescription()).
 					property(IT.DESCRIPTION).
@@ -201,6 +201,10 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 				localIndividual(changeLogName).
 					property(RDF.TYPE).
 						withIndividual(IT.CHANGE_LOG_TYPE);
+
+		if(issue.getChanges()==null) {
+			return;
+		}
 
 		int entryCount=0;
 		for(final Entry entry:issue.getChanges().getEntries()) {

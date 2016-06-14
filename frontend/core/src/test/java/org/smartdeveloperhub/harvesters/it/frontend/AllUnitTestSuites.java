@@ -42,7 +42,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	org.smartdeveloperhub.harvesters.it.frontend.issue.UnitTestSuite.class,
 	org.smartdeveloperhub.harvesters.it.frontend.project.UnitTestSuite.class,
 	org.smartdeveloperhub.harvesters.it.frontend.contributor.UnitTestSuite.class,
-	org.smartdeveloperhub.harvesters.it.frontend.commit.UnitTestSuite.class
+	org.smartdeveloperhub.harvesters.it.frontend.commit.UnitTestSuite.class,
+	org.smartdeveloperhub.harvesters.it.frontend.controller.UnitTestSuite.class
 })
 public class AllUnitTestSuites {
 }
