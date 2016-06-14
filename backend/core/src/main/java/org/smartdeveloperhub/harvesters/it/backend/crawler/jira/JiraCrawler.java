@@ -39,6 +39,7 @@ import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientF
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.Crawler;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ComponentFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.IssueFactory;
@@ -115,15 +116,27 @@ public class JiraCrawler implements Crawler {
 
 			Set<org.smartdeveloperhub.harvesters.it.backend.Project> projects = new HashSet<>();
 
+			// TODO: load Contributors
+			Set<Contributor> contributors = storage.loadContributors();
+
 			for (Project jiraProject : getProjects(client)) {
 
-				Set<org.smartdeveloperhub.harvesters.it.backend.Issue> topIssues = new HashSet<org.smartdeveloperhub.harvesters.it.backend.Issue>();
-				Set<org.smartdeveloperhub.harvesters.it.backend.Issue> issues = new HashSet<org.smartdeveloperhub.harvesters.it.backend.Issue>();
+				Set<org.smartdeveloperhub.harvesters.it.backend.Issue> topIssues =
+						new HashSet<org.smartdeveloperhub.harvesters.it.backend.Issue>();
+				Set<org.smartdeveloperhub.harvesters.it.backend.Issue> issues =
+						new HashSet<org.smartdeveloperhub.harvesters.it.backend.Issue>();
 
-				for (Issue jiraIssue : getProjectIssues(client, jiraProject.getKey(),
-														lastUpdateTimeStamp)) {
+				Iterable<Issue> jiraIssues = getProjectIssues(client,
+																jiraProject.getKey(),
+																lastUpdateTimeStamp);
 
-					org.smartdeveloperhub.harvesters.it.backend.Issue issue = issueFactory.createIssue(jiraIssue);
+				// TODO: Scan for new contributors
+//				updateContributors(contributors, jiraIssues);
+
+				for (Issue jiraIssue : jiraIssues) {
+
+					org.smartdeveloperhub.harvesters.it.backend.Issue issue =
+											issueFactory.createIssue(jiraIssue);
 
 					topIssues.add(issue);
 				}
@@ -140,6 +153,7 @@ public class JiraCrawler implements Crawler {
 				storage.storeIssues(jiraProject.getKey(), topIssues);
 			}
 
+			storage.storeContriburos(contributors);
 			// Store Project
 			storage.storeProjects(projects);
 

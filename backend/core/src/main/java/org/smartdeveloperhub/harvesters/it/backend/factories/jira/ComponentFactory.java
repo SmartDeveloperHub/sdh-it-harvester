@@ -8,7 +8,7 @@ public class ComponentFactory {
 
 		Component component = new Component();
 		component.setId(String.valueOf(jiraComponent.getId()));
-		component.setTitle(jiraComponent.getName());
+		component.setName(jiraComponent.getName());
 		component.setProjectId(projectId);
 
 		return component;

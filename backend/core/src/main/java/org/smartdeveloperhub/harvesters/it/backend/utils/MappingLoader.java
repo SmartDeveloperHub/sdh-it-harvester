@@ -17,8 +17,8 @@ public class MappingLoader {
 	 * 
 	 * @param filename of the properties file with the mapping values.
 	 * @param enumType Enumerate class.
-	 * @return
-	 * @throws IOException 
+	 * @return map with enumType relation.
+	 * @throws IOException when properties file not found.
 	 */
 	public <T> Map<String, T> load(String filename, Class<T> enumType) throws IOException {
 
@@ -26,6 +26,7 @@ public class MappingLoader {
 		Properties properties = new Properties();
 
 		if (!enumType.isEnum()) {
+
 			throw new IllegalArgumentException("Loader requires an Enum class.");
 		}
 
@@ -36,9 +37,8 @@ public class MappingLoader {
 			String values = properties.getProperty(((Enum<?>) entry).name());
 
 			for (String value : values.split("\\|")) {
-			
-				mapping.put(value, entry);
 
+				mapping.put(value, entry);
 			}
 		}
 

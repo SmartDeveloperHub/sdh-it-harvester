@@ -1,5 +1,11 @@
 package org.smartdeveloperhub.harvesters.it.backend.crawler.jira;
 
+/**
+ *
+ * Enumeration for mapping Jira ChangeLog attributes with IT ontology.
+ * @author imolina
+ *
+ */
 public enum ChangeLogProperty {
 
 	STATUS("status"),
@@ -22,6 +28,11 @@ public enum ChangeLogProperty {
 		this.name = name;
 	}
 
+	/**
+	 * Method that check if the given name refer to an specific property. 
+	 * @param property name by which property is referenced.
+	 * @return if given property name is truly the property.
+	 */
 	public boolean is(String property) {
 
 		return this.name.equals(property);

@@ -34,6 +34,8 @@ import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
@@ -58,6 +60,9 @@ import java.util.Set;
  *
  */
 public class IssueFactory {
+
+	private static final Logger logger =
+									LoggerFactory.getLogger(IssueFactory.class);
 
 	private Map<String, Status> statusMapping;
 	private Map<String, Priority> priorityMapping;
@@ -99,7 +104,7 @@ public class IssueFactory {
 		issue.setDescription(jiraIssue.getDescription());
 		issue.setReporter(jiraIssue.getReporter().getEmailAddress());
 
-		issue.setTitle(jiraIssue.getSummary());
+		issue.setName(jiraIssue.getSummary());
 		issue.setAssignee(getAssignee(jiraIssue));
 		issue.setChanges(createChangeLog(jiraIssue));
 		issue.setOpened(getOpenedDate(jiraIssue, issue.getChanges()));
@@ -229,10 +234,10 @@ public class IssueFactory {
 						}
 
 					} catch (IllegalStateException e) {
-//						logger.error("¡Exception! IllegalState.\n" + 
-//											"Property: " + jiraItem.getField() + "\n" +
-//											"\t- oldValue: " + jiraItem.getFromString() + "\n" +
-//											"\t- newValue: " + jiraItem.getToString() + ".\n {}", e);
+						logger.error("Exception! IllegalState.\n" + 
+										"Property: " + jiraItem.getField() +
+										" - oldValue: " + jiraItem.getFromString() +
+										" - newValue: " + jiraItem.getToString() + ". {}", e);
 					}
 				}
 			}

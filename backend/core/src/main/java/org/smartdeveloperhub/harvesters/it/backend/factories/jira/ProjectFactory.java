@@ -29,7 +29,7 @@ public class ProjectFactory {
 
 		Project project = new Project();
 		project.setId(jiraProject.getKey());
-		project.setTitle(jiraProject.getName());
+		project.setName(jiraProject.getName());
 		project.setVersions(getVersionsByIds(jiraProject));
 		project.setComponents(getComponentsByIds(jiraProject));
 
