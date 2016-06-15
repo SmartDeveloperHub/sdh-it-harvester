@@ -239,8 +239,8 @@ public final class IT {
 
 	public static final String COMMIT_ID               = term("commitId");
 	public static final String REPOSITORY              = term("repository");
-	public static final String HASH                    = term("branch");
-	public static final String BRANCH                  = term("hash");
+	public static final String HASH                    = term("hash");
+	public static final String BRANCH                  = term("branch");
 
 	public static final String HAS_CHANGE_LOG                 = term("hasChangeLog");
 	public static final String HAS_CHANGE_LOG_ENTRY           = term("hasChangeLogEntry");
