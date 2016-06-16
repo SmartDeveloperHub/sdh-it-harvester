@@ -36,9 +36,10 @@ import com.google.common.collect.Sets;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
 	Identifiable.ID,
+	Named.NAME,
 	Contributor.EMAILS,
 })
-public final class Contributor extends Identifiable<String>{
+public final class Contributor extends Named<String>{
 
 	static final String EMAILS="emails";
 

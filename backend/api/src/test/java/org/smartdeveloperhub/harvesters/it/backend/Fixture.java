@@ -79,6 +79,7 @@ public final class Fixture {
 	public static Contributor defaultContributor() {
 		final Contributor contributor = new Contributor();
 		contributor.setId("id");
+		contributor.setName("name");
 		contributor.setEmails(ImmutableSet.of("email1","email2"));
 		return contributor;
 	}
