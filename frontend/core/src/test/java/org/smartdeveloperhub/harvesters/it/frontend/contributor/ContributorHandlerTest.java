@@ -102,6 +102,7 @@ public class ContributorHandlerTest {
 		new Expectations() {{
 			IdentityUtil.contributorName(ContributorHandlerTest.this.key);this.result=contributorName();
 			ContributorHandlerTest.this.entity.getId();this.result=ContributorHandlerTest.this.key;
+			ContributorHandlerTest.this.entity.getName();this.result="name";
 			ContributorHandlerTest.this.entity.getEmails();this.result=Sets.newHashSet("email1");
 		}};
 		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
@@ -111,6 +112,7 @@ public class ContributorHandlerTest {
 		assertThat(newHelper.types(),hasItem(URI.create(IT.CONTRIBUTOR_TYPE)));
 		assertThat(newHelper.property(IT.ID).firstValue(String.class),equalTo(this.key));
 		assertThat(newHelper.property(IT.CONTRIBUTOR_ID).firstValue(String.class),equalTo(this.key));
+		assertThat(newHelper.property(IT.CONTRIBUTOR_NAME).firstValue(String.class),equalTo("name"));
 		assertThat(individual.property(URI.create(IT.MBOX)).hasLiteralValue(Literals.newLiteral(URI.create("email1"))),equalTo(true));
 	}
 
@@ -119,6 +121,7 @@ public class ContributorHandlerTest {
 		new Expectations() {{
 			IdentityUtil.contributorName(ContributorHandlerTest.this.key);this.result=contributorName();
 			ContributorHandlerTest.this.entity.getId();this.result=ContributorHandlerTest.this.key;
+			ContributorHandlerTest.this.entity.getName();this.result="name";
 			ContributorHandlerTest.this.entity.getEmails();this.result=Sets.newHashSet();
 		}};
 		final DataSet dataSet = this.sut.toDataSet(this.entity,this.key);
@@ -127,6 +130,7 @@ public class ContributorHandlerTest {
 		final IndividualHelper newHelper = DataSetUtils.newHelper(individual);
 		assertThat(newHelper.types(),hasItem(URI.create(IT.CONTRIBUTOR_TYPE)));
 		assertThat(newHelper.property(IT.CONTRIBUTOR_ID).firstValue(String.class),equalTo(this.key));
+		assertThat(newHelper.property(IT.CONTRIBUTOR_NAME).firstValue(String.class),equalTo("name"));
 		assertThat(newHelper.property(IT.MBOX).firstValue(URI.class),nullValue());
 	}
 

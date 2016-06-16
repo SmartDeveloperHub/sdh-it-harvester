@@ -159,6 +159,7 @@ public class LocalDataTest {
 	private Contributor createContributor(final String contributorId) {
 		final Contributor contributor = new Contributor();
 		contributor.setId(contributorId);
+		contributor.setName("Contributor "+contributorId);
 		contributor.getEmails().add(contributorId+"@example.org");
 		return contributor;
 	}

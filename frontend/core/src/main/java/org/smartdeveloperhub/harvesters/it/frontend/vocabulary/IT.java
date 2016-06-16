@@ -205,6 +205,7 @@ public final class IT {
 	public static final String ID                      = term("id");
 
 	public static final String CONTRIBUTOR_ID          = term("contributorId");
+	public static final String CONTRIBUTOR_NAME        = term("contributorName");
 	public static final String MBOX                    = term("mbox");
 
 	public static final String PROJECT_ID              = term("projectId");

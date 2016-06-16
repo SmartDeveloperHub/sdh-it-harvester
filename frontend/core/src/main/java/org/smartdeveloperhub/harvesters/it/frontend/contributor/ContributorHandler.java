@@ -81,7 +81,10 @@ public final class ContributorHandler extends AbstractEntityResourceHandler<Cont
 					property(IT.ID).
 						withLiteral(contributor.getId()).
 					property(IT.CONTRIBUTOR_ID).
-						withLiteral(contributor.getId());
+						withLiteral(contributor.getId()).
+					property(IT.CONTRIBUTOR_NAME).
+						withLiteral(contributor.getName());
+
 
 		for(final String email:contributor.getEmails()) {
 			individual.
