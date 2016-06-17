@@ -52,6 +52,7 @@ import org.junit.runner.RunWith;
 import org.smartdeveloperhub.harvesters.it.backend.Commit;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 import org.smartdeveloperhub.harvesters.it.backend.Entities;
+import org.smartdeveloperhub.harvesters.it.backend.Project;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.TestingService;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.Activity;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.ActivityListener;
@@ -102,7 +103,7 @@ public class RemoteHarvesterApplicationITest {
 	@TargetsContainer("tomcat")
 	public static WebArchive createDeployment() throws Exception {
 		service=startMockService();
-		return SmokeTest.remotelyBackedCollector("default-harvester.war");
+		return SmokeTest.remotelyBackedCollector("remote-harvester.war");
 	}
 
 	@AfterClass
@@ -125,6 +126,12 @@ public class RemoteHarvesterApplicationITest {
 	@OperateOnDeployment("default")
 	public void commitsCanBeCreatedDinamically(@ArquillianResource final URL contextURL) throws Exception {
 		createCommits(contextURL,HarvesterTester.getCommits(contextURL));
+	}
+
+	@Test
+	@OperateOnDeployment("default")
+	public void projectsCanBeCreatedDinamically(@ArquillianResource final URL contextURL) throws Exception {
+		createProjects(contextURL,HarvesterTester.getProjects(contextURL));
 	}
 
 	private List<String> createContributors(final URL contextURL, final List<String> originalContributors) throws Exception {
@@ -165,11 +172,11 @@ public class RemoteHarvesterApplicationITest {
 	private List<String> createCommits(final URL contextURL, final List<String> originalCommits) throws Exception {
 		createCommit();
 		System.out.println("Verifying commit availability...");
-		final List<String> afterCreatingContributors = Lists.newArrayList(HarvesterTester.getCommits(contextURL));
-		afterCreatingContributors.removeAll(originalCommits);
-		assertThat(afterCreatingContributors,hasSize(1));
-		commitHasIdentifier(afterCreatingContributors.get(0),commitId());
-		return afterCreatingContributors;
+		final List<String> afterCreatingCommits = Lists.newArrayList(HarvesterTester.getCommits(contextURL));
+		afterCreatingCommits.removeAll(originalCommits);
+		assertThat(afterCreatingCommits,hasSize(1));
+		commitHasIdentifier(afterCreatingCommits.get(0),commitId());
+		return afterCreatingCommits;
 	}
 
 	private void createCommit() throws InterruptedException {
@@ -195,6 +202,40 @@ public class RemoteHarvesterApplicationITest {
 	}
 
 	private String commitId() {
+		return this.test.getMethodName();
+	}
+
+	private List<String> createProjects(final URL contextURL, final List<String> originalProjects) throws Exception {
+		createProject();
+		System.out.println("Verifying project availability...");
+		final List<String> afterCreatingProjects = Lists.newArrayList(HarvesterTester.getProjects(contextURL));
+		afterCreatingProjects.removeAll(originalProjects);
+		assertThat(afterCreatingProjects,hasSize(1));
+		projectHasIdentifier(afterCreatingProjects.get(0),projectId());
+		return afterCreatingProjects;
+	}
+
+	private void createProject() throws InterruptedException {
+		final Project project = new Project();
+		project.setId(contributorId());
+		project.setName("Project "+projectId());
+		service.createProjects(project);
+		System.out.println("Created project "+projectId()+". Awaiting frontend update");
+		TimeUnit.SECONDS.sleep(2);
+	}
+
+	private void projectHasIdentifier(final String project, final String id) {
+		final Response response = LDPUtil.assertIsAccessible(project);
+		final Model model = TestingUtil.asModel(response,project);
+		assertThat(
+			model,
+			hasTriple(
+				uriRef(project),
+				property(IT.PROJECT_ID),
+				typedLiteral(id,XML_SCHEMA_STRING)));
+	}
+
+	private String projectId() {
 		return this.test.getMethodName();
 	}
 

@@ -39,7 +39,6 @@ import org.jboss.arquillian.container.test.api.TargetsContainer;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -47,7 +46,6 @@ import org.junit.runner.RunWith;
 import org.smartdeveloperhub.harvesters.it.testing.LDPUtil;
 import org.smartdeveloperhub.harvesters.it.testing.SmokeTest;
 
-@Ignore
 @RunWith(Arquillian.class)
 public class LocalHarvesterApplicationITest {
 
@@ -57,7 +55,7 @@ public class LocalHarvesterApplicationITest {
 	@Deployment(name="default",testable=false)
 	@TargetsContainer("tomcat")
 	public static WebArchive createDeployment() throws Exception {
-		return SmokeTest.locallyBackedCollector("default-harvester.war");
+		return SmokeTest.locallyBackedCollector("local-harvester.war");
 	}
 
 	@Test
