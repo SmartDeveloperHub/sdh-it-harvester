@@ -71,7 +71,7 @@ public class ClientTestHelper {
 		new MockUp<EntityUtils>() {
 			@Mock
 			String toString(final HttpEntity entity) throws IOException, ParseException {
-				assertThat(entity,sameInstance(entity));
+				assertThat(entity,sameInstance(ClientTestHelper.this.entity));
 				return responseBody;
 			}
 		};
@@ -119,18 +119,35 @@ public class ClientTestHelper {
 		setUpRetries(responseBody,504,504,200);
 	}
 
-	protected void setUpUnretriableFailure() throws IOException {
+	protected void setUpUnretriableFailure(final String responseBody) throws IOException {
 		new MockUp<HttpClients>() {
 			@Mock
 			public final CloseableHttpClient createDefault() {
 				return ClientTestHelper.this.client;
 			}
 		};
-		new Expectations(){{
-			ClientTestHelper.this.client.execute((HttpGet)this.any);this.result=ClientTestHelper.this.response;
-			ClientTestHelper.this.response.getStatusLine();this.result=ClientTestHelper.this.statusLine;
-			ClientTestHelper.this.statusLine.getStatusCode();this.result=404;
-		}};
+		if(responseBody!=null) {
+			new MockUp<EntityUtils>() {
+				@Mock
+				String toString(final HttpEntity entity) throws IOException, ParseException {
+					assertThat(entity,sameInstance(ClientTestHelper.this.entity));
+					return responseBody;
+				}
+			};
+			new Expectations(){{
+				ClientTestHelper.this.client.execute((HttpGet)this.any);this.result=ClientTestHelper.this.response;
+				ClientTestHelper.this.response.getStatusLine();this.result=ClientTestHelper.this.statusLine;
+				ClientTestHelper.this.statusLine.getStatusCode();this.result=404;
+				ClientTestHelper.this.response.getEntity();this.result=ClientTestHelper.this.entity;
+			}};
+		} else {
+			new Expectations(){{
+				ClientTestHelper.this.client.execute((HttpGet)this.any);this.result=ClientTestHelper.this.response;
+				ClientTestHelper.this.response.getStatusLine();this.result=ClientTestHelper.this.statusLine;
+				ClientTestHelper.this.statusLine.getStatusCode();this.result=404;
+				ClientTestHelper.this.response.getEntity();this.result=null;
+			}};
+		}
 	}
 
 	protected void setUpServiceFailure() throws IOException {
