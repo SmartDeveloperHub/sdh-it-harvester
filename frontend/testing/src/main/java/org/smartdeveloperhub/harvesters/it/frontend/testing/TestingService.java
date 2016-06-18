@@ -348,7 +348,8 @@ public final class TestingService {
 		}
 	}
 
-	public <T extends ProjectScoped<String>> void updateProjects(@SuppressWarnings("unchecked") final ProjectChange<T>... changes) {
+	@SafeVarargs
+	public final <T extends ProjectScoped<String>> void updateProjects(final ProjectChange<T>... changes) {
 		for(final ProjectUpdatedEvent event:this.collector.updateProjects(changes)) {
 			if(!event.isEmpty()) {
 				update(event);

@@ -109,11 +109,11 @@ public class ProjectChange<T extends ProjectScoped<String>> {
 		return Optional.of(result);
 	}
 
-	public <E extends ProjectScoped<String>> ProjectChange<E> createOrUpdate(final E entity) {
+	public static <E extends ProjectScoped<String>> ProjectChange<E> createOrUpdate(final E entity) {
 		return new ProjectChange<>(entity,false);
 	}
 
-	public <E extends ProjectScoped<String>> ProjectChange<E> delete(final E entity) {
+	public static <E extends ProjectScoped<String>> ProjectChange<E> delete(final E entity) {
 		return new ProjectChange<>(entity,true);
 	}
 
