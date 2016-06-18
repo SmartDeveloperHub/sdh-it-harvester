@@ -84,4 +84,16 @@ final class HarvesterTester {
 		return queryResourceVariable(TestingUtil.resolve(contextURL,HarvesterTester.SERVICE), "queries/projects.sparql", "project");
 	}
 
+	static List<String> getProjectIssues(final String project) throws IOException {
+		return queryResourceVariable(project,"queries/issues.sparql", "issue");
+	}
+
+	static List<String> getProjectVersions(final String project) throws IOException {
+		return queryResourceVariable(project,"queries/versions.sparql", "version");
+	}
+
+	static List<String> getProjectComponents(final String project) throws IOException {
+		return queryResourceVariable(project,"queries/components.sparql", "component");
+	}
+
 }

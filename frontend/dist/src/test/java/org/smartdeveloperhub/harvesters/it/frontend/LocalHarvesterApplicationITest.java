@@ -61,15 +61,13 @@ public class LocalHarvesterApplicationITest {
 	@Test
 	@OperateOnDeployment("default")
 	public void checkTwoContributorsArePublished(@ArquillianResource final URL contextURL) throws Exception {
-		final List<String> contributors = HarvesterTester.getContributors(contextURL);
-		verifyElements(contributors);
+		verifyElements(HarvesterTester.getContributors(contextURL));
 	}
 
 	@Test
 	@OperateOnDeployment("default")
 	public void checkTwoCommitsArePublished(@ArquillianResource final URL contextURL) throws Exception {
-		final List<String> commits = HarvesterTester.getCommits(contextURL);
-		verifyElements(commits);
+		verifyElements(HarvesterTester.getCommits(contextURL));
 	}
 
 	@Test
@@ -82,12 +80,9 @@ public class LocalHarvesterApplicationITest {
 	}
 
 	private void checkProject(final String project) throws IOException {
-		final List<String> components = HarvesterTester.queryResourceVariable(project, "queries/components.sparql", "component");
-		verifyElements(components);
-		final List<String> versions = HarvesterTester.queryResourceVariable(project, "queries/versions.sparql", "version");
-		verifyElements(versions);
-		final List<String> issues = HarvesterTester.queryResourceVariable(project, "queries/issues.sparql", "issue");
-		verifyElements(issues);
+		verifyElements(HarvesterTester.getProjectComponents(project));
+		verifyElements(HarvesterTester.getProjectVersions(project));
+		verifyElements(HarvesterTester.getProjectIssues(project));
 	}
 
 	private void verifyElements(final List<String> components) {

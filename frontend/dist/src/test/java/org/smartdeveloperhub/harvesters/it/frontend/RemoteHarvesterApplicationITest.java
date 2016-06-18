@@ -28,8 +28,12 @@ package org.smartdeveloperhub.harvesters.it.frontend;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
+import static org.smartdeveloperhub.testing.hamcrest.RDFMatchers.hasProperty;
 import static org.smartdeveloperhub.testing.hamcrest.RDFMatchers.hasTriple;
+import static org.smartdeveloperhub.testing.hamcrest.References.from;
 import static org.smartdeveloperhub.testing.hamcrest.References.property;
+import static org.smartdeveloperhub.testing.hamcrest.References.resource;
 import static org.smartdeveloperhub.testing.hamcrest.References.typedLiteral;
 import static org.smartdeveloperhub.testing.hamcrest.References.uriRef;
 
@@ -49,13 +53,18 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.backend.Commit;
+import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 import org.smartdeveloperhub.harvesters.it.backend.Entities;
 import org.smartdeveloperhub.harvesters.it.backend.Project;
+import org.smartdeveloperhub.harvesters.it.backend.Version;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.TestingService;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.Activity;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.ActivityListener;
+import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.ProjectChange;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.handlers.MoreHandlers.APIVersion;
 import org.smartdeveloperhub.harvesters.it.frontend.vocabulary.IT;
 import org.smartdeveloperhub.harvesters.it.testing.LDPUtil;
@@ -69,7 +78,10 @@ import com.jayway.restassured.response.Response;
 @RunWith(Arquillian.class)
 public class RemoteHarvesterApplicationITest {
 
+	private static final Logger LOGGER=LoggerFactory.getLogger(RemoteHarvesterApplicationITest.class);
+
 	private static final String XML_SCHEMA_STRING = "http://www.w3.org/2001/XMLSchema#string";
+
 	private static TestingService service;
 
 	private static TestingService startMockService() throws IOException {
@@ -83,9 +95,9 @@ public class RemoteHarvesterApplicationITest {
 						@Override
 						public void onActivity(final Activity<?> activity) {
 							try {
-								System.out.println(Entities.marshallEntity(activity));
+								LOGGER.debug("Detected activity:\n{}",Entities.marshallEntity(activity));
 							} catch (final IOException e) {
-								e.printStackTrace();
+								LOGGER.debug("Activity failure: {}. Full stacktrace follows",activity,e);
 							}
 						}
 					}).
@@ -134,9 +146,79 @@ public class RemoteHarvesterApplicationITest {
 		createProjects(contextURL,HarvesterTester.getProjects(contextURL));
 	}
 
+	@Test
+	@OperateOnDeployment("default")
+	public void projectComponentsCanBeCreatedDinamically(@ArquillianResource final URL contextURL) throws Exception {
+		final List<String> projects = createProjects(contextURL,HarvesterTester.getProjects(contextURL));
+		createProjectComponent();
+		LOGGER.info("Verifying project component availability...");
+		final List<String> components = HarvesterTester.getProjectComponents(projects.get(0));
+		assertThat(components,hasSize(1));
+		projectComponentHasId(components.get(0),componentId());
+	}
+
+	@Test
+	@OperateOnDeployment("default")
+	public void projectVersionsCanBeCreatedDinamically(@ArquillianResource final URL contextURL) throws Exception {
+		final List<String> projects = createProjects(contextURL,HarvesterTester.getProjects(contextURL));
+		createProjectVersion();
+		LOGGER.info("Verifying project version availability...");
+		final List<String> versions = HarvesterTester.getProjectVersions(projects.get(0));
+		assertThat(versions,hasSize(1));
+		projectVersionHasId(versions.get(0),versionId());
+	}
+
+	private void projectComponentHasId(final String componentURI, final String id) {
+		final Model componentData = resourceIsAccessible(componentURI);
+		assertThat(
+			componentData,
+			hasTriple(
+				uriRef(componentURI),
+				property(IT.COMPONENT_ID),
+				typedLiteral(id,XML_SCHEMA_STRING)));
+	}
+
+	private void projectVersionHasId(final String versionURI, final String id) {
+		final Model versionData = resourceIsAccessible(versionURI);
+		assertThat(
+			versionData,
+			hasTriple(
+				uriRef(versionURI),
+				property(IT.VERSION_ID),
+				typedLiteral(id,XML_SCHEMA_STRING)));
+	}
+
+	private void createProjectComponent() throws InterruptedException {
+		final Component component = new Component();
+		component.setProjectId(projectId());
+		component.setId(componentId());
+		component.setName("Component "+componentId());
+		service.updateProjects(ProjectChange.createOrUpdate(component));
+		LOGGER.info("Created project component {}. Awaiting frontend update",component.getId());
+		TimeUnit.SECONDS.sleep(2);
+	}
+
+	private void createProjectVersion() throws InterruptedException {
+		final Version component = new Version();
+		component.setProjectId(projectId());
+		component.setId(versionId());
+		component.setName("Version "+versionId());
+		service.updateProjects(ProjectChange.createOrUpdate(component));
+		LOGGER.info("Created project version {}. Awaiting frontend update",component.getId());
+		TimeUnit.SECONDS.sleep(2);
+	}
+
+	private String componentId() {
+		return this.test.getMethodName();
+	}
+
+	private String versionId() {
+		return this.test.getMethodName();
+	}
+
 	private List<String> createContributors(final URL contextURL, final List<String> originalContributors) throws Exception {
 		createContributor();
-		System.out.println("Verifying contributor availability...");
+		LOGGER.info("Verifying contributor availability...");
 		final List<String> afterCreatingContributors = Lists.newArrayList(HarvesterTester.getContributors(contextURL));
 		afterCreatingContributors.removeAll(originalContributors);
 		assertThat(afterCreatingContributors,hasSize(1));
@@ -150,13 +232,12 @@ public class RemoteHarvesterApplicationITest {
 		contributor.setName(contributorId()+" Name");
 		contributor.getEmails().add(contributorId()+"@example.org");
 		service.createContributors(contributor);
-		System.out.println("Created contributor "+contributorId()+". Awaiting frontend update");
+		LOGGER.info("Created contributor {}. Awaiting frontend update",contributor.getId());
 		TimeUnit.SECONDS.sleep(2);
 	}
 
 	private void contributorHasIdentifier(final String committer, final String id) {
-		final Response response = LDPUtil.assertIsAccessible(committer);
-		final Model model = TestingUtil.asModel(response,committer);
+		final Model model = resourceIsAccessible(committer);
 		assertThat(
 			model,
 			hasTriple(
@@ -171,7 +252,7 @@ public class RemoteHarvesterApplicationITest {
 
 	private List<String> createCommits(final URL contextURL, final List<String> originalCommits) throws Exception {
 		createCommit();
-		System.out.println("Verifying commit availability...");
+		LOGGER.info("Verifying commit availability...");
 		final List<String> afterCreatingCommits = Lists.newArrayList(HarvesterTester.getCommits(contextURL));
 		afterCreatingCommits.removeAll(originalCommits);
 		assertThat(afterCreatingCommits,hasSize(1));
@@ -186,13 +267,12 @@ public class RemoteHarvesterApplicationITest {
 		commit.setBranch("branch "+commitId());
 		commit.setHash("hash "+commitId());
 		service.createCommits(commit);
-		System.out.println("Created commit "+commitId()+". Awaiting frontend update");
+		LOGGER.info("Created commit {}. Awaiting frontend update",commit.getId());
 		TimeUnit.SECONDS.sleep(2);
 	}
 
 	private void commitHasIdentifier(final String commit, final String id) {
-		final Response response = LDPUtil.assertIsAccessible(commit);
-		final Model model = TestingUtil.asModel(response,commit);
+		final Model model = resourceIsAccessible(commit);
 		assertThat(
 			model,
 			hasTriple(
@@ -207,11 +287,39 @@ public class RemoteHarvesterApplicationITest {
 
 	private List<String> createProjects(final URL contextURL, final List<String> originalProjects) throws Exception {
 		createProject();
-		System.out.println("Verifying project availability...");
+		LOGGER.info("Verifying project availability...");
 		final List<String> afterCreatingProjects = Lists.newArrayList(HarvesterTester.getProjects(contextURL));
 		afterCreatingProjects.removeAll(originalProjects);
 		assertThat(afterCreatingProjects,hasSize(1));
-		projectHasIdentifier(afterCreatingProjects.get(0),projectId());
+		final String project = afterCreatingProjects.get(0);
+		final Model projectModel = resourceIsAccessible(project);
+		assertThat(
+			projectModel,
+			hasTriple(
+				uriRef(project),
+				property(IT.PROJECT_ID),
+				typedLiteral(projectId(),XML_SCHEMA_STRING)));
+		assertThat(
+			resource(
+				uriRef(project),
+				from(projectModel)),
+			not(
+				hasProperty(
+					property(IT.HAS_COMPONENT))));
+		assertThat(
+			resource(
+				uriRef(project),
+				from(projectModel)),
+			not(
+				hasProperty(
+					property(IT.HAS_VERSION))));
+		assertThat(
+			resource(
+				uriRef(project),
+				from(projectModel)),
+			not(
+				hasProperty(
+					property(IT.HAS_PROJECT_ISSUE))));
 		return afterCreatingProjects;
 	}
 
@@ -220,19 +328,13 @@ public class RemoteHarvesterApplicationITest {
 		project.setId(contributorId());
 		project.setName("Project "+projectId());
 		service.createProjects(project);
-		System.out.println("Created project "+projectId()+". Awaiting frontend update");
+		LOGGER.info("Created project {}. Awaiting frontend update",project.getId());
 		TimeUnit.SECONDS.sleep(2);
 	}
 
-	private void projectHasIdentifier(final String project, final String id) {
-		final Response response = LDPUtil.assertIsAccessible(project);
-		final Model model = TestingUtil.asModel(response,project);
-		assertThat(
-			model,
-			hasTriple(
-				uriRef(project),
-				property(IT.PROJECT_ID),
-				typedLiteral(id,XML_SCHEMA_STRING)));
+	private Model resourceIsAccessible(final String resource) {
+		final Response response = LDPUtil.assertIsAccessible(resource);
+		return TestingUtil.asModel(response,resource);
 	}
 
 	private String projectId() {
