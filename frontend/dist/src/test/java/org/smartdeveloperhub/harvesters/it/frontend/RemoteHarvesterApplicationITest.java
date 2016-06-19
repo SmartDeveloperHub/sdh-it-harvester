@@ -48,6 +48,7 @@ import org.jboss.arquillian.container.test.api.TargetsContainer;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,7 +60,12 @@ import org.smartdeveloperhub.harvesters.it.backend.Commit;
 import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 import org.smartdeveloperhub.harvesters.it.backend.Entities;
+import org.smartdeveloperhub.harvesters.it.backend.Issue;
+import org.smartdeveloperhub.harvesters.it.backend.Issue.Type;
+import org.smartdeveloperhub.harvesters.it.backend.Priority;
 import org.smartdeveloperhub.harvesters.it.backend.Project;
+import org.smartdeveloperhub.harvesters.it.backend.Severity;
+import org.smartdeveloperhub.harvesters.it.backend.Status;
 import org.smartdeveloperhub.harvesters.it.backend.Version;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.TestingService;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.Activity;
@@ -168,6 +174,17 @@ public class RemoteHarvesterApplicationITest {
 		projectVersionHasId(versions.get(0),versionId());
 	}
 
+	@Test
+	@OperateOnDeployment("default")
+	public void projectIssuesCanBeCreatedDinamically(@ArquillianResource final URL contextURL) throws Exception {
+		final List<String> projects = createProjects(contextURL,HarvesterTester.getProjects(contextURL));
+		createProjectIssue();
+		LOGGER.info("Verifying project issue availability...");
+		final List<String> issues = HarvesterTester.getProjectIssues(projects.get(0));
+		assertThat(issues,hasSize(1));
+		projectIssueHasId(issues.get(0),issueId());
+	}
+
 	private void projectComponentHasId(final String componentURI, final String id) {
 		final Model componentData = resourceIsAccessible(componentURI);
 		assertThat(
@@ -188,6 +205,16 @@ public class RemoteHarvesterApplicationITest {
 				typedLiteral(id,XML_SCHEMA_STRING)));
 	}
 
+	private void projectIssueHasId(final String issueURI, final String id) {
+		final Model versionData = resourceIsAccessible(issueURI);
+		assertThat(
+			versionData,
+			hasTriple(
+				uriRef(issueURI),
+				property(IT.ISSUE_ID),
+				typedLiteral(id,XML_SCHEMA_STRING)));
+	}
+
 	private void createProjectComponent() throws InterruptedException {
 		final Component component = new Component();
 		component.setProjectId(projectId());
@@ -199,13 +226,34 @@ public class RemoteHarvesterApplicationITest {
 	}
 
 	private void createProjectVersion() throws InterruptedException {
-		final Version component = new Version();
-		component.setProjectId(projectId());
-		component.setId(versionId());
-		component.setName("Version "+versionId());
-		service.updateProjects(ProjectChange.createOrUpdate(component));
-		LOGGER.info("Created project version {}. Awaiting frontend update",component.getId());
+		final Version version = new Version();
+		version.setProjectId(projectId());
+		version.setId(versionId());
+		version.setName("Version "+versionId());
+		service.updateProjects(ProjectChange.createOrUpdate(version));
+		LOGGER.info("Created project version {}. Awaiting frontend update",version.getId());
 		TimeUnit.SECONDS.sleep(2);
+	}
+
+	private void createProjectIssue() throws InterruptedException {
+		final Issue issue = new Issue();
+		issue.setProjectId(projectId());
+		issue.setId(versionId());
+		issue.setName("Issue "+issueId());
+		issue.setCreationDate(new DateTime());
+		issue.setOpened(issue.getCreationDate().plusHours(2));
+		issue.setType(Type.BUG);
+		issue.setStatus(Status.IN_PROGRESS);
+		issue.setSeverity(Severity.BLOCKER);
+		issue.setPriority(Priority.HIGH);
+		issue.getTags().add("Frontend");
+		service.updateProjects(ProjectChange.createOrUpdate(issue));
+		LOGGER.info("Created project issue {}. Awaiting frontend update",issue.getId());
+		TimeUnit.SECONDS.sleep(2);
+	}
+
+	private String issueId() {
+		return this.test.getMethodName();
 	}
 
 	private String componentId() {
