@@ -27,6 +27,7 @@
 package org.smartdeveloperhub.harvesters.it.backend.factories.jira;
 
 import com.atlassian.jira.rest.client.api.domain.BasicComponent;
+import com.atlassian.jira.rest.client.api.domain.ChangelogGroup;
 import com.atlassian.jira.rest.client.api.domain.ChangelogItem;
 import com.atlassian.jira.rest.client.api.domain.IssueLink;
 import com.atlassian.jira.rest.client.api.domain.IssueLinkType;
@@ -125,8 +126,8 @@ public class IssueFactory {
 		issue.setVersions(getVersions(jiraIssue));
 		issue.setComponents(getComponents(jiraIssue));
 
-		issue.setChildIssues(getChildIssues(jiraIssue));
-		issue.setBlockedIssues(getBlockedIssues(jiraIssue));
+		issue.setChildIssues(getChildIssuesById(jiraIssue));
+		issue.setBlockedIssues(getBlockedIssuesById(jiraIssue));
 		
 		// TODO: not available.
 //		issue.setCommits(commits);
@@ -140,12 +141,33 @@ public class IssueFactory {
 	 * @param jiraIssue Jira Issue from which extract its children.
 	 * @return list of Issues ids that are children of the Issue.
 	 */
-	private Set<String> getChildIssues(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
+	private Set<String> getChildIssuesById(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
 
 		Set<String> children = new HashSet<>();
 
+		// Gets all subtask
 		for (Subtask sub : jiraIssue.getSubtasks()) {
+
 			children.add(sub.getIssueKey());
+		}
+
+		// Gets all epic task (from ChangeLog)
+		for (ChangelogGroup group : jiraIssue.getChangelog()) {
+
+			for (ChangelogItem item : group.getItems()) {
+
+				if (item.getField().equals("Epic Child")) {
+
+					if (item.getFromString() == null && item.getToString() != null) {
+
+						children.add(item.getToString());
+					}
+					if (item.getFrom() != null && item.getToString() == null) {
+
+						children.remove(item.getFromString());
+					}
+				}
+			}
 		}
 
 		return children;
@@ -156,7 +178,7 @@ public class IssueFactory {
 	 * @param jiraIssue Jira Issue from which extract blocked issues.
 	 * @return list of Issues ids that are being blocked by the Issue.
 	 */
-	private Set<String> getBlockedIssues(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
+	private Set<String> getBlockedIssuesById(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
 
 		Set<String> blocked = new HashSet<>();
 		// TODO: Merge this method with children issues

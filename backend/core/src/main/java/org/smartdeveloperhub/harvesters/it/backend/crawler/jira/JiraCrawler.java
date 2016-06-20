@@ -156,15 +156,6 @@ public class JiraCrawler implements Crawler {
 
 				getTopAndChildIssues(issues, topIssues, childIssues);
 
-//				System.out.println("TopIssues size: " + topIssues.size());
-//				System.out.println("ChildIssues size: " + childIssues.size());
-//				
-//				System.out.print("Child Issues: ");
-//				for (org.smartdeveloperhub.harvesters.it.backend.Issue issue : childIssues) {
-//					System.out.print(issue.getId() + ", ");
-//				}
-//				System.out.print("\n");
-
 				projects.add(projectFactory.createProject(jiraProject,
 															topIssues,
 															childIssues));
@@ -199,27 +190,20 @@ public class JiraCrawler implements Crawler {
 			Set<org.smartdeveloperhub.harvesters.it.backend.Issue> topIssues,
 			Set<org.smartdeveloperhub.harvesters.it.backend.Issue> childIssues) {
 
-		// First, take all the issues with children
+		Map<String, org.smartdeveloperhub.harvesters.it.backend.Issue> auxIssues = new HashMap<>(issues);
+
+		// first, take the children
 		for (org.smartdeveloperhub.harvesters.it.backend.Issue issue : issues.values()) {
-
-			if (issue.getChildIssues().iterator().hasNext()) {
-
-				topIssues.add(issue);
-			}
-		}
-
-		// second, take the children
-		for (org.smartdeveloperhub.harvesters.it.backend.Issue issue : topIssues) {
 
 			for (String childId : issue.getChildIssues()) {
 
-				org.smartdeveloperhub.harvesters.it.backend.Issue childIssue = issues.remove(childId);
+				org.smartdeveloperhub.harvesters.it.backend.Issue childIssue = auxIssues.remove(childId);
 				childIssues.add(childIssue);
 			}
 		}
 
 		// Last, the remainder must be Top
-		topIssues.addAll(issues.values());
+		topIssues.addAll(auxIssues.values());
 	}
 
 	private void updateContributors(Map<String, Contributor> contributors,
