@@ -1,8 +1,18 @@
 package org.smartdeveloperhub.harvesters.it.backend;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.Crawler;
 
+/**
+ * Class that runs collector with the last update date.
+ * @author imolina
+ *
+ */
 public class Fetcher implements Runnable {
+
+	private static final Logger logger =
+										LoggerFactory.getLogger(Fetcher.class);
 
 	private Crawler collector;
 	private long lastUpdate;
@@ -15,7 +25,11 @@ public class Fetcher implements Runnable {
 
 	public void run() {
 
-		collector.collect(lastUpdate);
-		lastUpdate = System.currentTimeMillis();
+		try {
+			collector.collect(lastUpdate);
+			lastUpdate = System.currentTimeMillis();
+		} catch (Exception e) {
+			logger.error("Exception while running Fetcher. {}", e);
+		}
 	}
 }

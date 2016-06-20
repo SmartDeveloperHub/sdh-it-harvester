@@ -32,6 +32,7 @@ import org.smartdeveloperhub.harvesters.it.backend.Issue.Type;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.Crawler;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.JiraCrawler;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ComponentFactory;
+import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ContributorFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.IssueFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ProjectFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.VersionFactory;
@@ -116,6 +117,7 @@ public class Orchestrator {
 													Type.class);
 
 		ProjectFactory projectFactory = new ProjectFactory();
+		ContributorFactory contributorFactory = new ContributorFactory();
 		IssueFactory issueFactory = new IssueFactory(statusMapping,
 													priorityMapping,
 													severityMapping,
@@ -124,19 +126,12 @@ public class Orchestrator {
 		ComponentFactory componentFactory = new ComponentFactory();
 		Storage storage = new RedisStorage(redisServer, redisPort);
 
-//		Set<Project> projects = storage.loadProjects();
-//		logger.info("projects number: " + projects.size());
-//
-//		for (Project project : projects) {
-//			Set<Issue> issues = storage.loadIssues(project.getId());
-//			logger.info("(" + project.getId() + ") issues number: " + issues.size());
-//		}
-
 		try {
 
 			Crawler crawler = new JiraCrawler(url, username, password, storage,
-												projectFactory, issueFactory,
-												versionFactory, componentFactory);
+												projectFactory, contributorFactory,
+												issueFactory, versionFactory,
+												componentFactory);
 			fetcher = new Fetcher(crawler);
 
 		((ScheduledThreadPoolExecutor) executorService).scheduleAtFixedRate(
@@ -158,9 +153,9 @@ public class Orchestrator {
 
 			orchestrator.start();
 
-		} catch (IOException e) {
+		} catch (Exception e) {
 
-			logger.error("Error when starting services. {}", e);
+			logger.error("Exception while running service. {}", e);
 		}
 	}
 }

@@ -19,7 +19,8 @@ public enum ChangeLogProperty {
 	SEVERITY("severity"),
 	ESTIMATED_TIME("timeestimate"),
 	VERSION("Fix Version"),
-	BLOCKERS("Link");
+	BLOCKERS("Link"),
+	CHILD("epic child");
 	
 	private String name;
 	

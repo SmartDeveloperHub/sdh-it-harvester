@@ -28,6 +28,10 @@ package org.smartdeveloperhub.harvesters.it.backend.factories.jira;
 
 import com.atlassian.jira.rest.client.api.domain.BasicComponent;
 import com.atlassian.jira.rest.client.api.domain.ChangelogItem;
+import com.atlassian.jira.rest.client.api.domain.IssueLink;
+import com.atlassian.jira.rest.client.api.domain.IssueLinkType;
+import com.atlassian.jira.rest.client.api.domain.IssueLinkType.Direction;
+import com.atlassian.jira.rest.client.api.domain.Subtask;
 import com.atlassian.jira.rest.client.api.domain.Version;
 
 import org.joda.time.DateTime;
@@ -40,6 +44,7 @@ import org.smartdeveloperhub.harvesters.it.backend.ChangeLog;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.StatusChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
 import org.smartdeveloperhub.harvesters.it.backend.Issue.Type;
 import org.smartdeveloperhub.harvesters.it.backend.Priority;
@@ -92,9 +97,11 @@ public class IssueFactory {
 	/**
 	 * This method creates an {@link Issue} from Jira issues.
 	 * @param jiraIssue for retrieve issue information.
+	 * @param contributors map of contributors stored by id
 	 * @return {@link Issue}
 	 */
-	public Issue createIssue(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
+	public Issue createIssue(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue,
+								Map<String, Contributor> contributors) {
 
 		Issue issue = new Issue();
 
@@ -106,7 +113,7 @@ public class IssueFactory {
 
 		issue.setName(jiraIssue.getSummary());
 		issue.setAssignee(getAssignee(jiraIssue));
-		issue.setChanges(createChangeLog(jiraIssue));
+		issue.setChanges(createChangeLog(jiraIssue, contributors));
 		issue.setOpened(getOpenedDate(jiraIssue, issue.getChanges()));
 		issue.setClosed(getClosedDate(jiraIssue, issue.getChanges()));
 		issue.setDueTo(jiraIssue.getDueDate());
@@ -114,22 +121,55 @@ public class IssueFactory {
 		issue.setPriority(fromMap(jiraIssue.getPriority().getName(), priorityMapping));
 		issue.setSeverity(fromMap(jiraIssue.getPriority().getName(), severityMapping));
 		issue.setType(fromMap(jiraIssue.getIssueType().getName(), typeMapping));
+
 		issue.setVersions(getVersions(jiraIssue));
 		issue.setComponents(getComponents(jiraIssue));
 
-		// TODO: explore it
-//		issue.setChildIssues(childIssues);
-//		issue.setBlockedIssues(blockedIssues);
+		issue.setChildIssues(getChildIssues(jiraIssue));
+		issue.setBlockedIssues(getBlockedIssues(jiraIssue));
 		
 		// TODO: not available.
 //		issue.setCommits(commits);
 //		issue.setTags(tags);
 
-//		System.out.println("Estimate: " + jiraIssue.getTimeTracking().getOriginalEstimateMinutes());
-//		System.out.println("Remaining: " + jiraIssue.getTimeTracking().getRemainingEstimateMinutes());
-//		System.out.println("TimeSpent: " + jiraIssue.getTimeTracking().getTimeSpentMinutes());
-
 		return issue;
+	}
+
+	/**
+	 * Method that gets all the issues ids that are child of a Jira Issue.
+	 * @param jiraIssue Jira Issue from which extract its children.
+	 * @return list of Issues ids that are children of the Issue.
+	 */
+	private Set<String> getChildIssues(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
+
+		Set<String> children = new HashSet<>();
+
+		for (Subtask sub : jiraIssue.getSubtasks()) {
+			children.add(sub.getIssueKey());
+		}
+
+		return children;
+	}
+
+	/**
+	 * Method that gets all the issues ids that are being blocked by Jira Issue.
+	 * @param jiraIssue Jira Issue from which extract blocked issues.
+	 * @return list of Issues ids that are being blocked by the Issue.
+	 */
+	private Set<String> getBlockedIssues(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
+
+		Set<String> blocked = new HashSet<>();
+		// TODO: Merge this method with children issues
+		for (IssueLink link : jiraIssue.getIssueLinks()) {
+
+			IssueLinkType type = link.getIssueLinkType();
+
+			if (type.getName().equals("Blocks") && type.getDirection() == Direction.OUTBOUND) {
+
+				blocked.add(link.getTargetIssueKey());
+			}
+		}
+		return blocked;
 	}
 
 	private String getAssignee(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
@@ -201,7 +241,8 @@ public class IssueFactory {
 		return value;
 	}
 
-	private ChangeLog createChangeLog(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
+	private ChangeLog createChangeLog(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue,
+										Map<String, Contributor> contributors) {
 		
 		ChangeLog changeLog = new ChangeLog();
 		Set<Entry> entries = new HashSet<>();
@@ -211,7 +252,11 @@ public class IssueFactory {
 
 			Entry entry = new Entry();
 			entry.setTimeStamp(group.getCreated());
-			entry.setAuthor(group.getAuthor().getDisplayName());
+
+			Contributor contributor = selectContributorByName(contributors,
+																group.getAuthor().getDisplayName());
+
+			entry.setAuthor(contributor.getId());
 
 			Set<Item> items = new HashSet<>();
 			for (com.atlassian.jira.rest.client.api.domain.ChangelogItem jiraItem :
@@ -234,10 +279,10 @@ public class IssueFactory {
 						}
 
 					} catch (IllegalStateException e) {
-						logger.error("Exception! IllegalState.\n" + 
-										"Property: " + jiraItem.getField() +
-										" - oldValue: " + jiraItem.getFromString() +
-										" - newValue: " + jiraItem.getToString() + ". {}", e);
+//						logger.warn("Exception! IllegalState.\n" + 
+//										"Property: " + jiraItem.getField() +
+//										" - oldValue: " + jiraItem.getFromString() +
+//										" - newValue: " + jiraItem.getToString() + ". {}", e);
 					}
 				}
 			}
@@ -249,6 +294,21 @@ public class IssueFactory {
 		changeLog.setEntries(entries);
 
 		return changeLog;
+	}
+
+	private Contributor selectContributorByName(Map<String, Contributor> contributors, String displayName) {
+
+		for (Contributor contributor : contributors.values()) {
+
+			// TODO: Fix this fix
+			return contributor;
+//			if (contributor.getName().equals(displayName)) {
+//
+//				return contributor;
+//			}
+		}
+
+		throw new IllegalArgumentException("Contributor not found.");
 	}
 
 	private Item buildChangeLogItem(ChangelogItem jiraItem) {
@@ -393,7 +453,9 @@ public class IssueFactory {
 								.newValue(jiraItem.getToString())
 								.build();
 
-		} 
+		} /*else if (ChangeLogProperty.ASSIGNEE.is(field)) {
+			
+		}*/
 
 		return item;
 	}

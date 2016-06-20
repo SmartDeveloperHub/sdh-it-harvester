@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.Crawler;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ComponentFactory;
+import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ContributorFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.IssueFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ProjectFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.VersionFactory;
@@ -53,7 +54,9 @@ import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -73,14 +76,15 @@ public class JiraCrawler implements Crawler {
 	private String password;
 	private Storage storage;
 	private ProjectFactory projectFactory;
+	private ContributorFactory contributorFactory;
 	private IssueFactory issueFactory;
 	private VersionFactory versionFactory;
 	private ComponentFactory componentFactory;
 
 	public JiraCrawler(String url, String username, String password, Storage storage,
-					ProjectFactory projectFactory, IssueFactory issueFactory,
-					VersionFactory versionFactory, ComponentFactory componentFactory)
-													throws URISyntaxException {
+					ProjectFactory projectFactory, ContributorFactory contributorFactory,
+					IssueFactory issueFactory, VersionFactory versionFactory,
+					ComponentFactory componentFactory) throws URISyntaxException {
 
 		this.uri = new URI(url);
 		this.username = Objects.requireNonNull(username,
@@ -94,6 +98,8 @@ public class JiraCrawler implements Crawler {
 		// Jira Factories
 		this.projectFactory = Objects.requireNonNull(projectFactory,
 												"ProjectFactory cannot be null");
+		this.contributorFactory = Objects.requireNonNull(contributorFactory,
+												"ContributorFactory cannot be null");
 		this.issueFactory = Objects.requireNonNull(issueFactory,
 												"IssueFactory cannot be null.");
 		this.versionFactory = Objects.requireNonNull(versionFactory,
@@ -105,7 +111,7 @@ public class JiraCrawler implements Crawler {
 		this.jiraClientFactory = new AsynchronousJiraRestClientFactory();
 	}
 
-	public void collect(long lastUpdateTimeStamp) {
+	public void collect(long lastUpdate) {
 
 		logger.info("Started crawling services...");
 
@@ -116,43 +122,67 @@ public class JiraCrawler implements Crawler {
 
 			Set<org.smartdeveloperhub.harvesters.it.backend.Project> projects = new HashSet<>();
 
-			// TODO: load Contributors
-			Set<Contributor> contributors = storage.loadContributors();
+			logger.info("Loading stored contributors");
+			// load Contributors from storage
+			Map<String, Contributor> contributors = storage.loadContributors();
 
+			logger.info("Exploring projects");
 			for (Project jiraProject : getProjects(client)) {
 
 				Set<org.smartdeveloperhub.harvesters.it.backend.Issue> topIssues =
 						new HashSet<org.smartdeveloperhub.harvesters.it.backend.Issue>();
-				Set<org.smartdeveloperhub.harvesters.it.backend.Issue> issues =
+				Set<org.smartdeveloperhub.harvesters.it.backend.Issue> childIssues =
 						new HashSet<org.smartdeveloperhub.harvesters.it.backend.Issue>();
+				Map<String, org.smartdeveloperhub.harvesters.it.backend.Issue> issues =
+						new HashMap<String, org.smartdeveloperhub.harvesters.it.backend.Issue>();
 
+				logger.info("Retrieving project issues.");
 				Iterable<Issue> jiraIssues = getProjectIssues(client,
 																jiraProject.getKey(),
-																lastUpdateTimeStamp);
+																lastUpdate);
 
-				// TODO: Scan for new contributors
-//				updateContributors(contributors, jiraIssues);
+				logger.info("Updating contributors");
+				// Scan for new contributors
+				updateContributors(contributors, jiraIssues);
 
+				logger.info("Creating issues");
 				for (Issue jiraIssue : jiraIssues) {
 
 					org.smartdeveloperhub.harvesters.it.backend.Issue issue =
-											issueFactory.createIssue(jiraIssue);
+											issueFactory.createIssue(jiraIssue, contributors);
 
-					topIssues.add(issue);
+						issues.put(issue.getId(), issue);
 				}
+
+				getTopAndChildIssues(issues, topIssues, childIssues);
+
+//				System.out.println("TopIssues size: " + topIssues.size());
+//				System.out.println("ChildIssues size: " + childIssues.size());
+//				
+//				System.out.print("Child Issues: ");
+//				for (org.smartdeveloperhub.harvesters.it.backend.Issue issue : childIssues) {
+//					System.out.print(issue.getId() + ", ");
+//				}
+//				System.out.print("\n");
 
 				projects.add(projectFactory.createProject(jiraProject,
 															topIssues,
-															issues));
+															childIssues));
 
+				logger.info("Storing issues and components and versions.");
 				// Store components
-				storage.storeComponents(jiraProject.getKey(), getAllComponents(jiraProject.getKey(), jiraProject.getComponents()));
+				storage.storeComponents(jiraProject.getKey(),
+										getAllComponents(jiraProject.getKey(),
+														jiraProject.getComponents()));
 				// Store versions
-				storage.storeVersions(jiraProject.getKey(), getAllVersions(jiraProject.getKey(), jiraProject.getVersions()));
+				storage.storeVersions(jiraProject.getKey(),
+										getAllVersions(jiraProject.getKey(),
+														jiraProject.getVersions()));
 				// Store new issues
-				storage.storeIssues(jiraProject.getKey(), topIssues);
+				storage.storeIssues(jiraProject.getKey(), issues.values());
 			}
 
+			System.out.println("Contributors: " + contributors.size());
 			storage.storeContriburos(contributors);
 			// Store Project
 			storage.storeProjects(projects);
@@ -163,6 +193,51 @@ public class JiraCrawler implements Crawler {
 		}
 
 		logger.info("Finished crawling services.");
+	}
+
+	private void getTopAndChildIssues(Map<String, org.smartdeveloperhub.harvesters.it.backend.Issue> issues,
+			Set<org.smartdeveloperhub.harvesters.it.backend.Issue> topIssues,
+			Set<org.smartdeveloperhub.harvesters.it.backend.Issue> childIssues) {
+
+		// First, take all the issues with children
+		for (org.smartdeveloperhub.harvesters.it.backend.Issue issue : issues.values()) {
+
+			if (issue.getChildIssues().iterator().hasNext()) {
+
+				topIssues.add(issue);
+			}
+		}
+
+		// second, take the children
+		for (org.smartdeveloperhub.harvesters.it.backend.Issue issue : topIssues) {
+
+			for (String childId : issue.getChildIssues()) {
+
+				org.smartdeveloperhub.harvesters.it.backend.Issue childIssue = issues.remove(childId);
+				childIssues.add(childIssue);
+			}
+		}
+
+		// Last, the remainder must be Top
+		topIssues.addAll(issues.values());
+	}
+
+	private void updateContributors(Map<String, Contributor> contributors,
+									Iterable<Issue> jiraIssues) {
+
+		for (Issue jiraIssue : jiraIssues) {
+
+			if (jiraIssue.getReporter() != null) {
+
+				Contributor contributor = contributorFactory.createContributor(jiraIssue.getReporter());
+				contributors.put(contributor.getId(), contributor);
+			}
+			if (jiraIssue.getAssignee() != null) {
+
+				Contributor contributor = contributorFactory.createContributor(jiraIssue.getAssignee());
+				contributors.put(contributor.getId(), contributor);
+			}
+		}
 	}
 
 	private Set<org.smartdeveloperhub.harvesters.it.backend.Component> getAllComponents(String projectId, Iterable<BasicComponent> jiraComponents) {

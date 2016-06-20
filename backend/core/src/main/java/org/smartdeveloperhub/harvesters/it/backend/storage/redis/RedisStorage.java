@@ -11,6 +11,8 @@ import org.smartdeveloperhub.harvesters.it.backend.Version;
 import org.smartdeveloperhub.harvesters.it.backend.storage.Storage;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -23,18 +25,17 @@ public class RedisStorage implements Storage {
 			LoggerFactory.getLogger(RedisStorage.class);
 
 	private Jedis server;
-	
+
 	public RedisStorage(String server, int port) {
 
 		logger.info("Redis Server: " + server);
 		this.server = new Jedis(server, port);
 	}
 
-	public void storeIssues(String projectId, Set<Issue> issues) throws IOException {
+	public void storeIssues(String projectId, Collection<Issue> issues) throws IOException {
 
 		for (Issue issue : issues) {
 
-			logger.info("Insertando issue (" + issue.getId() + ")");
 			server.hset("issues:" + projectId,
 						issue.getId(),
 						Entities.marshallEntity(issue));
@@ -59,7 +60,6 @@ public class RedisStorage implements Storage {
 
 		for (Project project : projects) {
 
-			logger.info("Insertando proyecto (" + project.getId() + ")");
 			server.hset("projects",
 						project.getId(),
 						Entities.marshallEntity(project));
@@ -80,11 +80,10 @@ public class RedisStorage implements Storage {
 		return projects;
 	}
 
-	public void storeVersions(String projectId, Set<Version> versions) throws IOException {
+	public void storeVersions(String projectId, Collection<Version> versions) throws IOException {
 
 		for (Version version : versions) {
 
-			logger.info("Insertando version (" + version.getId() + ")");
 			server.hset("versions:" + projectId,
 						version.getId(),
 						Entities.marshallEntity(version));
@@ -105,32 +104,52 @@ public class RedisStorage implements Storage {
 		return versions;
 	}
 
-	public void storeComponents(String projectId, Set<Component> components) throws IOException {
+	public void storeComponents(String projectId, Collection<Component> components) throws IOException {
 
 		for (Component component: components) {
 			
-			logger.info("Insertando component (" + component.getId() + ")");
 			server.hset("components:" + projectId,
 						component.getId(),
 						Entities.marshallEntity(component));
 		}
 	}
 
-	public Set<Component> loadComponents(String projectId) {
-		// TODO:
+	public Set<Component> loadComponents(String projectId) throws IOException {
 
-		return null;
+		Set<Component> components = new HashSet<>();
+
+		Map<String, String> componentsMap = server.hgetAll("components:" + projectId);
+
+		for (String componentStr : componentsMap.values()) {
+
+			components.add(Entities.unmarshallEntity(componentStr, Component.class));
+		}
+
+		return components;
 	}
 
-	@Override
-	public void storeContriburos(Set<Contributor> contributors) {
-		// TODO:
-		
+	public void storeContriburos(Map<String, Contributor> contributors) throws IOException {
+
+		for (String contributorId: contributors.keySet()) {
+			
+			server.hset("contributors",
+						contributorId,
+						Entities.marshallEntity(contributors.get(contributorId)));
+		}
 	}
 
-	@Override
-	public Set<Contributor> loadContributors() {
-		// TODO:
-		return null;
+	public Map<String, Contributor> loadContributors() throws IOException {
+
+		Map<String, Contributor> contributors = new HashMap<>();
+		Map<String, String> contributorsMap = server.hgetAll("contributors");
+
+		for (String contributorId : contributorsMap.keySet()) {
+
+			contributors.put(contributorId,
+							 Entities.unmarshallEntity(contributorsMap.get(contributorId),
+									 					Contributor.class));
+		}
+
+		return contributors;
 	}
 }

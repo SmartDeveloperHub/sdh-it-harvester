@@ -4,7 +4,6 @@ import org.smartdeveloperhub.harvesters.it.backend.Issue;
 import org.smartdeveloperhub.harvesters.it.backend.Project;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -23,9 +22,6 @@ public class ProjectFactory {
 	 */
 	public Project createProject(com.atlassian.jira.rest.client.api.domain.Project jiraProject,
 									Set<Issue> topIssues, Set<Issue> issues) {
-
-		Objects.requireNonNull(topIssues, "Top Issues cannot be null");
-		Objects.requireNonNull(issues, "Issues cannot be null");
 
 		Project project = new Project();
 		project.setId(jiraProject.getKey());
