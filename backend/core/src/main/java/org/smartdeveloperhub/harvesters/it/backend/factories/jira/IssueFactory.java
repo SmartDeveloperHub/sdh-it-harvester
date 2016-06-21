@@ -80,7 +80,6 @@ public class IssueFactory {
 						Map<String, Severity> severityMapping,
 						Map<String, Type> typeMapping) {
 
-		// TODO: Version check >= 6.1
 		this.statusMapping = Objects.requireNonNull(
 										statusMapping,
 										"Status Mapping cannot be null.");
@@ -181,7 +180,7 @@ public class IssueFactory {
 	private Set<String> getBlockedIssuesById(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
 
 		Set<String> blocked = new HashSet<>();
-		// TODO: Merge this method with children issues
+
 		for (IssueLink link : jiraIssue.getIssueLinks()) {
 
 			IssueLinkType type = link.getIssueLinkType();
@@ -301,10 +300,10 @@ public class IssueFactory {
 						}
 
 					} catch (IllegalStateException e) {
-//						logger.warn("Exception! IllegalState.\n" + 
-//										"Property: " + jiraItem.getField() +
-//										" - oldValue: " + jiraItem.getFromString() +
-//										" - newValue: " + jiraItem.getToString() + ". {}", e);
+						logger.warn("Exception! IllegalState.\n" + 
+										"Property: " + jiraItem.getField() +
+										" - oldValue: " + jiraItem.getFromString() +
+										" - newValue: " + jiraItem.getToString() + ". {}", e);
 					}
 				}
 			}
@@ -322,12 +321,10 @@ public class IssueFactory {
 
 		for (Contributor contributor : contributors.values()) {
 
-			// TODO: Fix this fix
-			return contributor;
-//			if (contributor.getName().equals(displayName)) {
-//
-//				return contributor;
-//			}
+			if (contributor.getName().equals(displayName)) {
+
+				return contributor;
+			}
 		}
 
 		throw new IllegalArgumentException("Contributor not found.");

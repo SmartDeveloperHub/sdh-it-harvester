@@ -149,7 +149,8 @@ public class JiraCrawler implements Crawler {
 				for (Issue jiraIssue : jiraIssues) {
 
 					org.smartdeveloperhub.harvesters.it.backend.Issue issue =
-											issueFactory.createIssue(jiraIssue, contributors);
+											issueFactory.createIssue(jiraIssue,
+																	contributors);
 
 						issues.put(issue.getId(), issue);
 				}
@@ -173,7 +174,6 @@ public class JiraCrawler implements Crawler {
 				storage.storeIssues(jiraProject.getKey(), issues.values());
 			}
 
-			System.out.println("Contributors: " + contributors.size());
 			storage.storeContriburos(contributors);
 			// Store Project
 			storage.storeProjects(projects);
@@ -186,7 +186,8 @@ public class JiraCrawler implements Crawler {
 		logger.info("Finished crawling services.");
 	}
 
-	private void getTopAndChildIssues(Map<String, org.smartdeveloperhub.harvesters.it.backend.Issue> issues,
+	private void getTopAndChildIssues(
+			Map<String, org.smartdeveloperhub.harvesters.it.backend.Issue> issues,
 			Set<org.smartdeveloperhub.harvesters.it.backend.Issue> topIssues,
 			Set<org.smartdeveloperhub.harvesters.it.backend.Issue> childIssues) {
 
@@ -224,7 +225,8 @@ public class JiraCrawler implements Crawler {
 		}
 	}
 
-	private Set<org.smartdeveloperhub.harvesters.it.backend.Component> getAllComponents(String projectId, Iterable<BasicComponent> jiraComponents) {
+	private Set<org.smartdeveloperhub.harvesters.it.backend.Component>
+			getAllComponents(String projectId, Iterable<BasicComponent> jiraComponents) {
 
 		Set<org.smartdeveloperhub.harvesters.it.backend.Component> components = new HashSet<>();
 
@@ -236,7 +238,8 @@ public class JiraCrawler implements Crawler {
 		return components;
 	}
 
-	private Set<org.smartdeveloperhub.harvesters.it.backend.Version> getAllVersions(String projectId, Iterable<Version> jiraVersions) {
+	private Set<org.smartdeveloperhub.harvesters.it.backend.Version>
+			getAllVersions(String projectId, Iterable<Version> jiraVersions) {
 
 		Set<org.smartdeveloperhub.harvesters.it.backend.Version> versions = new HashSet<>();
 
