@@ -94,7 +94,7 @@ final class Client<T> {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(Client.class);
 
-	static final String API_MIME     = "application/psr.sdh.itcollector+json";
+	static final String API_MIME     = "application/psr.sdh.itcollector.entity+json";
 	static final int    MAX_ATTEMPTS = 5;
 
 	private final URI apiBase;
@@ -142,11 +142,10 @@ final class Client<T> {
 			final StatusLine statusLine = httpResponse.getStatusLine();
 			LOGGER.info("{}",statusLine);
 			String result=null;
-			if(statusLine.getStatusCode()==200) {
-				final HttpEntity entity = httpResponse.getEntity();
-				result = entity != null ? EntityUtils.toString(entity) : null;
-			} else if(!canRetry(statusLine.getStatusCode())) {
-				throw new ServiceFailureException(resourcePath,statusLine);
+			final HttpEntity entity = httpResponse.getEntity();
+			result = entity != null ? EntityUtils.toString(entity) : null;
+			if(statusLine.getStatusCode()!=200 && !canRetry(statusLine.getStatusCode())) {
+				throw new ServiceFailureException(resourcePath,statusLine,result);
 			}
 			return result;
 		} finally {

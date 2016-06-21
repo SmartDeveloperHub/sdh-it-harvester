@@ -68,6 +68,7 @@ abstract class HandlerUtil {
 		exchange.setStatusCode(statusCode);
 		exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType);
 		exchange.getResponseSender().send(String.format(message,args));
+		this.logger.debug("{} : {{}}\n{}",statusCode,contentType,String.format(message, args));
 	}
 
 }

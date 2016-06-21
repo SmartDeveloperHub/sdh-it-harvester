@@ -33,29 +33,52 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smartdeveloperhub.harvesters.it.frontend.controller.LocalBackendControllerFactory;
+import org.smartdeveloperhub.harvesters.it.frontend.controller.RemoteBackendControllerFactory;
+import org.smartdeveloperhub.harvesters.it.frontend.spi.BackendControllerFactory;
 
 public class SmokeTest {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(SmokeTest.class);
 
-	public static WebArchive createWebArchive(final String archiveName) throws Exception {
+	private static File[] applicationDependencies() {
+		return
+			Maven.
+				configureResolver().
+					loadPomFromFile("target/test-classes/pom.xml").
+					importCompileAndRuntimeDependencies().
+					resolve().
+					withTransitivity().
+					asFile();
+	}
+
+	private static WebArchive baseApplicationArchive(final String archiveName) {
+		return
+			ShrinkWrap.
+				create(WebArchive.class,archiveName).
+					addAsLibraries(applicationDependencies()).
+					addAsResource("log4j.properties").
+					setWebXML(new File("src/main/webapp/WEB-INF/web.xml"));
+	}
+
+	public static WebArchive locallyBackedCollector(final String archiveName) throws Exception {
 		try {
-			final File[] files =
-				Maven.
-					configureResolver().
-						loadPomFromFile("target/test-classes/pom.xml").
-						importCompileAndRuntimeDependencies().
-						resolve().
-						withTransitivity().
-						asFile();
 			return
-				ShrinkWrap.
-					create(WebArchive.class,archiveName).
-						addAsLibraries(files).
-						addAsResource("log4j.properties").
-						setWebXML(new File("src/main/webapp/WEB-INF/web.xml"));
+				baseApplicationArchive(archiveName).
+					addAsServiceProvider(BackendControllerFactory.class,LocalBackendControllerFactory.class);
 		} catch (final Exception e) {
-			LOGGER.error("Could not create archive",e);
+			LOGGER.error("Could not create locally backed application archive",e);
+			throw e;
+		}
+	}
+
+	public static WebArchive remotelyBackedCollector(final String archiveName) throws Exception {
+		try {
+			return
+				baseApplicationArchive(archiveName).
+					addAsServiceProvider(BackendControllerFactory.class,RemoteBackendControllerFactory.class);
+		} catch (final Exception e) {
+			LOGGER.error("Could not create remotelly backed application archive",e);
 			throw e;
 		}
 	}

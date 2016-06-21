@@ -43,6 +43,7 @@ public class ContributorTest {
 		final String str = Entities.marshallEntity(one);
 		final Contributor other = Entities.unmarshallEntity(str,Contributor.class);
 		assertThat(other.getId(),equalTo(one.getId()));
+		assertThat(other.getName(),equalTo(one.getName()));
 		assertThat(other.getEmails(),equalTo(one.getEmails()));
 	}
 

@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.backend.Notifications;
 import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
 import org.smartdeveloperhub.harvesters.it.notification.CollectorConfiguration;
@@ -37,6 +39,8 @@ import org.smartdeveloperhub.harvesters.it.notification.CollectorConfiguration;
 import com.google.common.collect.ImmutableList;
 
 public final class PublisherFactory {
+
+	private static final Logger LOGGER=LoggerFactory.getLogger(PublisherFactory.class);
 
 	private PublisherFactory() {
 	}
@@ -61,6 +65,7 @@ public final class PublisherFactory {
 			result.setBrokerPort(notifications.getBrokerPort());
 			result.setVirtualHost(notifications.getVirtualHost());
 			result.setExchangeName(notifications.getExchangeName());
+			LOGGER.debug("Using collector configuration {}",result);
 			builder.add(result);
 		}
 		return builder.build();

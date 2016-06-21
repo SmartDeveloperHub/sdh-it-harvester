@@ -26,6 +26,9 @@
  */
 package org.smartdeveloperhub.harvesters.it.frontend.controller;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -133,12 +136,25 @@ public class ClientTest extends ClientTestHelper {
 	}
 
 	@Test
-	public void shouldFailOnUnretriableServiceResponse() throws Exception {
-		setUpUnretriableFailure();
+	public void shouldFailOnUnretriableServiceResponseAndReturnResponseBodyWhenAvailable() throws Exception {
+		setUpUnretriableFailure("Something went wrong");
 		try {
 			getResource("id");
 			fail("Should fail on unretriable service response");
 		} catch (final ServiceFailureException e) {
+			assertThat(e.getResponse(),equalTo("Something went wrong"));
+			verifyUnretriableFailure(e,BASE+"id");
+		}
+	}
+
+	@Test
+	public void shouldFailOnUnretriableServiceResponseAndReturnNullResponseBodyIfNotAvailable() throws Exception {
+		setUpUnretriableFailure(null);
+		try {
+			getResource("id");
+			fail("Should fail on unretriable service response");
+		} catch (final ServiceFailureException e) {
+			assertThat(e.getResponse(),nullValue());
 			verifyUnretriableFailure(e,BASE+"id");
 		}
 	}

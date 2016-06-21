@@ -35,16 +35,22 @@ public final class ServiceFailureException extends IOException {
 	private static final long serialVersionUID = 2079023043902094249L;
 
 	private final String resource;
+	private final String response;
 	private final int status;
 
-	public ServiceFailureException(final String resource, final StatusLine statusLine) {
-		super("Resource '"+resource+"' retrieval failed with status "+statusLine);
+	public ServiceFailureException(final String resource, final StatusLine statusLine, final String response) {
+		super("Resource '"+resource+"' retrieval failed with status "+statusLine+(response==null?"":": "+response));
 		this.resource=resource;
+		this.response = response;
 		this.status=statusLine.getStatusCode();
 	}
 
 	public String getResource() {
 		return this.resource;
+	}
+
+	public String getResponse() {
+		return this.response;
 	}
 
 	public int getStatus() {

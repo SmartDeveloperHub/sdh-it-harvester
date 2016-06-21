@@ -44,18 +44,10 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.smartdeveloperhub.harvesters.it.testing.LDPUtil;
-import org.smartdeveloperhub.harvesters.it.testing.QueryHelper;
-import org.smartdeveloperhub.harvesters.it.testing.QueryHelper.ResultProcessor;
 import org.smartdeveloperhub.harvesters.it.testing.SmokeTest;
-import org.smartdeveloperhub.harvesters.it.testing.TestingUtil;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 @RunWith(Arquillian.class)
-public class HarvesterApplicationITest {
-
-	private static final String SERVICE = "ldp4j/api/service/";
+public class LocalHarvesterApplicationITest {
 
 	@Rule
 	public TestName test=new TestName();
@@ -63,84 +55,40 @@ public class HarvesterApplicationITest {
 	@Deployment(name="default",testable=false)
 	@TargetsContainer("tomcat")
 	public static WebArchive createDeployment() throws Exception {
-		return SmokeTest.createWebArchive("default-harvester.war");
+		return SmokeTest.locallyBackedCollector("local-harvester.war");
 	}
 
 	@Test
 	@OperateOnDeployment("default")
 	public void checkTwoContributorsArePublished(@ArquillianResource final URL contextURL) throws Exception {
-		final List<String> contributors = getContributors(contextURL);
-		verifyElements(contributors);
+		verifyElements(HarvesterTester.getContributors(contextURL));
 	}
 
 	@Test
 	@OperateOnDeployment("default")
 	public void checkTwoCommitsArePublished(@ArquillianResource final URL contextURL) throws Exception {
-		final List<String> commits = getCommits(contextURL);
-		verifyElements(commits);
+		verifyElements(HarvesterTester.getCommits(contextURL));
 	}
 
 	@Test
 	@OperateOnDeployment("default")
 	public void checkTwoProjectsArePublished(@ArquillianResource final URL contextURL) throws Exception {
-		final List<String> projects = getProjects(contextURL);
+		final List<String> projects = HarvesterTester.getProjects(contextURL);
 		assertThat(projects,hasSize(2));
 		checkProject(projects.get(0));
 		checkProject(projects.get(1));
 	}
 
 	private void checkProject(final String project) throws IOException {
-		final List<String> components = queryResourceVariable(project, "queries/components.sparql", "component");
-		verifyElements(components);
-		final List<String> versions = queryResourceVariable(project, "queries/versions.sparql", "version");
-		verifyElements(versions);
-		final List<String> issues = queryResourceVariable(project, "queries/issues.sparql", "issue");
-		verifyElements(issues);
+		verifyElements(HarvesterTester.getProjectComponents(project));
+		verifyElements(HarvesterTester.getProjectVersions(project));
+		verifyElements(HarvesterTester.getProjectIssues(project));
 	}
 
 	private void verifyElements(final List<String> components) {
 		assertThat(components,hasSize(2));
 		LDPUtil.assertIsAccessible(components.get(0));
 		LDPUtil.assertIsAccessible(components.get(1));
-	}
-
-	private static final List<String> getContributors(final URL contextURL) throws IOException {
-		return queryResourceVariable(TestingUtil.resolve(contextURL,SERVICE), "queries/contributors.sparql", "contributor");
-	}
-
-	private static final List<String> getCommits(final URL contextURL) throws IOException {
-		return queryResourceVariable(TestingUtil.resolve(contextURL,SERVICE), "queries/commits.sparql", "commit");
-	}
-
-	private static final List<String> getProjects(final URL contextURL) throws IOException {
-		return queryResourceVariable(TestingUtil.resolve(contextURL,SERVICE), "queries/projects.sparql", "project");
-	}
-
-	private static List<String> queryResourceVariable(final String resource, final String query, final String variable) throws IOException {
-		return
-			QueryHelper.
-				newInstance().
-					withModel(
-						TestingUtil.
-							asModel(
-								LDPUtil.assertIsAccessible(resource),
-								resource)).
-					withQuery().
-						fromResource(query).
-						withURIRefParam("service",resource).
-					select(
-						new ResultProcessor<List<String>>() {
-							private final List<String> bindings=Lists.newArrayList();
-							@Override
-							protected void processSolution() {
-								this.bindings.add(resource(variable).getURI());
-							}
-							@Override
-							public List<String> getResult() {
-								return ImmutableList.copyOf(this.bindings);
-							}
-						}
-					);
 	}
 
 }
