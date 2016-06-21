@@ -1,0 +1,11 @@
+{
+  "collector" : {
+    "version" : "1.0.0"
+  },
+  "contributors" : [ ],
+  "commits" : [ ],
+  "projects" : [ ],
+  "projectComponents" : { },
+  "projectVersions" : { },
+  "projectIssues" : { }
+}
