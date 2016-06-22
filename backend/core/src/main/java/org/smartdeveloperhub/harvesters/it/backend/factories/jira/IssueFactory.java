@@ -54,6 +54,7 @@ import org.smartdeveloperhub.harvesters.it.backend.Status;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.ChangeLogProperty;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
@@ -74,6 +75,18 @@ public class IssueFactory {
 	private Map<String, Priority> priorityMapping;
 	private Map<String, Severity> severityMapping;
 	private Map<String, Type> typeMapping;
+
+	public Map<String, String> getStatusMapping() {
+
+		Map<String, String> mapping = new HashMap<>();
+
+		for(String key : statusMapping.keySet()) {
+
+			mapping.put(key, statusMapping.get(key).name());
+		}
+
+		return mapping;
+	}
 
 	public IssueFactory(Map<String, Status> statusMapping,
 						Map<String, Priority> priorityMapping,

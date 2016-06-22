@@ -4,7 +4,9 @@ import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
 import org.smartdeveloperhub.harvesters.it.backend.Project;
+import org.smartdeveloperhub.harvesters.it.backend.State;
 import org.smartdeveloperhub.harvesters.it.backend.Version;
+import org.smartdeveloperhub.harvesters.it.backend.crawler.Crawler;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -38,7 +40,8 @@ public interface Storage {
 	 * @param issues set of issues
 	 * @throws IOException when a storage error occurs. 
 	 */
-	public void storeIssues(String projectId, Collection<Issue> issues) throws IOException;
+	public void storeIssues(String projectId, Collection<Issue> issues)
+															throws IOException;
 
 	/**
 	 * Method to load previously stored {@link Issue}s.
@@ -54,7 +57,8 @@ public interface Storage {
 	 * @param versions set of versions
 	 * @throws IOException when a storage error occurs. 
 	 */
-	public void storeVersions(String projectId, Collection<Version> versions) throws IOException;
+	public void storeVersions(String projectId, Collection<Version> versions)
+															throws IOException;
 
 	/**
 	 * Method to load previously stored {@link Version}s.
@@ -70,7 +74,8 @@ public interface Storage {
 	 * @param components set of components.
 	 * @throws IOException when a storage error occurs. 
 	 */
-	public void storeComponents(String projectId, Collection<Component> components) throws IOException;
+	public void storeComponents(String projectId, Collection<Component> components)
+															throws IOException;
 
 	/**
 	 * Method to load previously stored {@link Component}s.
@@ -85,7 +90,8 @@ public interface Storage {
 	 * @param contributors Set of global Jira {@link Contributor}s.
 	 * @throws IOException when a storage error occurs.
 	 */
-	public void storeContriburos(Map<String, Contributor> contributors) throws IOException;
+	public void storeContriburos(Map<String, Contributor> contributors)
+															throws IOException;
 
 	/**
 	 * Method to load previously stored {@link Contributor}s.
@@ -93,4 +99,18 @@ public interface Storage {
 	 * @throws IOException when a load error occurs.
 	 */
 	public Map<String, Contributor> loadContributors() throws IOException;
+
+	/**
+	 * Method that store information relative to the {@link Crawler} activity.
+	 * @param state current state of the crawler.
+	 * @throws IOException when a storage error occurs.
+	 */
+	public void storeState(State state) throws IOException;
+
+	/**
+	 * Method that loads the last stored state of the {@link Crawler} activity.
+	 * @return last state of the {@link Crawler}.
+	 * @throws IOException when a load error occurs.
+	 */
+	public State loadState() throws IOException;
 }

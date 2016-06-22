@@ -26,8 +26,9 @@ public class Fetcher implements Runnable {
 	public void run() {
 
 		try {
+			long now = System.currentTimeMillis();
 			collector.collect(lastUpdate);
-			lastUpdate = System.currentTimeMillis();
+			lastUpdate = now;
 		} catch (Exception e) {
 			logger.error("Exception while running Fetcher. {}", e);
 		}

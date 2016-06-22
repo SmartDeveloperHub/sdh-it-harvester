@@ -7,6 +7,7 @@ import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 import org.smartdeveloperhub.harvesters.it.backend.Entities;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
 import org.smartdeveloperhub.harvesters.it.backend.Project;
+import org.smartdeveloperhub.harvesters.it.backend.State;
 import org.smartdeveloperhub.harvesters.it.backend.Version;
 import org.smartdeveloperhub.harvesters.it.backend.storage.Storage;
 
@@ -32,7 +33,8 @@ public class RedisStorage implements Storage {
 		this.server = new Jedis(server, port);
 	}
 
-	public void storeIssues(String projectId, Collection<Issue> issues) throws IOException {
+	public void storeIssues(String projectId, Collection<Issue> issues)
+															throws IOException {
 
 		for (Issue issue : issues) {
 
@@ -80,7 +82,8 @@ public class RedisStorage implements Storage {
 		return projects;
 	}
 
-	public void storeVersions(String projectId, Collection<Version> versions) throws IOException {
+	public void storeVersions(String projectId, Collection<Version> versions)
+															throws IOException {
 
 		for (Version version : versions) {
 
@@ -104,7 +107,8 @@ public class RedisStorage implements Storage {
 		return versions;
 	}
 
-	public void storeComponents(String projectId, Collection<Component> components) throws IOException {
+	public void storeComponents(String projectId, Collection<Component> components)
+															throws IOException {
 
 		for (Component component: components) {
 			
@@ -128,7 +132,8 @@ public class RedisStorage implements Storage {
 		return components;
 	}
 
-	public void storeContriburos(Map<String, Contributor> contributors) throws IOException {
+	public void storeContriburos(Map<String, Contributor> contributors)
+															throws IOException {
 
 		for (String contributorId: contributors.keySet()) {
 			
@@ -151,5 +156,26 @@ public class RedisStorage implements Storage {
 		}
 
 		return contributors;
+	}
+
+	@Override
+	public void storeState(State state) throws IOException {
+
+		State oldState = loadState();
+		if (oldState != null) { // Keep previous activity if any
+
+			state.getActivity().addAll(oldState.getActivity());
+		}
+
+		server.set("crawler:state", Entities.marshallEntity(state));
+	}
+
+	@Override
+	public State loadState() throws IOException {
+
+		String storedState = server.get("crawler:state");
+		return storedState != null ?
+				Entities.unmarshallEntity(storedState, State.class) :
+				null;
 	}
 }

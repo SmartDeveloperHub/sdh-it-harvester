@@ -37,9 +37,11 @@ import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.Version;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
+import org.smartdeveloperhub.harvesters.it.backend.State;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.Crawler;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ComponentFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ContributorFactory;
@@ -67,7 +69,7 @@ import java.util.Set;
  */
 public class JiraCrawler implements Crawler {
 
-	private static final Logger logger =
+	private static final Logger LOGGER =
 									LoggerFactory.getLogger(JiraCrawler.class);
 
 	private AsynchronousJiraRestClientFactory jiraClientFactory;
@@ -113,7 +115,7 @@ public class JiraCrawler implements Crawler {
 
 	public void collect(long lastUpdate) {
 
-		logger.info("Started crawling services...");
+		LOGGER.info("Started crawling services...");
 
 		try(JiraRestClient client =
 				jiraClientFactory.createWithBasicHttpAuthentication(uri,
@@ -122,11 +124,11 @@ public class JiraCrawler implements Crawler {
 
 			Set<org.smartdeveloperhub.harvesters.it.backend.Project> projects = new HashSet<>();
 
-			logger.info("Loading stored contributors");
+			LOGGER.info("Loading stored contributors");
 			// load Contributors from storage
 			Map<String, Contributor> contributors = storage.loadContributors();
 
-			logger.info("Exploring projects");
+			LOGGER.info("Exploring projects");
 			for (Project jiraProject : getProjects(client)) {
 
 				Set<org.smartdeveloperhub.harvesters.it.backend.Issue> topIssues =
@@ -136,16 +138,16 @@ public class JiraCrawler implements Crawler {
 				Map<String, org.smartdeveloperhub.harvesters.it.backend.Issue> issues =
 						new HashMap<String, org.smartdeveloperhub.harvesters.it.backend.Issue>();
 
-				logger.info("Retrieving project issues.");
+				LOGGER.info("Retrieving project issues.");
 				Iterable<Issue> jiraIssues = getProjectIssues(client,
 																jiraProject.getKey(),
 																lastUpdate);
 
-				logger.info("Updating contributors");
+				LOGGER.info("Updating contributors");
 				// Scan for new contributors
 				updateContributors(contributors, jiraIssues);
 
-				logger.info("Creating issues");
+				LOGGER.info("Creating issues");
 				for (Issue jiraIssue : jiraIssues) {
 
 					org.smartdeveloperhub.harvesters.it.backend.Issue issue =
@@ -161,7 +163,7 @@ public class JiraCrawler implements Crawler {
 															topIssues,
 															childIssues));
 
-				logger.info("Storing issues and components and versions.");
+				LOGGER.info("Storing issues and components and versions.");
 				// Store components
 				storage.storeComponents(jiraProject.getKey(),
 										getAllComponents(jiraProject.getKey(),
@@ -178,12 +180,26 @@ public class JiraCrawler implements Crawler {
 			// Store Project
 			storage.storeProjects(projects);
 
+			String jiraVersion = client.getMetadataClient()
+											.getServerInfo().claim()
+												.getVersion();
+
+			// Storing crawling State for meta-information
+			State state = new State();
+			state.setJiraApiVersion(jiraVersion);
+			state.setLastCrawlingDate(new DateTime());
+			state.setStatusMappings(issueFactory.getStatusMapping());
+			// TODO: set activities
+//			state.setActivity(activities);
+
+			storage.storeState(state);
+
 		} catch (IOException e) {
 
-			logger.error("Exception in client connection. {}", e);
+			LOGGER.error("Exception in client connection. {}", e);
 		}
 
-		logger.info("Finished crawling services.");
+		LOGGER.info("Finished crawling services.");
 	}
 
 	private void getTopAndChildIssues(
