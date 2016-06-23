@@ -32,7 +32,7 @@ public interface Storage {
 	 * @return {@link Project} project entities.
 	 * @throws IOException when a load error occurs.
 	 */
-	public Set<Project> loadProjects() throws IOException;
+	public Map<String, Project> loadProjects() throws IOException;
 
 	/**
 	 * Method for store list of {@link Issue}s.
@@ -49,7 +49,7 @@ public interface Storage {
 	 * @return {@link Issue}s entities.
 	 * @throws IOException when a load error occurs.
 	 */
-	public Set<Issue> loadIssues(String projectId) throws IOException;
+	public Map<String, Issue> loadIssues(String projectId) throws IOException;
 
 	/**
 	 * Method for store list of {@link Version}s.
@@ -66,7 +66,7 @@ public interface Storage {
 	 * @return {@link Version} entities.
 	 * @throws IOException when a load error occurs.
 	 */
-	public Set<Version> loadVersions(String projectId) throws IOException;
+	public Map<String, Version> loadVersions(String projectId) throws IOException;
 
 	/**
 	 * Method for store list of {@link Component}s.
@@ -83,7 +83,7 @@ public interface Storage {
 	 * @return {@link Component}s entities.
 	 * @throws IOException when a load error occurs.
 	 */
-	public Set<Component> loadComponents(String projectId) throws IOException;
+	public Map<String, Component> loadComponents(String projectId) throws IOException;
 
 	/**
 	 * Method for store list of {@link Contributor}s.

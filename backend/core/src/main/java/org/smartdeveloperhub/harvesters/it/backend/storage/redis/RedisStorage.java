@@ -14,11 +14,11 @@ import org.smartdeveloperhub.harvesters.it.backend.storage.Storage;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisException;
 
 public class RedisStorage implements Storage {
 
@@ -36,23 +36,37 @@ public class RedisStorage implements Storage {
 	public void storeIssues(String projectId, Collection<Issue> issues)
 															throws IOException {
 
-		for (Issue issue : issues) {
+		try {
 
-			server.hset("issues:" + projectId,
-						issue.getId(),
-						Entities.marshallEntity(issue));
+			for (Issue issue : issues) {
+
+				server.hset("issues:" + projectId,
+							issue.getId(),
+							Entities.marshallEntity(issue));
+			}
+		} catch (JedisException e) {
+
+			throw new IOException(e);
 		}
 	}
 
-	public Set<Issue> loadIssues(String projectId) throws IOException {
+	public Map<String, Issue> loadIssues(String projectId) throws IOException {
 
-		Set<Issue> issues = new HashSet<>();
+		Map<String, Issue> issues = new HashMap<>();
 
-		Map<String, String> issuesMap = server.hgetAll("issues:" + projectId);
+		try {
 
-		for (String issueStr : issuesMap.values()) {
+			Map<String, String> issuesStr = server.hgetAll("issues:" + projectId);
 
-			issues.add(Entities.unmarshallEntity(issueStr, Issue.class));
+			for (String issueId : issuesStr.keySet()) {
+
+				issues.put(issueId,
+							Entities.unmarshallEntity(issuesStr.get(issueId),
+														Issue.class));
+			}
+		} catch (JedisException e) {
+
+			throw new IOException(e);
 		}
 
 		return issues;
@@ -60,23 +74,37 @@ public class RedisStorage implements Storage {
 
 	public void storeProjects(Set<Project> projects) throws IOException {
 
-		for (Project project : projects) {
+		try {
 
-			server.hset("projects",
-						project.getId(),
-						Entities.marshallEntity(project));
+			for (Project project : projects) {
+
+				server.hset("projects",
+							project.getId(),
+							Entities.marshallEntity(project));
+			}
+		} catch (JedisException e) {
+
+			throw new IOException(e);
 		}
 	}
 
-	public Set<Project> loadProjects() throws IOException {
+	public Map<String, Project> loadProjects() throws IOException {
 
-		Set<Project> projects = new HashSet<>();
+		Map<String, Project> projects = new HashMap<>();
 
-		Map<String, String> projectsMap = server.hgetAll("projects");
+		try {
 
-		for (String projectStr : projectsMap.values()) {
+			Map<String, String> projectsStr = server.hgetAll("projects");
 
-			projects.add(Entities.unmarshallEntity(projectStr, Project.class));
+			for (String projectId : projectsStr.keySet()) {
+
+				projects.put(projectId,
+							Entities.unmarshallEntity(projectsStr.get(projectId),
+														Project.class));
+			}
+		} catch (JedisException e) {
+
+			throw new IOException(e);
 		}
 
 		return projects;
@@ -85,23 +113,38 @@ public class RedisStorage implements Storage {
 	public void storeVersions(String projectId, Collection<Version> versions)
 															throws IOException {
 
-		for (Version version : versions) {
+		try {
 
-			server.hset("versions:" + projectId,
-						version.getId(),
-						Entities.marshallEntity(version));
+			for (Version version : versions) {
+
+				server.hset("versions:" + projectId,
+							version.getId(),
+							Entities.marshallEntity(version));
+			}
+		} catch (JedisException e) {
+
+			throw new IOException(e);
 		}
 	}
 
-	public Set<Version> loadVersions(String projectId) throws IOException {
+	public Map<String, Version> loadVersions(String projectId) throws IOException {
 
-		Set<Version> versions = new HashSet<>();
+		Map<String, Version> versions = new HashMap<>();
 
-		Map<String, String> versionsMap = server.hgetAll("versions:" + projectId);
+		try {
 
-		for (String versionStr : versionsMap.values()) {
+			Map<String, String> versionsStr = server.hgetAll("versions:" + projectId);
 
-			versions.add(Entities.unmarshallEntity(versionStr, Version.class));
+			for (String versionId : versionsStr.keySet()) {
+
+				versions.put(versionId,
+							Entities.unmarshallEntity(versionsStr.get(versionId),
+														Version.class));
+			}
+
+		} catch (JedisException e) {
+
+			throw new IOException(e);
 		}
 
 		return versions;
@@ -110,23 +153,36 @@ public class RedisStorage implements Storage {
 	public void storeComponents(String projectId, Collection<Component> components)
 															throws IOException {
 
-		for (Component component: components) {
-			
-			server.hset("components:" + projectId,
-						component.getId(),
-						Entities.marshallEntity(component));
+		try {
+			for (Component component: components) {
+
+				server.hset("components:" + projectId,
+							component.getId(),
+							Entities.marshallEntity(component));
+			}
+		} catch (JedisException e) {
+
+			throw new IOException(e);
 		}
 	}
 
-	public Set<Component> loadComponents(String projectId) throws IOException {
+	public Map<String, Component> loadComponents(String projectId) throws IOException {
 
-		Set<Component> components = new HashSet<>();
+		Map<String, Component> components = new HashMap<>();
 
-		Map<String, String> componentsMap = server.hgetAll("components:" + projectId);
+		try {
 
-		for (String componentStr : componentsMap.values()) {
+			Map<String, String> componentsStr = server.hgetAll("components:" + projectId);
 
-			components.add(Entities.unmarshallEntity(componentStr, Component.class));
+			for (String componentId : componentsStr.keySet()) {
+
+				components.put(componentId,
+								Entities.unmarshallEntity(componentsStr.get(componentId),
+															Component.class));
+			}
+		} catch (JedisException e) {
+
+			throw new IOException(e);
 		}
 
 		return components;
@@ -135,24 +191,37 @@ public class RedisStorage implements Storage {
 	public void storeContriburos(Map<String, Contributor> contributors)
 															throws IOException {
 
-		for (String contributorId: contributors.keySet()) {
-			
-			server.hset("contributors",
-						contributorId,
-						Entities.marshallEntity(contributors.get(contributorId)));
+		try {
+
+			for (String contributorId: contributors.keySet()) {
+
+				server.hset("contributors",
+							contributorId,
+							Entities.marshallEntity(contributors.get(contributorId)));
+			}
+		} catch (JedisException e) {
+
+			throw new IOException(e);
 		}
 	}
 
 	public Map<String, Contributor> loadContributors() throws IOException {
 
 		Map<String, Contributor> contributors = new HashMap<>();
-		Map<String, String> contributorsMap = server.hgetAll("contributors");
+		try {
 
-		for (String contributorId : contributorsMap.keySet()) {
+			Map<String, String> contributorsMap = server.hgetAll("contributors");
+	
+			for (String contributorId : contributorsMap.keySet()) {
+	
+				contributors.put(contributorId,
+								 Entities.unmarshallEntity(contributorsMap.get(contributorId),
+										 					Contributor.class));
+			}
 
-			contributors.put(contributorId,
-							 Entities.unmarshallEntity(contributorsMap.get(contributorId),
-									 					Contributor.class));
+		} catch (JedisException e) {
+
+			throw new IOException(e);
 		}
 
 		return contributors;
@@ -161,19 +230,34 @@ public class RedisStorage implements Storage {
 	@Override
 	public void storeState(State state) throws IOException {
 
-		State oldState = loadState();
-		if (oldState != null) { // Keep previous activity if any
+		try {
 
-			state.getActivity().addAll(oldState.getActivity());
+			State oldState = loadState();
+			if (oldState != null) { // Keep previous activity if any
+	
+				state.getActivity().addAll(oldState.getActivity());
+			}
+	
+			server.set("crawler:state", Entities.marshallEntity(state));
+		} catch (JedisException e) {
+
+			throw new IOException(e);
 		}
-
-		server.set("crawler:state", Entities.marshallEntity(state));
 	}
 
 	@Override
 	public State loadState() throws IOException {
 
-		String storedState = server.get("crawler:state");
+		String storedState = null;
+
+		try {
+
+			storedState = server.get("crawler:state");
+		} catch (JedisException e) {
+
+			throw new IOException(e);
+		}
+
 		return storedState != null ?
 				Entities.unmarshallEntity(storedState, State.class) :
 				null;

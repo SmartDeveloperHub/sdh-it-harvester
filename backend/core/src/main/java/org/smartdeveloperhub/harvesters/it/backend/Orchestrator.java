@@ -26,11 +26,19 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
+import org.apache.catalina.Context;
+import org.apache.catalina.LifecycleException;
+import org.apache.catalina.startup.Tomcat;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.backend.Issue.Type;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.Crawler;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.JiraCrawler;
+import org.smartdeveloperhub.harvesters.it.backend.exhibitor.ITHarvesterEntityProvider;
+import org.smartdeveloperhub.harvesters.it.backend.exhibitor.Exhibitor;
+import org.smartdeveloperhub.harvesters.it.backend.exhibitor.ExhibitorService;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ComponentFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ContributorFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.IssueFactory;
@@ -40,6 +48,7 @@ import org.smartdeveloperhub.harvesters.it.backend.storage.Storage;
 import org.smartdeveloperhub.harvesters.it.backend.storage.redis.RedisStorage;
 import org.smartdeveloperhub.harvesters.it.backend.utils.MappingLoader;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -57,19 +66,19 @@ import java.util.concurrent.TimeUnit;
  */
 public class Orchestrator {
 
-	private static final Logger logger =
+	private static final Logger LOGGER =
 									LoggerFactory.getLogger(Orchestrator.class);
 
-//	private final static String SOFTWARE_NAME = "softwareName";
-//	private final static String SOFTWARE_VERSION = "softwareVersion";
+	private final static String SOFTWARE_NAME = "softwareName";
+	private final static String SOFTWARE_VERSION = "softwareVersion";
 	private final static String JIRA_URL = "jiraUrl";
 	private final static String JIRA_USERNAME = "jiraUsername";
 	private final static String JIRA_PASSWORD = "jiraPassword";
 	private final static String REDIS_SERVER = "redisServer";
 	private final static String REDIS_PORT = "redisPort";
 
-//	private final static String SERVLET_PORT = "servletPort";
-//	private final static String SERVLET_PATH = "servletPath";
+	private final static String SERVLET_PORT = "servletPort";
+	private final static String SERVLET_PATH = "servletPath";
 	private final static String CRAWLER_PERIOD = "collectorPeriodicity";
 	
 	private Fetcher fetcher;
@@ -88,8 +97,8 @@ public class Orchestrator {
 		properties.load(this.getClass().getResourceAsStream("/config.properties"));
 
 		// Read config
-//		String name = properties.getProperty(SOFTWARE_NAME);
-//		String version = properties.getProperty(SOFTWARE_VERSION);
+		String name = properties.getProperty(SOFTWARE_NAME);
+		String version = properties.getProperty(SOFTWARE_VERSION);
 		String url = properties.getProperty(JIRA_URL);
 		String username = properties.getProperty(JIRA_USERNAME);
 		String password = properties.getProperty(JIRA_PASSWORD);
@@ -97,8 +106,8 @@ public class Orchestrator {
 		String redisServer = properties.getProperty(REDIS_SERVER);
 		int redisPort = Integer.parseInt(properties.getProperty(REDIS_PORT));
 
-//		int servletPort = Integer.parseInt(properties.getProperty(SERVLET_PORT));
-//		String servletPath = properties.getProperty(SERVLET_PATH);
+		int servletPort = Integer.parseInt(properties.getProperty(SERVLET_PORT));
+		String servletPath = properties.getProperty(SERVLET_PATH);
 		long crawlerTime = Long.parseLong(properties.getProperty(CRAWLER_PERIOD));
 
 		// Loading mappings values
@@ -125,7 +134,29 @@ public class Orchestrator {
 		VersionFactory versionFactory = new VersionFactory();
 		ComponentFactory componentFactory = new ComponentFactory();
 		Storage storage = new RedisStorage(redisServer, redisPort);
+		Exhibitor exhibitor = new Exhibitor(name, version, storage);
 
+		// Deploying tomcat to listen incoming CAPs
+		Tomcat tomcat = new Tomcat();
+		tomcat.setPort(servletPort);
+
+		File base = new File(System.getProperty("java.io.tmpdir"));
+		Context rootCtx = tomcat.addContext("", base.getAbsolutePath());
+
+		ServletContainer servlet = new ServletContainer(
+										new ResourceConfig()
+											.register(ITHarvesterEntityProvider.class)
+											.register(new ExhibitorService(exhibitor)));
+
+		Tomcat.addServlet(rootCtx, "ITHarvester", servlet);
+		rootCtx.addServletMapping(servletPath, "ITHarvester");
+		try {
+			tomcat.start();
+		} catch (LifecycleException e) {
+
+			LOGGER.error("Error when trying to start tomcat service. {}", e);
+		}
+		
 		try {
 
 			Crawler crawler = new JiraCrawler(url, username, password, storage,
@@ -139,7 +170,7 @@ public class Orchestrator {
 
 		} catch (URISyntaxException e) {
 
-			logger.error("Error when trying to construct collector. {}", e);
+			LOGGER.error("Error when trying to construct collector. {}", e);
 		}
 
 	}
@@ -155,7 +186,7 @@ public class Orchestrator {
 
 		} catch (Exception e) {
 
-			logger.error("Exception while running service. {}", e);
+			LOGGER.error("Exception while running service. {}", e);
 		}
 	}
 }
