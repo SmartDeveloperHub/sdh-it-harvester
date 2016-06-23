@@ -207,6 +207,24 @@
 
 	</dependencies>
 
+	<profiles>
+		<profile>
+			<id>local-data</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<controllerImplementation>org.smartdeveloperhub.harvesters.it.frontend.controller.LocalBackendControllerFactory</controllerImplementation>
+			</properties>
+		</profile>
+		<profile>
+			<id>remote</id>
+			<properties>
+				<controllerImplementation>org.smartdeveloperhub.harvesters.it.frontend.controller.RemoteBackendControllerFactory</controllerImplementation>
+			</properties>
+		</profile>
+	</profiles>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -250,6 +268,23 @@
 						<it.harvester.collector>http://localhost:${undertow.http.port}/collector/</it.harvester.collector>
 						<it.harvester.localController>src${file.separator}test${file.separator}resources${file.separator}data${file.separator}local-data.json</it.harvester.localController>
 					</systemPropertyVariables>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<webResources>
+						<resource>
+							<directory>${basedir}${file.separator}src${file.separator}main${file.separator}conf</directory>
+							<targetPath>WEB-INF/classes/META-INF/services</targetPath>
+							<filtering>true</filtering>
+							<includes>
+								<include>org.smartdeveloperhub.harvesters.it.frontend.spi.BackendControllerFactory</include>
+							</includes>
+						</resource>
+					</webResources>
 				</configuration>
 			</plugin>
 
