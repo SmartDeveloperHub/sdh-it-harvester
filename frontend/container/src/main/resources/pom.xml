@@ -55,8 +55,11 @@
 
 	<properties>
 		<deployment.dir>${basedir}${file.separator}.webapp</deployment.dir>
-		<harvester.http.port>80</harvester.http.port>
 		<harvester.config>${basedir}${file.separator}.config${file.separator}local-data.json</harvester.config>
+		<harvester.collector>${env.TARGET}</harvester.collector>
+		<harvester.http.port>${env.HTTP_PORT}</harvester.http.port>
+		<harvester.http.host>${env.HTTP_HOST}</harvester.http.host>
+		<harvester.base>http://${harvester.http.host}:${harvester.http.port}/harvester/</harvester.base>
 	</properties>
 
 	<repositories>
@@ -179,8 +182,9 @@
 							<configurationDir>${basedir}${file.separator}.container</configurationDir>
 							<path>/harvester</path>
 							<systemProperties>
-								<it.harvester.collector>${harvester.target}</it.harvester.collector>
+								<it.harvester.collector>${harvester.collector}</it.harvester.collector>
 								<it.harvester.localController>${harvester.config}</it.harvester.localController>
+								<it.harvester.base>${harvester.base}</it.harvester.base>
 							</systemProperties>
 							<useTestClasspath>false</useTestClasspath>
 						</configuration>
