@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -39,11 +40,13 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.Minutes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.backend.Component;
+import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 import org.smartdeveloperhub.harvesters.it.backend.Entities;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
 import org.smartdeveloperhub.harvesters.it.backend.Project;
@@ -113,13 +116,15 @@ public class ProjectDataGenerator {
 
 	private LocalTime workDayEndTime;
 
+	private List<Contributor> contributors;
+
 	private ProjectDataGenerator() {
 		this.random = new Random();
 	}
 
 	public static void main(final String... args) {
 		try {
-			final LocalData data=new LocalData();
+			final LocalData data = localData();
 			final ProjectDataGenerator generator = new ProjectDataGenerator();
 			generator.generateProjectData(data);
 			final Path path = Paths.get(args[0]);
@@ -134,20 +139,144 @@ public class ProjectDataGenerator {
 		}
 	}
 
+	private static LocalData localData() {
+		final LocalData data=new LocalData();
+		data.getContributors().add(alexFernandez());
+		data.getContributors().add(alejandroVera());
+		data.getContributors().add(andresGarciaSilva());
+		data.getContributors().add(carlosBlanco());
+		data.getContributors().add(fernandoSerena());
+		data.getContributors().add(miguelEstebanGutierrez());
+		data.getContributors().add(oscarCorcho());
+		data.getContributors().add(asunGomezPerez());
+		data.getContributors().add(javierSoriano());
+		data.getContributors().add(mariaJoseGonzalez());
+		data.getContributors().add(rubenDeDios());
+		data.getContributors().add(julianGarcia());
+		data.getContributors().add(cesarRubio());
+		return data;
+	}
+
+	private static Contributor alexFernandez() {
+		final Contributor contributor = new Contributor();
+		contributor.setId("1007");
+		contributor.setName("Alejandro F. Carrera");
+		contributor.getEmails().add("alej4fc@gmail.com");
+		return contributor;
+	}
+
+	private static Contributor alejandroVera() {
+		final Contributor contributor = new Contributor();
+		contributor.setId("1001");
+		contributor.setName("Alejandro Vera");
+		contributor.getEmails().add("xafilox@gmail.com");
+		return contributor;
+	}
+
+	private static Contributor andresGarciaSilva() {
+		final Contributor contributor = new Contributor();
+		contributor.setId("1008");
+		contributor.setName("Andres Garcia Silva");
+		contributor.getEmails().add("andresgs77@hotmail.com");
+		return contributor;
+	}
+
+	private static Contributor carlosBlanco() {
+		final Contributor contributor = new Contributor();
+		contributor.setId("1003");
+		contributor.setName("Carlos Blanco");
+		contributor.getEmails().add("cblanco@conwet.com");
+		return contributor;
+	}
+
+	private static Contributor fernandoSerena() {
+		final Contributor contributor = new Contributor();
+		contributor.setId("1002");
+		contributor.setName("Fernando Serena");
+		contributor.getEmails().add("kudhmud@gmail.com");
+		return contributor;
+	}
+
+	private static Contributor miguelEstebanGutierrez() {
+		final Contributor contributor = new Contributor();
+		contributor.setId("1009");
+		contributor.setName("Miguel Esteban Gutierrez");
+		contributor.getEmails().add("m.esteban.gutierrez@gmail.com");
+		return contributor;
+	}
+
+	private static Contributor oscarCorcho() {
+		final Contributor contributor = new Contributor();
+		contributor.setId("1005");
+		contributor.setName("Oscar Corcho");
+		contributor.getEmails().add("ocorcho@fi.upm.es");
+		return contributor;
+	}
+
+	private static Contributor asunGomezPerez() {
+		final Contributor contributor = new Contributor();
+		contributor.setId("1006");
+		contributor.setName("Asuncion Gomez Perez");
+		contributor.getEmails().add("asun@fi.upm.es");
+		return contributor;
+	}
+
+	private static Contributor javierSoriano() {
+		final Contributor contributor = new Contributor();
+		contributor.setId("1004");
+		contributor.setName("Francisco Javier Soriano");
+		contributor.getEmails().add("jsoriano@fi.upm.es");
+		return contributor;
+	}
+
+	private static Contributor mariaJoseGonzalez() {
+		final Contributor contributor = new Contributor();
+		contributor.setId("1011");
+		contributor.setName("Maria Jose Gonzalez");
+		contributor.getEmails().add("mgonzper@isban.es");
+		return contributor;
+	}
+
+	private static Contributor rubenDeDios() {
+		final Contributor contributor = new Contributor();
+		contributor.setId("1012");
+		contributor.setName("Ruben de Dios Barbero");
+		contributor.getEmails().add("rdediosb@servexternos.isban.es");
+		return contributor;
+	}
+
+	private static Contributor julianGarcia() {
+		final Contributor contributor = new Contributor();
+		contributor.setId("1013");
+		contributor.setName("Julian Garcia");
+		contributor.getEmails().add("juliangarcia@gmail.com");
+		return contributor;
+	}
+
+	private static Contributor cesarRubio() {
+		final Contributor contributor = new Contributor();
+		contributor.setId("1014");
+		contributor.setName("Cesar Rubio");
+		contributor.getEmails().add("crubio@gmail.com");
+		return contributor;
+	}
+
 	private void generateProjectData(final LocalData data) {
 		final String id = generateProjectId(data);
 		bootstrapProject(id);
-		populateProject();
+		populateProject(data.getContributors());
 		combineProjectData(data);
 	}
 
-	private void populateProject() {
+	private void populateProject(final List<Contributor> contributors) {
+		this.contributors=Lists.newArrayList(contributors);
 		for(int day=0;day<this.projectDuration.getDays();day++) {
 			final LocalDate today = this.projectStart.plusDays(day);
 			if(isWorkingDay(today) || this.random.nextInt(1000)%25==0) {
 				labour(today);
 			}
 		}
+		this.contributors=null;
 	}
 
 	private boolean isWorkingDay(final LocalDate today) {
@@ -158,25 +287,52 @@ public class ProjectDataGenerator {
 
 	private void labour(final LocalDate today) {
 		LOGGER.info("- Labour on {}working day {} in project {} ({}):",isWorkingDay(today)?"":"non-",today,this.project.getName(),this.project.getId());
-		manageContributors();
-		createNewIssues();
+		manageComponents();
+		manageVersions();
+		createNewIssues(today);
 		evaluateIssues();
 		workOnIssues();
 		reopenIssues();
 	}
 
 	/**
-	 * TODO: Implement issue evaluation logic
+	 * TODO: Implement version management logic
 	 */
-	private void manageContributors() {
-		LOGGER.debug("Should manage contributors...");
+	private void manageComponents() {
+		LOGGER.debug("Should manage components...");
 	}
 
 	/**
-	 * TODO: Implement issue evaluation logic
+	 * TODO: Implement version management logic
 	 */
-	private void createNewIssues() {
-		LOGGER.debug("Should create new issues...");
+	private void manageVersions() {
+		LOGGER.debug("Should manage versions...");
+	}
+
+	private void createNewIssues(final LocalDate today) {
+		final int newIssues=this.random.nextInt(this.contributors.size());
+		LocalTime time=this.workDayStartTime;
+		int start=this.issues.size();
+		for(int i=0;i<newIssues;i++) {
+			start++;
+			time=time.plusMinutes(this.random.nextInt(15)*3+i);
+			createIssue(Integer.toString(start),today.toLocalDateTime(time));
+		}
+	}
+
+	private void createIssue(final String issueId, final LocalDateTime dateTime) {
+		final Issue issue = new Issue();
+		issue.setId(issueId);
+		issue.setCreationDate(dateTime.toDateTime());
+		issue.setOpened(issue.getCreationDate());
+		final Contributor reporter = selectContributor();
+		issue.setReporter(reporter.getId());
+		this.issues.put(issueId,issue);
+		LOGGER.debug("Created issue {} at {}, reported by {}",issue.getId(),dateTime,reporter.getName());
+	}
+
+	private Contributor selectContributor() {
+		return this.contributors.get(this.random.nextInt(this.contributors.size()*4)%this.contributors.size());
 	}
 
 	private void evaluateIssues() {
