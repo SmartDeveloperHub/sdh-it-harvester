@@ -37,7 +37,6 @@ import java.util.Random;
 import java.util.Set;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -268,25 +267,50 @@ public class ProjectDataGenerator {
 		combineProjectData(data);
 	}
 
+	private void bootstrapProject(final String id) {
+		this.project=new Project();
+		this.project.setId(id);
+		this.project.setName(StateUtil.generateProjectName());
+
+		this.components=Maps.newLinkedHashMap();
+		this.componentNames=Sets.newLinkedHashSet();
+		this.versions=Maps.newLinkedHashMap();
+		this.issues=Maps.newLinkedHashMap();
+
+		this.projectDuration=Days.days(180+this.random.nextInt(360*4));
+		this.projectStart=new DateTime().minus(this.projectDuration).toLocalDate();
+		this.workDayStartTime=new LocalTime(8,0);
+		this.workDayEndTime=new LocalTime(20,0);
+		this.workDayDuration=Minutes.minutes(60*6+this.random.nextInt(30*6));
+
+		LOGGER.info("Bootstrapping project {} ({})",this.project.getName(),this.project.getId());
+		LOGGER.info("- Project started on {} ({} days of ongoing work)",this.projectStart,this.projectDuration.getDays());
+		LOGGER.info("- Regular work day starts at {} and ends at {}",this.workDayStartTime,this.workDayEndTime);
+		LOGGER.info("- A contributor must work ~{} hours per working day",this.workDayDuration.getMinutes()/60);
+
+		final int initialComponents=1+this.random.nextInt(3);
+		for(int i=0;i<initialComponents;i++) {
+			createComponent();
+		}
+		this.version=SemVer.create();
+		if(this.random.nextBoolean()) {
+			createVersion();
+		}
+	}
+
 	private void populateProject(final List<Contributor> contributors) {
 		this.contributors=Lists.newArrayList(contributors);
 		for(int day=0;day<this.projectDuration.getDays();day++) {
 			final LocalDate today = this.projectStart.plusDays(day);
-			if(isWorkingDay(today) || this.random.nextInt(1000)%25==0) {
+			if(Utils.isWorkingDay(today) || this.random.nextInt(1000)%25==0) {
 				labour(today);
 			}
 		}
 		this.contributors=null;
 	}
 
-	private boolean isWorkingDay(final LocalDate today) {
-		final int dayOfWeek = today.getDayOfWeek();
-		final boolean isWorkingDay=DateTimeConstants.SUNDAY!=dayOfWeek && DateTimeConstants.SATURDAY!=dayOfWeek;
-		return isWorkingDay;
-	}
-
 	private void labour(final LocalDate today) {
-		LOGGER.info("- Labour on {}working day {} in project {} ({}):",isWorkingDay(today)?"":"non-",today,this.project.getName(),this.project.getId());
+		LOGGER.info("- Labour on {}working day {} in project {} ({}):",Utils.isWorkingDay(today)?"":"non-",today,this.project.getName(),this.project.getId());
 		manageComponents();
 		manageVersions();
 		createNewIssues(today);
@@ -295,18 +319,16 @@ public class ProjectDataGenerator {
 		reopenIssues();
 	}
 
-	/**
-	 * TODO: Implement version management logic
-	 */
 	private void manageComponents() {
-		LOGGER.debug("Should manage components...");
+		if(this.random.nextInt(1000)%5==0) {
+			createComponent();
+		}
 	}
 
-	/**
-	 * TODO: Implement version management logic
-	 */
 	private void manageVersions() {
-		LOGGER.debug("Should manage versions...");
+		if(this.random.nextInt(10000)%5==0) {
+			createVersion();
+		}
 	}
 
 	private void createNewIssues(final LocalDate today) {
@@ -314,9 +336,8 @@ public class ProjectDataGenerator {
 		LocalTime time=this.workDayStartTime;
 		int start=this.issues.size();
 		for(int i=0;i<newIssues;i++) {
-			start++;
 			time=time.plusMinutes(this.random.nextInt(15)*3+i);
-			createIssue(Integer.toString(start),today.toLocalDateTime(time));
+			createIssue(Integer.toString(++start),today.toLocalDateTime(time));
 		}
 	}
 
@@ -408,37 +429,6 @@ public class ProjectDataGenerator {
 				);
 	}
 
-	private void bootstrapProject(final String id) {
-		this.project=new Project();
-		this.project.setId(id);
-		this.project.setName(StateUtil.generateProjectName());
-
-		this.components=Maps.newLinkedHashMap();
-		this.componentNames=Sets.newLinkedHashSet();
-		this.versions=Maps.newLinkedHashMap();
-		this.issues=Maps.newLinkedHashMap();
-
-		this.projectDuration=Days.days(180+this.random.nextInt(360*4));
-		this.projectStart=new DateTime().minus(this.projectDuration).toLocalDate();
-		this.workDayStartTime=new LocalTime(8,0);
-		this.workDayEndTime=new LocalTime(20,0);
-		this.workDayDuration=Minutes.minutes(60*6+this.random.nextInt(30*6));
-
-		LOGGER.info("Bootstrapping project {} ({})",this.project.getName(),this.project.getId());
-		LOGGER.info("- Project started on {} ({} days of ongoing work)",this.projectStart,this.projectDuration.getDays());
-		LOGGER.info("- Regular work day starts at {} and ends at {}",this.workDayStartTime,this.workDayEndTime);
-		LOGGER.info("- A contributor must work ~{} hours per working day",this.workDayDuration.getMinutes()/60);
-
-		final int initialComponents=1+this.random.nextInt(3);
-		for(int i=0;i<initialComponents;i++) {
-			createComponent();
-		}
-		this.version=SemVer.create();
-		if(this.random.nextBoolean()) {
-			createVersion();
-		}
-	}
-
 	private Version createVersion() {
 		final int versionUpdate=this.random.nextInt(1000);
 		if(versionUpdate % 100 == 0) {
@@ -461,7 +451,7 @@ public class ProjectDataGenerator {
 
 	private Component createComponent() {
 		if(this.componentNames.size()>=COMPONENT_NAMES.length) {
-			LOGGER.debug("- Skipped project {} ({}) component creation: all predefined components have been created",this.project.getName(),this.project.getId());
+			LOGGER.debug("- Skipped component creation for project {} ({}): all predefined components have been created",this.project.getName(),this.project.getId());
 			return Iterables.getLast(this.components.values());
 		}
 		final Component component=new Component();
@@ -472,6 +462,7 @@ public class ProjectDataGenerator {
 		}
 		component.setName(COMPONENT_NAMES[index]);
 		component.setProjectId(this.project.getId());
+		this.componentNames.add(component.getName());
 		this.components.put(component.getId(),component);
 		this.project.getComponents().add(component.getId());
 		LOGGER.info("- Created component {} ({}) for project {} ({}) ",component.getName(),component.getId(),this.project.getName(),this.project.getId());
