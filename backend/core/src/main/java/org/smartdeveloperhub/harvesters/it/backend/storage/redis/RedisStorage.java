@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisException;
@@ -72,7 +71,7 @@ public class RedisStorage implements Storage {
 		return issues;
 	}
 
-	public void storeProjects(Set<Project> projects) throws IOException {
+	public void storeProjects(Collection<Project> projects) throws IOException {
 
 		try {
 

@@ -34,7 +34,7 @@ public class ExhibitorService {
 	}
 
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MEDIA_TYPE)
 	public Response api() {
 
 		return Response.ok().entity(exhibitor.getApi()).build();
@@ -50,7 +50,7 @@ public class ExhibitorService {
 
 	@GET
 	@Path("/contributors")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MEDIA_TYPE)
 	public Response getContributors() {
 
 		return Response.ok().entity(exhibitor.getContributors()).build();
@@ -73,7 +73,7 @@ public class ExhibitorService {
 
 	@GET
 	@Path("/commits")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MEDIA_TYPE)
 	public Response getCommits() {
 
 		return Response.ok().entity(exhibitor.getCommits()).build();
@@ -96,7 +96,7 @@ public class ExhibitorService {
 
 	@GET
 	@Path("/projects")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MEDIA_TYPE)
 	public Response getProjects() {
 
 		return Response.ok().entity(exhibitor.getProjects()).build();

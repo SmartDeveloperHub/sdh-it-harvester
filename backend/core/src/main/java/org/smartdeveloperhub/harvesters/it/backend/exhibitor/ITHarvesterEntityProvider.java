@@ -1,5 +1,6 @@
 package org.smartdeveloperhub.harvesters.it.backend.exhibitor;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.core.provider.AbstractMessageReaderWriterProvider;
 
 import org.apache.commons.codec.Charsets;
@@ -63,7 +64,8 @@ public class ITHarvesterEntityProvider<T> extends AbstractMessageReaderWriterPro
 
 		} else {
 
-			throw new IOException(object.getClass().getName() + " cannot be deserialized as " + MEDIA_TYPE);
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.writeValue(entityStream, object);
 		}
 	}
 

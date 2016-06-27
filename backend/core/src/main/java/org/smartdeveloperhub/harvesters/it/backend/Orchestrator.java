@@ -36,9 +36,9 @@ import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.backend.Issue.Type;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.Crawler;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.JiraCrawler;
-import org.smartdeveloperhub.harvesters.it.backend.exhibitor.ITHarvesterEntityProvider;
 import org.smartdeveloperhub.harvesters.it.backend.exhibitor.Exhibitor;
 import org.smartdeveloperhub.harvesters.it.backend.exhibitor.ExhibitorService;
+import org.smartdeveloperhub.harvesters.it.backend.exhibitor.ITHarvesterEntityProvider;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ComponentFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ContributorFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.IssueFactory;
@@ -69,7 +69,6 @@ public class Orchestrator {
 	private static final Logger LOGGER =
 									LoggerFactory.getLogger(Orchestrator.class);
 
-	private final static String SOFTWARE_NAME = "softwareName";
 	private final static String SOFTWARE_VERSION = "softwareVersion";
 	private final static String JIRA_URL = "jiraUrl";
 	private final static String JIRA_USERNAME = "jiraUsername";
@@ -97,7 +96,6 @@ public class Orchestrator {
 		properties.load(this.getClass().getResourceAsStream("/config.properties"));
 
 		// Read config
-		String name = properties.getProperty(SOFTWARE_NAME);
 		String version = properties.getProperty(SOFTWARE_VERSION);
 		String url = properties.getProperty(JIRA_URL);
 		String username = properties.getProperty(JIRA_USERNAME);
@@ -134,7 +132,7 @@ public class Orchestrator {
 		VersionFactory versionFactory = new VersionFactory();
 		ComponentFactory componentFactory = new ComponentFactory();
 		Storage storage = new RedisStorage(redisServer, redisPort);
-		Exhibitor exhibitor = new Exhibitor(name, version, storage);
+		Exhibitor exhibitor = new Exhibitor(version, storage);
 
 		// Deploying tomcat to listen incoming CAPs
 		Tomcat tomcat = new Tomcat();

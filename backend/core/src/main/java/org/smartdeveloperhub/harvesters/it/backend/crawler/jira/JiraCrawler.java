@@ -122,16 +122,19 @@ public class JiraCrawler implements Crawler {
 																	username,
 																	password)) {
 
-			Set<org.smartdeveloperhub.harvesters.it.backend.Project> projects = new HashSet<>();
+//			Set<org.smartdeveloperhub.harvesters.it.backend.Project> projects = new HashSet<>();
 
 			LOGGER.info("Loading stored contributors");
 			// load Contributors from storage
 			Map<String, Contributor> contributors = storage.loadContributors();
 
+			// load projects from storage
+			Map<String, org.smartdeveloperhub.harvesters.it.backend.Project> projects = storage.loadProjects();
+
 			LOGGER.info("Exploring projects");
 			for (Project jiraProject : getProjects(client)) {
 
-				Set<org.smartdeveloperhub.harvesters.it.backend.Issue> topIssues =
+				Set<org.smartdeveloperhub.harvesters.it.backend.Issue> topIssues = 
 						new HashSet<org.smartdeveloperhub.harvesters.it.backend.Issue>();
 				Set<org.smartdeveloperhub.harvesters.it.backend.Issue> childIssues =
 						new HashSet<org.smartdeveloperhub.harvesters.it.backend.Issue>();
@@ -159,9 +162,22 @@ public class JiraCrawler implements Crawler {
 
 				getTopAndChildIssues(issues, topIssues, childIssues);
 
-				projects.add(projectFactory.createProject(jiraProject,
-															topIssues,
-															childIssues));
+				org.smartdeveloperhub.harvesters.it.backend.Project project;
+				project = projectFactory.createProject(jiraProject,
+														topIssues,
+														childIssues);
+
+				// Check for all previous issues
+				org.smartdeveloperhub.harvesters.it.backend.Project oldProject =
+											projects.get(jiraProject.getKey());
+
+				if (oldProject != null) {
+
+					project.getTopIssues().addAll(oldProject.getTopIssues());
+					project.getIssues().addAll(oldProject.getIssues());
+				}
+
+				projects.put(jiraProject.getKey(), project);
 
 				LOGGER.info("Storing issues and components and versions.");
 				// Store components
@@ -178,7 +194,7 @@ public class JiraCrawler implements Crawler {
 
 			storage.storeContriburos(contributors);
 			// Store Project
-			storage.storeProjects(projects);
+			storage.storeProjects(projects.values());
 
 			String jiraVersion = client.getMetadataClient()
 											.getServerInfo().claim()

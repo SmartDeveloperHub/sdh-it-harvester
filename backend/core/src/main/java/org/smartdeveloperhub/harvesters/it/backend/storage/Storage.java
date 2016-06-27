@@ -11,7 +11,6 @@ import org.smartdeveloperhub.harvesters.it.backend.crawler.Crawler;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Interface for object storage.
@@ -22,10 +21,10 @@ public interface Storage {
 
 	/**
 	 * Method for store list of {@link Project}s.
-	 * @param projects set of projects
+	 * @param projects collection of projects
 	 * @throws IOException when a storage error occurs. 
 	 */
-	public void storeProjects(Set<Project> projects) throws IOException;
+	public void storeProjects(Collection<Project> projects) throws IOException;
 
 	/**
 	 * Method to load previously stored {@link Project}s information.
@@ -37,7 +36,7 @@ public interface Storage {
 	/**
 	 * Method for store list of {@link Issue}s.
 	 * @param projectId Project identifier.
-	 * @param issues set of issues
+	 * @param issues collection of issues
 	 * @throws IOException when a storage error occurs. 
 	 */
 	public void storeIssues(String projectId, Collection<Issue> issues)
@@ -54,7 +53,7 @@ public interface Storage {
 	/**
 	 * Method for store list of {@link Version}s.
 	 * @param projectId Project identifier.
-	 * @param versions set of versions
+	 * @param versions collection of versions
 	 * @throws IOException when a storage error occurs. 
 	 */
 	public void storeVersions(String projectId, Collection<Version> versions)
@@ -71,7 +70,7 @@ public interface Storage {
 	/**
 	 * Method for store list of {@link Component}s.
 	 * @param projectId Project identifier.
-	 * @param components set of components.
+	 * @param components collection of components.
 	 * @throws IOException when a storage error occurs. 
 	 */
 	public void storeComponents(String projectId, Collection<Component> components)
@@ -87,7 +86,7 @@ public interface Storage {
 
 	/**
 	 * Method for store list of {@link Contributor}s.
-	 * @param contributors Set of global Jira {@link Contributor}s.
+	 * @param contributors collection of global Jira {@link Contributor}s.
 	 * @throws IOException when a storage error occurs.
 	 */
 	public void storeContriburos(Map<String, Contributor> contributors)

@@ -2,6 +2,7 @@ package org.smartdeveloperhub.harvesters.it.backend.exhibitor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smartdeveloperhub.harvesters.it.backend.Collector;
 import org.smartdeveloperhub.harvesters.it.backend.Commit;
 import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
@@ -19,23 +20,22 @@ public class Exhibitor {
 
 	private static final Logger LOGGER =
 									LoggerFactory.getLogger(Exhibitor.class);
-	private String name;
 	private String version;
 	private Storage storage;
 
-	public Exhibitor(String name, String version, Storage storage) {
+	public Exhibitor(String version, Storage storage) {
 
-		this.name = Objects.requireNonNull(name, "Name cannot be null");
 		this.version = Objects.requireNonNull(version, "Version cannot be null.");
 		this.storage = Objects.requireNonNull(storage, "Storage cannot be null.");
 	}
 
-	public String getApi() {
+	public Collector getApi() {
 
-		return "{\n" +
-				"name :" + name + "\n" +
-				"version :" +  version + "\n" +
-				"}";
+		Collector collector = new Collector();
+
+		collector.setVersion(version);
+
+		return collector;
 	}
 
 	public Object getState() {
