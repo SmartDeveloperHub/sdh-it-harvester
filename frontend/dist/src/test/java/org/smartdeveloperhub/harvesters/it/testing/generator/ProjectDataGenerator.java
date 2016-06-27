@@ -38,6 +38,7 @@ import java.util.Set;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
+import org.joda.time.Duration;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -55,6 +56,7 @@ import org.smartdeveloperhub.harvesters.it.frontend.controller.LocalData;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.util.StateUtil;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -226,9 +228,7 @@ public class ProjectDataGenerator {
 			newIssues=this.random.nextInt(this.contributors.size()*2)/3;
 		} else {
 			newIssues=this.random.nextBoolean()?1:0;
-
 		}
-
 
 		LocalTime time=this.workDayStartTime;
 		int start=this.issues.size();
@@ -238,19 +238,103 @@ public class ProjectDataGenerator {
 		}
 	}
 
-	private void createIssue(final String issueId, final LocalDateTime dateTime) {
+	private void createIssue(final String issueId, final LocalDateTime creationDate) {
 		final Issue issue = new Issue();
 		issue.setId(issueId);
-		issue.setCreationDate(dateTime.toDateTime());
+		issue.setCreationDate(creationDate.toDateTime());
 		issue.setOpened(issue.getCreationDate());
+		Contributor assignee=null;
 		final Contributor reporter = selectContributor();
 		issue.setReporter(reporter.getId());
+
+		LOGGER.debug("Created issue {} at {}, reported by {}",issue.getId(),creationDate,reporter.getName());
+
+		if(this.random.nextBoolean()) {
+			assignee=selectContributor();
+			issue.setAssignee(assignee.getId());
+			LOGGER.debug("Assigned issue {} to {}",issue.getId(),assignee.getName());
+		}
+
+		if(this.random.nextBoolean()) {
+			final LocalDateTime dueTo=createDueTo(creationDate);
+			issue.setDueTo(dueTo.toDateTime());
+			LOGGER.debug("Scheduled issue {} for {}",issue.getId(),dueTo);
+			if(this.random.nextBoolean()) {
+				issue.
+					setEstimatedTime(
+						estimateEffort(creationDate, dueTo));
+				LOGGER.debug("Estimated {} work hours for issue {}",issue.getEstimatedTime().getStandardHours(),issue.getId());
+			}
+		}
+
+		if(!this.components.isEmpty() && this.random.nextBoolean()) {
+			final int affectedComponents=1+this.random.nextInt(2);
+			final List<String> names=Lists.newArrayList();
+			for(int i=0;i<affectedComponents;i++) {
+				final Component component=selectComponent();
+				if(issue.getComponents().add(component.getId())) {
+					names.add(component.getName());
+				}
+			}
+			LOGGER.debug("Issue {} is related to the following components: {}",issue.getId(),Joiner.on(", ").join(names));
+		}
+
+		if(!this.versions.isEmpty() && this.random.nextBoolean()) {
+			final int affectedVersions=1+this.random.nextInt(2);
+			final List<String> names=Lists.newArrayList();
+			for(int i=0;i<affectedVersions;i++) {
+				final Version version=selectVersion();
+				if(issue.getVersions().add(version.getId())) {
+					names.add(version.getName());
+				}
+			}
+			LOGGER.debug("Issue {} affects the following versions: {}",issue.getId(),Joiner.on(", ").join(names));
+		}
+
 		this.issues.put(issueId,issue);
-		LOGGER.debug("Created issue {} at {}, reported by {}",issue.getId(),dateTime,reporter.getName());
+	}
+
+	private Duration estimateEffort(final LocalDateTime start, final LocalDateTime dueTo) {
+		final Days daysBetween = Days.daysBetween(start,dueTo);
+		int workingDays=0;
+		for(int i=0;i<daysBetween.getDays();i++) {
+			if(Utils.isWorkingDay(start.toLocalDate().plusDays(i))) {
+				workingDays++;
+			}
+		}
+		final int maxHours = workingDays*workingHoursPerDay();
+		return
+			Duration.
+				standardHours(
+					33*maxHours/100+
+					67*maxHours/100*(this.random.nextInt(100)/100));
+	}
+
+	private LocalDateTime createDueTo(final LocalDateTime dateTime) {
+		LocalDate localDate = dateTime.toLocalDate().plusDays(1+this.random.nextInt(15));
+		while(Utils.isWorkingDay(localDate)) {
+			localDate=localDate.plusDays(1);
+		}
+		final LocalTime localTime = this.workDayStartTime.plusHours(workingHoursPerDay());
+		return localDate.toLocalDateTime(localTime);
+	}
+
+	private int workingHoursPerDay() {
+		return this.workDayEndTime.getHourOfDay()-this.workDayStartTime.getHourOfDay();
 	}
 
 	private Contributor selectContributor() {
 		return this.contributors.get(this.random.nextInt(this.contributors.size()*4)%this.contributors.size());
+	}
+
+	private Component selectComponent() {
+		final List<Component> currentComponents = Lists.newArrayList(this.components.values());
+		return currentComponents.get(this.random.nextInt(currentComponents.size()*4)%currentComponents.size());
+	}
+
+	private Version selectVersion() {
+		final List<Version> currentVersions = Lists.newArrayList(this.versions.values());
+		return currentVersions.get(this.random.nextInt(currentVersions.size()*4)%currentVersions.size());
 	}
 
 	private void evaluateIssues() {
