@@ -49,7 +49,9 @@ import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 import org.smartdeveloperhub.harvesters.it.backend.Entities;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
+import org.smartdeveloperhub.harvesters.it.backend.Priority;
 import org.smartdeveloperhub.harvesters.it.backend.Project;
+import org.smartdeveloperhub.harvesters.it.backend.Severity;
 import org.smartdeveloperhub.harvesters.it.backend.Status;
 import org.smartdeveloperhub.harvesters.it.backend.Version;
 import org.smartdeveloperhub.harvesters.it.frontend.controller.LocalData;
@@ -241,6 +243,7 @@ public class ProjectDataGenerator {
 	private void createIssue(final String issueId, final LocalDateTime creationDate) {
 		final Issue issue = new Issue();
 		issue.setId(issueId);
+		issue.setStatus(Status.OPEN);
 		issue.setCreationDate(creationDate.toDateTime());
 		issue.setOpened(issue.getCreationDate());
 		Contributor assignee=null;
@@ -291,7 +294,25 @@ public class ProjectDataGenerator {
 			LOGGER.debug("Issue {} affects the following versions: {}",issue.getId(),Joiner.on(", ").join(names));
 		}
 
+		if(this.random.nextBoolean()) {
+			issue.setSeverity(selectSeverity());
+		}
+
+		if(this.random.nextBoolean()) {
+			issue.setPriority(selectPriority());
+		}
+
 		this.issues.put(issueId,issue);
+	}
+
+	private Severity selectSeverity() {
+		final List<Severity> values = Lists.newArrayList(Severity.values());
+		return values.get(this.random.nextInt(values.size()));
+	}
+
+	private Priority selectPriority() {
+		final List<Priority> values = Lists.newArrayList(Priority.values());
+		return values.get(this.random.nextInt(values.size()));
 	}
 
 	private Duration estimateEffort(final LocalDateTime start, final LocalDateTime dueTo) {
@@ -315,7 +336,7 @@ public class ProjectDataGenerator {
 		while(Utils.isWorkingDay(localDate)) {
 			localDate=localDate.plusDays(1);
 		}
-		final LocalTime localTime = this.workDayStartTime.plusHours(workingHoursPerDay());
+		final LocalTime localTime = this.workDayStartTime.plusHours(this.random.nextInt(workingHoursPerDay()));
 		return localDate.toLocalDateTime(localTime);
 	}
 
