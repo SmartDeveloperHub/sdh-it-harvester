@@ -50,13 +50,13 @@ import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.AssigneeChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ClosedDateChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
-import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.PriorityChangeItem;
-import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.SeverityChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.StatusChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.TypeChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 import org.smartdeveloperhub.harvesters.it.backend.Entities;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
+import org.smartdeveloperhub.harvesters.it.backend.Issue.Type;
 import org.smartdeveloperhub.harvesters.it.backend.Priority;
 import org.smartdeveloperhub.harvesters.it.backend.Project;
 import org.smartdeveloperhub.harvesters.it.backend.Severity;
@@ -256,14 +256,15 @@ public class ProjectDataGenerator {
 
 		LOGGER.debug("   * Created issue {} at {}, reported by {}",issue.getId(),creationDate,reporter.getName());
 
-		if(this.random.nextBoolean()) {
-			issue.setSeverity(selectSeverity());
-			LOGGER.debug("     + Severity: {}",issue.getSeverity());
-		}
+		issue.setSeverity(selectSeverity());
+		LOGGER.debug("     + Severity: {}",issue.getSeverity());
+
+		issue.setPriority(selectPriority());
+		LOGGER.debug("     + Priority: {}",issue.getPriority());
 
 		if(this.random.nextBoolean()) {
-			issue.setPriority(selectPriority());
-			LOGGER.debug("     + Priority: {}",issue.getPriority());
+			issue.setType(selectType());
+			LOGGER.debug("     + Type: {}",issue.getType());
 		}
 
 		if(this.random.nextBoolean()) {
@@ -371,27 +372,19 @@ public class ProjectDataGenerator {
 			item.setOldValue(null);
 			item.setNewValue(issue.getAssignee());
 			changes.add(item);
+
 			LOGGER.debug("     + Assigned to {}",assignee.getName());
 		}
 
-		if(issue.getSeverity()==null) {
-			issue.setSeverity(selectSeverity());
+		if(issue.getType()==null) {
+			issue.setType(selectType());
 
-			final SeverityChangeItem item = new SeverityChangeItem();
+			final TypeChangeItem item = new TypeChangeItem();
 			item.setOldValue(null);
-			item.setNewValue(issue.getSeverity());
+			item.setNewValue(issue.getType());
 			changes.add(item);
-			LOGGER.debug("     + Severity: {}",issue.getSeverity());
-		}
 
-		if(issue.getPriority()==null) {
-			issue.setPriority(selectPriority());
-
-			final PriorityChangeItem item = new PriorityChangeItem();
-			item.setOldValue(null);
-			item.setNewValue(issue.getPriority());
-			changes.add(item);
-			LOGGER.debug("     + Priority: {}",issue.getPriority());
+			LOGGER.debug("     + Type: {}",issue.getType());
 		}
 
 		if(this.random.nextInt(100)<10) {
@@ -402,6 +395,7 @@ public class ProjectDataGenerator {
 			item.setOldValue(null);
 			item.setNewValue(issue.getClosed());
 			changes.add(item);
+
 			LOGGER.debug("     + Action: close");
 		} else {
 			issue.setStatus(Status.IN_PROGRESS);
@@ -493,6 +487,19 @@ public class ProjectDataGenerator {
 
 	private boolean canReopen(final Issue issue) {
 		return this.random.nextInt(1000)%100==0;
+	}
+
+	private Type selectType() {
+		final int typeCase = this.random.nextInt(100)%3;
+		Type type=null;
+		if(typeCase==0) {
+			type=Type.TASK;
+		} else if(typeCase==1) {
+			type=Type.BUG;
+		} else {
+			type=Type.IMPROVEMENT;
+		}
+		return type;
 	}
 
 	private Severity selectSeverity() {
