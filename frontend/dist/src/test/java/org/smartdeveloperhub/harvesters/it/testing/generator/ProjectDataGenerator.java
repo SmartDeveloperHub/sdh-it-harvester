@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -42,9 +43,15 @@ import org.joda.time.Duration;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
-import org.joda.time.Minutes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.AssigneeChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ClosedDateChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.SeverityChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.StatusChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 import org.smartdeveloperhub.harvesters.it.backend.Entities;
@@ -111,15 +118,12 @@ public class ProjectDataGenerator {
 
 	private LocalDate projectStart;
 	private Days projectDuration;
-
-	private LocalTime workDayStartTime;
-	private Minutes workDayDuration;
+	private WorkDay workDay;
 
 	private SemVer version;
 
-	private LocalTime workDayEndTime;
-
 	private List<Contributor> contributors;
+
 
 	private ProjectDataGenerator() {
 		this.random = new Random();
@@ -165,14 +169,11 @@ public class ProjectDataGenerator {
 
 		this.projectDuration=Days.days(180+this.random.nextInt(360*4));
 		this.projectStart=new DateTime().minus(this.projectDuration).toLocalDate();
-		this.workDayStartTime=new LocalTime(8,0);
-		this.workDayEndTime=new LocalTime(20,0);
-		this.workDayDuration=Minutes.minutes(60*6+this.random.nextInt(30*6));
+		this.workDay=new WorkDay(this.random);
 
 		LOGGER.info("Bootstrapping project {} ({})",this.project.getName(),this.project.getId());
 		LOGGER.info("- Project started on {} ({} days of ongoing work)",this.projectStart,this.projectDuration.getDays());
-		LOGGER.info("- Regular work day starts at {} and ends at {}",this.workDayStartTime,this.workDayEndTime);
-		LOGGER.info("- A contributor must work ~{} hours per working day",this.workDayDuration.getMinutes()/60);
+		LOGGER.info("- {}",this.workDay);
 
 		final int initialComponents=1+this.random.nextInt(3);
 		for(int i=0;i<initialComponents;i++) {
@@ -200,7 +201,7 @@ public class ProjectDataGenerator {
 		createNewComponents();
 		createNewVersions();
 		createNewIssues(today);
-		evaluateIssues();
+		evaluateIssues(today);
 		workOnIssues();
 		reopenIssues();
 	}
@@ -232,17 +233,19 @@ public class ProjectDataGenerator {
 			newIssues=this.random.nextBoolean()?1:0;
 		}
 
-		LocalTime time=this.workDayStartTime;
+		final Iterator<LocalTime> time=this.workDay.workingTimes();
 		int start=this.issues.size();
 		for(int i=0;i<newIssues;i++) {
-			time=time.plusMinutes(this.random.nextInt(15)*3+i);
-			createIssue(Integer.toString(++start),today.toLocalDateTime(time));
+			createIssue(Integer.toString(++start),today.toLocalDateTime(time.next()));
 		}
 	}
 
 	private void createIssue(final String issueId, final LocalDateTime creationDate) {
 		final Issue issue = new Issue();
+		issue.setProjectId(this.project.getId());
 		issue.setId(issueId);
+		issue.setName(StateUtil.generateSentence());
+		issue.setDescription(StateUtil.generateSentences(1,2+this.random.nextInt(8)));
 		issue.setStatus(Status.OPEN);
 		issue.setCreationDate(creationDate.toDateTime());
 		issue.setOpened(issue.getCreationDate());
@@ -318,19 +321,19 @@ public class ProjectDataGenerator {
 	}
 
 	private Duration estimateEffort(final LocalDateTime start, final LocalDateTime dueTo) {
-		final Days daysBetween = Days.daysBetween(start,dueTo);
+		final Days daysBetween=Days.daysBetween(start,dueTo);
 		int workingDays=0;
 		for(int i=0;i<daysBetween.getDays();i++) {
 			if(Utils.isWorkingDay(start.toLocalDate().plusDays(i))) {
 				workingDays++;
 			}
 		}
-		final int maxHours = workingDays*workingHoursPerDay();
+		final int maxMinutes = workingDays*this.workDay.effortPerDay();
 		return
 			Duration.
-				standardHours(
-					33*maxHours/100+
-					67*maxHours/100*(this.random.nextInt(100)/100));
+				standardMinutes(
+					33*maxMinutes/100+
+					67*maxMinutes/100*(this.random.nextInt(100)/100));
 	}
 
 	private LocalDateTime createDueTo(final LocalDateTime dateTime) {
@@ -338,12 +341,7 @@ public class ProjectDataGenerator {
 		while(Utils.isWorkingDay(localDate)) {
 			localDate=localDate.plusDays(1);
 		}
-		final LocalTime localTime = this.workDayStartTime.plusHours(this.random.nextInt(workingHoursPerDay()));
-		return localDate.toLocalDateTime(localTime);
-	}
-
-	private int workingHoursPerDay() {
-		return this.workDayEndTime.getHourOfDay()-this.workDayStartTime.getHourOfDay();
+		return localDate.toLocalDateTime(this.workDay.workingHour());
 	}
 
 	private Contributor selectContributor() {
@@ -360,10 +358,10 @@ public class ProjectDataGenerator {
 		return currentVersions.get(this.random.nextInt(currentVersions.size()*4)%currentVersions.size());
 	}
 
-	private void evaluateIssues() {
+	private void evaluateIssues(final LocalDate today) {
 		for(final Issue issue:findIssuesByStatus(Status.OPEN)) {
 			if(canEvaluate(issue)) {
-				evaluate(issue);
+				evaluate(issue,today);
 			}
 		}
 	}
@@ -384,11 +382,60 @@ public class ProjectDataGenerator {
 		}
 	}
 
-	/**
-	 * TODO: Implement issue evaluation logic
-	 */
-	private void evaluate(final Issue issue) {
-		LOGGER.debug("Should evaluate open issue {}",issue.getId());
+	private void evaluate(final Issue issue, final LocalDate today) {
+		final Set<Item> changes=Sets.newLinkedHashSet();
+		final LocalDateTime now = today.toLocalDateTime(this.workDay.workingTime());
+		LOGGER.debug("   * Evaluated issue {} at {}",issue.getId(),now);
+		if(issue.getAssignee()==null) {
+			final Contributor assignee = selectContributor();
+			issue.setAssignee(assignee.getId());
+
+			final AssigneeChangeItem item = new AssigneeChangeItem();
+			item.setOldValue(null);
+			item.setNewValue(issue.getAssignee());
+			changes.add(item);
+			LOGGER.debug("     + Assigned to {}",assignee.getName());
+		}
+
+		if(issue.getSeverity()==null) {
+			issue.setSeverity(selectSeverity());
+			LOGGER.debug("     + Severity: {}",issue.getSeverity());
+
+			final SeverityChangeItem item = new SeverityChangeItem();
+			item.setOldValue(null);
+			item.setNewValue(issue.getSeverity());
+			changes.add(item);
+			LOGGER.debug("     + Severity: {}",issue.getSeverity());
+		}
+
+		if(this.random.nextInt(100)<10) {
+			issue.setStatus(Status.CLOSED);
+			issue.setClosed(now.toDateTime());
+
+			final ClosedDateChangeItem item = new ClosedDateChangeItem();
+			item.setOldValue(null);
+			item.setNewValue(issue.getClosed());
+			changes.add(item);
+			LOGGER.debug("     + Action: close");
+		} else {
+			issue.setStatus(Status.IN_PROGRESS);
+			LOGGER.debug("     + Action: start work");
+		}
+
+		final StatusChangeItem item = new StatusChangeItem();
+		item.setOldValue(Status.OPEN);
+		item.setNewValue(issue.getStatus());
+		changes.add(item);
+
+		final Entry entry=new Entry();
+		entry.setTimeStamp(now.toDateTime());
+		entry.setAuthor(issue.getAssignee());
+		entry.getItems().addAll(changes);
+
+		final ChangeLog changeLog = new ChangeLog();
+		changeLog.getEntries().add(entry);
+
+		issue.setChanges(changeLog);
 	}
 
 	/**
