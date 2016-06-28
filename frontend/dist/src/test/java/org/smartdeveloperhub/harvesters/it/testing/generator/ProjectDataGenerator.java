@@ -50,6 +50,7 @@ import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.AssigneeChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ClosedDateChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.PriorityChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.SeverityChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.StatusChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.Component;
@@ -202,8 +203,8 @@ public class ProjectDataGenerator {
 		createNewVersions();
 		createNewIssues(today);
 		evaluateIssues(today);
-		workOnIssues();
-		reopenIssues();
+		workOnIssues(today);
+		reopenIssues(today);
 	}
 
 	private void createNewComponents() {
@@ -310,16 +311,6 @@ public class ProjectDataGenerator {
 		this.issues.put(issueId,issue);
 	}
 
-	private Severity selectSeverity() {
-		final List<Severity> values = Lists.newArrayList(Severity.values());
-		return values.get(this.random.nextInt(values.size()));
-	}
-
-	private Priority selectPriority() {
-		final List<Priority> values = Lists.newArrayList(Priority.values());
-		return values.get(this.random.nextInt(values.size()));
-	}
-
 	private Duration estimateEffort(final LocalDateTime start, final LocalDateTime dueTo) {
 		final Days daysBetween=Days.daysBetween(start,dueTo);
 		int workingDays=0;
@@ -344,39 +335,25 @@ public class ProjectDataGenerator {
 		return localDate.toLocalDateTime(this.workDay.workingHour());
 	}
 
-	private Contributor selectContributor() {
-		return this.contributors.get(this.random.nextInt(this.contributors.size()*4)%this.contributors.size());
-	}
-
-	private Component selectComponent() {
-		final List<Component> currentComponents = Lists.newArrayList(this.components.values());
-		return currentComponents.get(this.random.nextInt(currentComponents.size()*4)%currentComponents.size());
-	}
-
-	private Version selectVersion() {
-		final List<Version> currentVersions = Lists.newArrayList(this.versions.values());
-		return currentVersions.get(this.random.nextInt(currentVersions.size()*4)%currentVersions.size());
-	}
-
 	private void evaluateIssues(final LocalDate today) {
 		for(final Issue issue:findIssuesByStatus(Status.OPEN)) {
-			if(canEvaluate(issue)) {
+			if(!isInFlight(issue,today) && canEvaluate(issue)) {
 				evaluate(issue,today);
 			}
 		}
 	}
 
-	private void workOnIssues() {
+	private void workOnIssues(final LocalDate today) {
 		for(final Issue issue:findIssuesByStatus(Status.IN_PROGRESS)) {
-			if(canWorkOn(issue)) {
-				workOn(issue);
+			if(!isInFlight(issue,today) && canWorkOn(issue)) {
+				workOn(issue,today);
 			}
 		}
 	}
 
-	private void reopenIssues() {
+	private void reopenIssues(final LocalDate today) {
 		for(final Issue issue:findIssuesByStatus(Status.CLOSED)) {
-			if(canReopen(issue)) {
+			if(!isInFlight(issue,today) && canReopen(issue)) {
 				reopen(issue);
 			}
 		}
@@ -399,13 +376,22 @@ public class ProjectDataGenerator {
 
 		if(issue.getSeverity()==null) {
 			issue.setSeverity(selectSeverity());
-			LOGGER.debug("     + Severity: {}",issue.getSeverity());
 
 			final SeverityChangeItem item = new SeverityChangeItem();
 			item.setOldValue(null);
 			item.setNewValue(issue.getSeverity());
 			changes.add(item);
 			LOGGER.debug("     + Severity: {}",issue.getSeverity());
+		}
+
+		if(issue.getPriority()==null) {
+			issue.setPriority(selectPriority());
+
+			final PriorityChangeItem item = new PriorityChangeItem();
+			item.setOldValue(null);
+			item.setNewValue(issue.getPriority());
+			changes.add(item);
+			LOGGER.debug("     + Priority: {}",issue.getPriority());
 		}
 
 		if(this.random.nextInt(100)<10) {
@@ -438,11 +424,42 @@ public class ProjectDataGenerator {
 		issue.setChanges(changeLog);
 	}
 
-	/**
-	 * TODO: Implement issue progress logic
-	 */
-	private void workOn(final Issue issue) {
-		LOGGER.debug("Should work on in progress issue {}",issue.getId());
+	private void workOn(final Issue issue, final LocalDate today) {
+		final Set<Item> changes=Sets.newLinkedHashSet();
+		final LocalDateTime now = today.toLocalDateTime(this.workDay.workingTime());
+		LOGGER.debug("   * Worked on issue {} at {}",issue.getId(),now);
+
+		/**
+		 * TODO: Implement better way for determining if we can close the issue
+		 * depending on the deadline and remaining effort.
+		 */
+		if(this.random.nextInt(100)<80) {
+			issue.setStatus(Status.CLOSED);
+			issue.setClosed(now.toDateTime());
+
+			final ClosedDateChangeItem item = new ClosedDateChangeItem();
+			item.setOldValue(null);
+			item.setNewValue(issue.getClosed());
+			changes.add(item);
+			LOGGER.debug("     + Action: close");
+		}
+
+		/**
+		 * TODO: Implement mechanism to update other fields.
+		 */
+
+		final StatusChangeItem item = new StatusChangeItem();
+		item.setOldValue(Status.IN_PROGRESS);
+		item.setNewValue(Status.CLOSED);
+		changes.add(item);
+
+		final Entry entry=new Entry();
+		entry.setTimeStamp(now.toDateTime());
+		entry.setAuthor(issue.getAssignee());
+		entry.getItems().addAll(changes);
+
+		final ChangeLog changeLog = issue.getChanges();
+		changeLog.getEntries().add(entry);
 	}
 
 	/**
@@ -450,6 +467,20 @@ public class ProjectDataGenerator {
 	 */
 	private void reopen(final Issue issue) {
 		LOGGER.debug("Should reopen closed issue {}",issue.getId());
+	}
+
+	private boolean isInFlight(final Issue issue, final LocalDate today) {
+		if(issue.getCreationDate().toLocalDate().equals(today)) {
+			return true;
+		}
+		if(issue.getChanges()==null) {
+			return false;
+		}
+		final Entry changeSet= Iterables.getLast(issue.getChanges().getEntries());
+		if(changeSet==null) {
+			return false;
+		}
+		return !changeSet.getTimeStamp().toLocalDate().equals(today);
 	}
 
 	private boolean canEvaluate(final Issue issue) {
@@ -462,6 +493,30 @@ public class ProjectDataGenerator {
 
 	private boolean canReopen(final Issue issue) {
 		return this.random.nextInt(1000)%100==0;
+	}
+
+	private Severity selectSeverity() {
+		final List<Severity> values = Lists.newArrayList(Severity.values());
+		return values.get(this.random.nextInt(values.size()));
+	}
+
+	private Priority selectPriority() {
+		final List<Priority> values = Lists.newArrayList(Priority.values());
+		return values.get(this.random.nextInt(values.size()));
+	}
+
+	private Contributor selectContributor() {
+		return this.contributors.get(this.random.nextInt(this.contributors.size()*4)%this.contributors.size());
+	}
+
+	private Component selectComponent() {
+		final List<Component> currentComponents = Lists.newArrayList(this.components.values());
+		return currentComponents.get(this.random.nextInt(currentComponents.size()*4)%currentComponents.size());
+	}
+
+	private Version selectVersion() {
+		final List<Version> currentVersions = Lists.newArrayList(this.versions.values());
+		return currentVersions.get(this.random.nextInt(currentVersions.size()*4)%currentVersions.size());
 	}
 
 	private ArrayList<Issue> findIssuesByStatus(final Status status) {
