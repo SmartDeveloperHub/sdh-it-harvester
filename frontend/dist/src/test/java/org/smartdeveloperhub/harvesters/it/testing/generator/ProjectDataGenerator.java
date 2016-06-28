@@ -250,23 +250,33 @@ public class ProjectDataGenerator {
 		final Contributor reporter = selectContributor();
 		issue.setReporter(reporter.getId());
 
-		LOGGER.debug("Created issue {} at {}, reported by {}",issue.getId(),creationDate,reporter.getName());
+		LOGGER.debug("   * Created issue {} at {}, reported by {}",issue.getId(),creationDate,reporter.getName());
+
+		if(this.random.nextBoolean()) {
+			issue.setSeverity(selectSeverity());
+			LOGGER.debug("     + Severity: {}",issue.getSeverity());
+		}
+
+		if(this.random.nextBoolean()) {
+			issue.setPriority(selectPriority());
+			LOGGER.debug("     + Priority: {}",issue.getPriority());
+		}
 
 		if(this.random.nextBoolean()) {
 			assignee=selectContributor();
 			issue.setAssignee(assignee.getId());
-			LOGGER.debug("Assigned issue {} to {}",issue.getId(),assignee.getName());
+			LOGGER.debug("     + Assigned to {}",assignee.getName());
 		}
 
 		if(this.random.nextBoolean()) {
 			final LocalDateTime dueTo=createDueTo(creationDate);
 			issue.setDueTo(dueTo.toDateTime());
-			LOGGER.debug("Scheduled issue {} for {}",issue.getId(),dueTo);
+			LOGGER.debug("     + Scheduled for {}",dueTo);
 			if(this.random.nextBoolean()) {
 				issue.
 					setEstimatedTime(
 						estimateEffort(creationDate, dueTo));
-				LOGGER.debug("Estimated {} work hours for issue {}",issue.getEstimatedTime().getStandardHours(),issue.getId());
+				LOGGER.debug("     + Estimated {} hours ",issue.getEstimatedTime().getStandardHours());
 			}
 		}
 
@@ -279,7 +289,7 @@ public class ProjectDataGenerator {
 					names.add(component.getName());
 				}
 			}
-			LOGGER.debug("Issue {} is related to the following components: {}",issue.getId(),Joiner.on(", ").join(names));
+			LOGGER.debug("     + Related to components: {}",Joiner.on(", ").join(names));
 		}
 
 		if(!this.versions.isEmpty() && this.random.nextBoolean()) {
@@ -291,15 +301,7 @@ public class ProjectDataGenerator {
 					names.add(version.getName());
 				}
 			}
-			LOGGER.debug("Issue {} affects the following versions: {}",issue.getId(),Joiner.on(", ").join(names));
-		}
-
-		if(this.random.nextBoolean()) {
-			issue.setSeverity(selectSeverity());
-		}
-
-		if(this.random.nextBoolean()) {
-			issue.setPriority(selectPriority());
+			LOGGER.debug("     + Affects versions: {}",Joiner.on(", ").join(names));
 		}
 
 		this.issues.put(issueId,issue);
