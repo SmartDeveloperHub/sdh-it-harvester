@@ -49,8 +49,14 @@ import org.smartdeveloperhub.harvesters.it.backend.ChangeLog;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.AssigneeChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ClosedDateChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DescriptionChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DueToDateChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.EstimatedTimeChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.PriorityChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.SeverityChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.StatusChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.TitleChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.TypeChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
@@ -364,6 +370,7 @@ public class ProjectDataGenerator {
 		final Set<Item> changes=Sets.newLinkedHashSet();
 		final LocalDateTime now = today.toLocalDateTime(this.workDay.workingTime());
 		LOGGER.debug("   * Evaluated issue {} at {}",issue.getId(),now);
+
 		if(issue.getAssignee()==null) {
 			final Contributor assignee = selectContributor();
 			issue.setAssignee(assignee.getId());
@@ -423,6 +430,136 @@ public class ProjectDataGenerator {
 		final LocalDateTime now = today.toLocalDateTime(this.workDay.workingTime());
 		LOGGER.debug("   * Worked on issue {} at {}",issue.getId(),now);
 
+		// Bounce assignment
+		if(this.random.nextBoolean()) {
+			final Contributor oldValue=findContributor(issue.getAssignee());
+			final Contributor newValue=selectContributor();
+
+			issue.setAssignee(newValue.getId());
+
+			final AssigneeChangeItem item = new AssigneeChangeItem();
+			item.setOldValue(oldValue.getId());
+			item.setNewValue(issue.getAssignee());
+			changes.add(item);
+
+			LOGGER.debug("     + Changed assignment from {} to {}",oldValue.getName(),newValue.getName());
+		}
+
+		// Change type
+		if(this.random.nextBoolean()) {
+			final Type oldValue=issue.getType();
+			final Type newValue=selectAlternativeType(oldValue);
+
+			issue.setType(newValue);
+
+			final TypeChangeItem item = new TypeChangeItem();
+			item.setOldValue(oldValue);
+			item.setNewValue(newValue);
+			changes.add(item);
+
+			LOGGER.debug("     + Changed type from {} to {}",oldValue,newValue);
+		}
+
+		// Change title
+		if(this.random.nextBoolean()) {
+			final String oldValue=issue.getName();
+			final String newValue=StateUtil.generateSentence();
+
+			issue.setName(newValue);
+
+			final TitleChangeItem item = new TitleChangeItem();
+			item.setOldValue(oldValue);
+			item.setNewValue(newValue);
+			changes.add(item);
+
+			LOGGER.debug("     + Changed title from '{}' to '{}'",oldValue,newValue);
+		}
+
+		// Change description
+		if(this.random.nextBoolean()) {
+			final String oldValue=issue.getName();
+			final String newValue=StateUtil.generateSentences(1,2+this.random.nextInt(8));
+
+			issue.setDescription(newValue);
+
+			final DescriptionChangeItem item = new DescriptionChangeItem();
+			item.setOldValue(oldValue);
+			item.setNewValue(newValue);
+			changes.add(item);
+
+			LOGGER.debug("     + Changed description from '{}' to '{}'",oldValue,newValue);
+		}
+
+		// Change severity
+		if(this.random.nextBoolean()) {
+			final Severity oldValue=issue.getSeverity();
+			final Severity newValue=selectSeverity();
+
+			issue.setSeverity(newValue);
+
+			final SeverityChangeItem item = new SeverityChangeItem();
+			item.setOldValue(oldValue);
+			item.setNewValue(newValue);
+			changes.add(item);
+
+			LOGGER.debug("     + Changed severity from {} to {}",oldValue,newValue);
+		}
+
+		// Change priority
+		if(this.random.nextBoolean()) {
+			final Priority oldValue=issue.getPriority();
+			final Priority newValue=selectPriority();
+
+			issue.setPriority(newValue);
+
+			final PriorityChangeItem item = new PriorityChangeItem();
+			item.setOldValue(oldValue);
+			item.setNewValue(newValue);
+			changes.add(item);
+
+			LOGGER.debug("     + Changed priority from {} to {}",oldValue,newValue);
+		}
+
+		// Change due to
+		boolean reescheduled=false;
+		if(this.random.nextBoolean()) {
+			final LocalDateTime oldValue=Utils.toLocalDateTime(issue.getDueTo());
+			final LocalDateTime newValue=createDueTo(now);
+
+			issue.setDueTo(newValue.toDateTime());
+
+			final DueToDateChangeItem item = new DueToDateChangeItem();
+			item.setOldValue(Utils.toDateTime(oldValue));
+			item.setNewValue(newValue.toDateTime());
+			changes.add(item);
+
+			if(oldValue==null) {
+				LOGGER.debug("     + Scheduled for {}",newValue);
+			} else {
+				reescheduled=true;
+				LOGGER.debug("     + Reescheduled from {} to {}",oldValue,newValue);
+			}
+		}
+
+		// Change effort, if required or decided to.
+		if(reescheduled || issue.getDueTo()!=null && this.random.nextBoolean()) {
+			final Duration oldValue=issue.getEstimatedTime();
+			final Duration newValue=estimateEffort(Utils.toLocalDateTime(issue.getCreationDate()),Utils.toLocalDateTime(issue.getDueTo()));
+
+			issue.setEstimatedTime(newValue);
+
+			final EstimatedTimeChangeItem item = new EstimatedTimeChangeItem();
+			item.setOldValue(oldValue);
+			item.setNewValue(newValue);
+			changes.add(item);
+
+			if(oldValue==null) {
+				LOGGER.debug("     + Estimated {} hours",newValue.getStandardHours());
+			} else {
+				LOGGER.debug("     + Reestimated from {} to {} hours",oldValue.getStandardHours(),newValue.getStandardHours());
+			}
+		}
+
 		/**
 		 * TODO: Implement better way for determining if we can close the issue
 		 * depending on the deadline and remaining effort.
@@ -431,21 +568,18 @@ public class ProjectDataGenerator {
 			issue.setStatus(Status.CLOSED);
 			issue.setClosed(now.toDateTime());
 
-			final ClosedDateChangeItem item = new ClosedDateChangeItem();
-			item.setOldValue(null);
-			item.setNewValue(issue.getClosed());
-			changes.add(item);
+			final StatusChangeItem sChange = new StatusChangeItem();
+			sChange.setOldValue(Status.IN_PROGRESS);
+			sChange.setNewValue(Status.CLOSED);
+			changes.add(sChange);
+
+			final ClosedDateChangeItem cdChange = new ClosedDateChangeItem();
+			cdChange.setOldValue(null);
+			cdChange.setNewValue(issue.getClosed());
+			changes.add(cdChange);
+
 			LOGGER.debug("     + Action: close");
 		}
-
-		/**
-		 * TODO: Implement mechanism to update other fields.
-		 */
-
-		final StatusChangeItem item = new StatusChangeItem();
-		item.setOldValue(Status.IN_PROGRESS);
-		item.setNewValue(Status.CLOSED);
-		changes.add(item);
 
 		final Entry entry=new Entry();
 		entry.setTimeStamp(now.toDateTime());
@@ -454,6 +588,23 @@ public class ProjectDataGenerator {
 
 		final ChangeLog changeLog = issue.getChanges();
 		changeLog.getEntries().add(entry);
+	}
+
+	private Type selectAlternativeType(final Type oldType) {
+		Type newType=null;
+		do {
+			newType=selectType();
+		} while(newType.equals(oldType));
+		return newType;
+	}
+
+	private Contributor findContributor(final String contributorId) {
+		for(final Contributor target:this.contributors) {
+			if(contributorId.equals(target.getId())) {
+				return target;
+			}
+		}
+		throw new IllegalStateException("Unknown contributor '"+contributorId+"'");
 	}
 
 	/**

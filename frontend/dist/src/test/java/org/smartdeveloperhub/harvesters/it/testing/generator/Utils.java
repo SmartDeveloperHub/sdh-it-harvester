@@ -26,15 +26,32 @@
  */
 package org.smartdeveloperhub.harvesters.it.testing.generator;
 
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 
 final class Utils {
 
 	static boolean isWorkingDay(final LocalDate today) {
 		final int dayOfWeek = today.getDayOfWeek();
-		final boolean isWorkingDay=DateTimeConstants.SUNDAY!=dayOfWeek && DateTimeConstants.SATURDAY!=dayOfWeek;
-		return isWorkingDay;
+		return DateTimeConstants.SUNDAY!=dayOfWeek && DateTimeConstants.SATURDAY!=dayOfWeek;
+	}
+
+	static LocalDateTime toLocalDateTime(final DateTime dateTime) {
+		LocalDateTime result=null;
+		if(dateTime!=null) {
+			result=dateTime.toLocalDateTime();
+		}
+		return result;
+	}
+
+	static DateTime toDateTime(LocalDateTime localDateTime) {
+		DateTime result=null;
+		if(localDateTime!=null) {
+			result=localDateTime.toDateTime();
+		}
+		return result;
 	}
 
 }
