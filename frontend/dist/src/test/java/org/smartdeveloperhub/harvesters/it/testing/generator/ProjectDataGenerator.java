@@ -49,6 +49,7 @@ import org.smartdeveloperhub.harvesters.it.backend.ChangeLog;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.AssigneeChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ClosedDateChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ComponentsChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DescriptionChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DueToDateChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.EstimatedTimeChangeItem;
@@ -565,9 +566,53 @@ public class ProjectDataGenerator {
 			}
 		}
 
-		/**
-		 * TODO: Add logic for adding/removing related components
-		 */
+		// Add/remove components
+		final Set<String> issueComponents = issue.getComponents();
+		final boolean canAdd=!this.components.isEmpty();
+		final boolean canRemove=!issueComponents.isEmpty();
+		if((canAdd || canRemove) && this.random.nextBoolean()) {
+			final List<String> componentList=Lists.newArrayList(issueComponents);
+			final int affectedComponents=1+this.random.nextInt(Math.max(2,issueComponents.size()-1));
+			final List<String> added=Lists.newArrayList();
+			final List<String> removed=Lists.newArrayList();
+			for(int i=0;i<affectedComponents;i++) {
+				int action=0;
+				if(canAdd && canRemove) {
+					action=this.random.nextBoolean()?1:2;
+				} else if(canAdd) {
+					action=1;
+				} else {
+					action=2;
+				}
+				if(action==1) {
+					final Component component=selectComponent();
+					if(issueComponents.add(component.getId())) {
+						added.add(component.getName());
+						final ComponentsChangeItem item=new ComponentsChangeItem();
+						item.setOldValue(null);
+						item.setNewValue(component.getId());
+						changes.add(item);
+					}
+				}
+				if(action==2) {
+					final String componentId=componentList.get(this.random.nextInt(componentList.size()));
+					final Component component=findComponent(componentId);
+					if(issueComponents.remove(component.getId())) {
+						removed.add(component.getName());
+						final ComponentsChangeItem item=new ComponentsChangeItem();
+						item.setOldValue(componentId);
+						item.setNewValue(null);
+						changes.add(item);
+					}
+				}
+			}
+			if(!added.isEmpty()) {
+				LOGGER.debug("     + Related to components: {}",Joiner.on(", ").join(added));
+			}
+			if(!removed.isEmpty()) {
+				LOGGER.debug("     + Unrelated from components: {}",Joiner.on(", ").join(removed));
+			}
+		}
 
 		/**
 		 * TODO: Add logic for adding/removing related versions
@@ -605,6 +650,14 @@ public class ProjectDataGenerator {
 
 		final ChangeLog changeLog = issue.getChanges();
 		changeLog.getEntries().add(entry);
+	}
+
+	private Component findComponent(final String componentId) {
+		final Component component = this.components.get(componentId);
+		if(component==null) {
+			throw new IllegalStateException("Unknown component '"+componentId+"'");
+		}
+		return component;
 	}
 
 	/**
