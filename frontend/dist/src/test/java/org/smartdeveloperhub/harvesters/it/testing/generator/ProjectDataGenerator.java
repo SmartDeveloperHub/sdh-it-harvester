@@ -57,8 +57,10 @@ import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.PriorityChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.SeverityChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.StatusChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.TagsChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.TitleChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.TypeChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.VersionsChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 import org.smartdeveloperhub.harvesters.it.backend.Entities;
@@ -83,55 +85,82 @@ import com.google.common.io.Files;
 
 public class ProjectDataGenerator {
 
-	interface PolicyDecissionPoint<PEP> {
+	private final class ComponentChangeInformationPoint implements ChangeInformationPoint {
 
-		void decide(PEP point);
+		private final Issue issue;
 
-		boolean canDecide();
-
-	}
-
-	interface AddRemoveEnforcementPoint  {
-
-		void add();
-
-		void remove();
-
-	}
-
-	private final class AddRemovePolicyDecissionPoint implements PolicyDecissionPoint<AddRemoveEnforcementPoint> {
-
-		private final boolean canAdd;
-		private final boolean canRemove;
-
-		private AddRemovePolicyDecissionPoint(final boolean canAdd, final boolean canRemove) {
-			this.canAdd = canAdd;
-			this.canRemove = canRemove;
+		ComponentChangeInformationPoint(final Issue issue) {
+			this.issue = issue;
 		}
 
 		@Override
-		public void decide(final AddRemoveEnforcementPoint point) {
-			if(this.canAdd && this.canRemove) {
-				if(ProjectDataGenerator.this.random.nextBoolean()) {
-					point.add();
-				} else {
-					point.remove();
-				}
-			} else if(this.canAdd) {
-				point.add();
-			} else {
-				point.remove();
-			}
+		public boolean canModify() {
+			return canAdd() || canRemove();
 		}
 
 		@Override
-		public boolean canDecide() {
-			return this.canAdd || this.canRemove;
+		public boolean canAdd() {
+			return !ProjectDataGenerator.this.components.isEmpty();
+		}
+
+		@Override
+		public boolean canRemove() {
+			return !this.issue.getComponents().isEmpty();
 		}
 
 	}
 
-	private final class ComponentManager implements AddRemoveEnforcementPoint {
+	private final class VersionsChangeInformationPoint implements ChangeInformationPoint {
+
+		private final Issue issue;
+
+		VersionsChangeInformationPoint(final Issue issue) {
+			this.issue = issue;
+		}
+
+		@Override
+		public boolean canModify() {
+			return canAdd() || canRemove();
+		}
+
+		@Override
+		public boolean canAdd() {
+			return !ProjectDataGenerator.this.versions.isEmpty();
+		}
+
+		@Override
+		public boolean canRemove() {
+			return !this.issue.getVersions().isEmpty();
+		}
+
+	}
+
+	private final class TagsChangeInformationPoint implements ChangeInformationPoint {
+
+		private final Issue issue;
+
+		TagsChangeInformationPoint(final Issue issue) {
+			this.issue = issue;
+		}
+
+		@Override
+		public boolean canModify() {
+			return true;
+		}
+
+		@Override
+		public boolean canAdd() {
+			return true;
+		}
+
+		@Override
+		public boolean canRemove() {
+			return !this.issue.getTags().isEmpty();
+		}
+
+	}
+
+	private final class ComponentManager implements ChangeManager {
 
 		private final Set<Item> changes;
 		private final Set<String> issueComponents;
@@ -183,6 +212,113 @@ public class ProjectDataGenerator {
 		}
 	}
 
+	private final class VersionManager implements ChangeManager {
+
+		private final Set<Item> changes;
+		private final Set<String> issueVersions;
+		private final List<String> added=Lists.newArrayList();
+		private final List<String> removed=Lists.newArrayList();
+
+		VersionManager(final Issue issue, final Set<Item> changes) {
+			this.changes = changes;
+			this.issueVersions = issue.getVersions();
+		}
+
+		private String selectExistingVersion() {
+			final List<String> versionList=Lists.newArrayList(this.issueVersions);
+			return versionList.get(ProjectDataGenerator.this.random.nextInt(versionList.size()));
+		}
+
+		@Override
+		public void remove() {
+			final String versionId=selectExistingVersion();
+			final Version version=findVersion(versionId);
+			if(this.issueVersions.remove(version.getId())) {
+				this.removed.add(version.getName());
+				final VersionsChangeItem item=new VersionsChangeItem();
+				item.setOldValue(versionId);
+				item.setNewValue(null);
+				this.changes.add(item);
+			}
+		}
+
+		@Override
+		public void add() {
+			final Version version=selectVersion();
+			if(this.issueVersions.add(version.getId())) {
+				this.added.add(version.getName());
+				final VersionsChangeItem item=new VersionsChangeItem();
+				item.setOldValue(null);
+				item.setNewValue(version.getId());
+				this.changes.add(item);
+			}
+		}
+
+		void logActivity() {
+			if(!this.added.isEmpty()) {
+				LOGGER.debug("     + Related to versions: {}",Joiner.on(", ").join(this.added));
+			}
+			if(!this.removed.isEmpty()) {
+				LOGGER.debug("     + Unrelated from versions: {}",Joiner.on(", ").join(this.removed));
+			}
+		}
+	}
+
+	private final class TagManager implements ChangeManager {
+
+		private final Set<Item> changes;
+		private final Set<String> issueTags;
+		private final List<String> added=Lists.newArrayList();
+		private final List<String> removed=Lists.newArrayList();
+
+		TagManager(final Issue issue, final Set<Item> changes) {
+			this.changes = changes;
+			this.issueTags = issue.getTags();
+		}
+
+		private String selectExistingTag() {
+			final List<String> tagList=Lists.newArrayList(this.issueTags);
+			return tagList.get(ProjectDataGenerator.this.random.nextInt(tagList.size()));
+		}
+
+		@Override
+		public void remove() {
+			final String tag=selectExistingTag();
+			if(this.issueTags.remove(tag)) {
+				this.removed.add(tag);
+				final TagsChangeItem item=new TagsChangeItem();
+				item.setOldValue(tag);
+				item.setNewValue(null);
+				this.changes.add(item);
+			}
+		}
+
+		@Override
+		public void add() {
+			final String tag = selectTag();
+			if(this.issueTags.add(tag)) {
+				this.added.add(tag);
+				final TagsChangeItem item=new TagsChangeItem();
+				item.setOldValue(null);
+				item.setNewValue(tag);
+				this.changes.add(item);
+			}
+		}
+
+		private String selectTag() {
+			return TAGS[ProjectDataGenerator.this.random.nextInt(TAGS.length)];
+		}
+
+		void logActivity() {
+			if(!this.added.isEmpty()) {
+				LOGGER.debug("     + Added tags: {}",Joiner.on(", ").join(this.added));
+			}
+			if(!this.removed.isEmpty()) {
+				LOGGER.debug("     + Removed tags: {}",Joiner.on(", ").join(this.removed));
+			}
+		}
+	}
+
 	private static final String[] COMPONENT_NAMES={
 		"Frontend",
 		"Backend",
@@ -210,6 +346,44 @@ public class ProjectDataGenerator {
 		"Translator",
 		"Compiler",
 		"Transpiler"
+	};
+
+
+	/**
+	 * Taken from:
+	 * - http://programmers.stackexchange.com/questions/129714/how-to-manage-github-issues-for-priority-etc
+	 * - https://robinpowered.com/blog/best-practice-system-for-organizing-and-tagging-github-issues/
+	 */
+	private static final String[] TAGS={
+		"feature",
+		"idea",
+		"support",
+		"confirmed",
+		"deferred",
+		"fix-committed",
+		"incomplete",
+		"rejected",
+		"resolved",
+		"feedback-needed",
+		"help-needed",
+		"progress-25",
+		"progress-50",
+		"progress-75",
+		"reviewed",
+		"queued",
+		"question",
+		"discussion",
+		"security",
+		"production",
+		"stating",
+		"test",
+		"chore",
+		"legal",
+		"watchlist",
+		"invalid",
+		"wontfix",
+		"duplicate",
+		"on-hold",
 	};
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(ProjectDataGenerator.class);
@@ -417,30 +591,6 @@ public class ProjectDataGenerator {
 		}
 
 		this.issues.put(issueId,issue);
-	}
-
-	private Duration estimateEffort(final LocalDateTime start, final LocalDateTime dueTo) {
-		final Days daysBetween=Days.daysBetween(start,dueTo);
-		int workingDays=0;
-		for(int i=0;i<daysBetween.getDays();i++) {
-			if(Utils.isWorkingDay(start.toLocalDate().plusDays(i))) {
-				workingDays++;
-			}
-		}
-		final int maxMinutes = workingDays*this.workDay.effortPerDay();
-		return
-			Duration.
-				standardMinutes(
-					33*maxMinutes/100+
-					67*maxMinutes/100*(this.random.nextInt(100)/100));
-	}
-
-	private LocalDateTime createDueTo(final LocalDateTime dateTime) {
-		LocalDate localDate = dateTime.toLocalDate().plusDays(1+this.random.nextInt(15));
-		while(Utils.isWorkingDay(localDate)) {
-			localDate=localDate.plusDays(1);
-		}
-		return localDate.toLocalDateTime(this.workDay.workingHour());
 	}
 
 	private void evaluateIssues(final LocalDate today) {
@@ -666,31 +816,44 @@ public class ProjectDataGenerator {
 			}
 		}
 
+		final ChangeDecissionPoint cdp=new ChangeDecissionPoint(this.random);
+
 		// Add/remove components
-		final AddRemovePolicyDecissionPoint pdp =
-			new AddRemovePolicyDecissionPoint(
-				!this.components.isEmpty(),
-				!issue.getComponents().isEmpty());
-		if(pdp.canDecide() && this.random.nextBoolean()) {
+		final ChangeInformationPoint ccip=new ComponentChangeInformationPoint(issue);
+		if(ccip.canModify() && this.random.nextBoolean()) {
 			final ComponentManager pep=new ComponentManager(issue,changes);
 			final int affectedComponents=1+this.random.nextInt(Math.max(2,issue.getComponents().size()-1));
 			for(int i=0;i<affectedComponents;i++) {
-				pdp.decide(pep);
+				cdp.decide(ccip).apply(pep);
+			}
+			pep.logActivity();
+		}
+
+		// Add/remove versions
+		final ChangeInformationPoint vcip=new VersionsChangeInformationPoint(issue);
+		if(vcip.canModify() && this.random.nextBoolean()) {
+			final VersionManager pep=new VersionManager(issue,changes);
+			final int affectedVersions=1+this.random.nextInt(Math.max(2,issue.getVersions().size()-1));
+			for(int i=0;i<affectedVersions;i++) {
+				cdp.decide(vcip).apply(pep);
 			}
 			pep.logActivity();
 		}
 
 		/**
-		 * TODO: Add logic for adding/removing related versions
-		 */
-
-		/**
 		 * TODO: Add logic for adding commits
 		 */
 
-		/**
-		 * TODO: Add logic for adding/removing tags
-		 */
+		// Add/remove tags
+		final ChangeInformationPoint tcip=new TagsChangeInformationPoint(issue);
+		if(tcip.canModify() && this.random.nextBoolean()) {
+			final TagManager pep=new TagManager(issue,changes);
+			final int affectedVersions=1+this.random.nextInt(Math.max(2,issue.getTags().size()-1));
+			for(int i=0;i<affectedVersions;i++) {
+				cdp.decide(tcip).apply(pep);
+			}
+			pep.logActivity();
+		}
 
 		if(isCloseable && mustCloseIssue(now)) {
 			issue.setStatus(Status.CLOSED);
@@ -716,55 +879,6 @@ public class ProjectDataGenerator {
 
 		final ChangeLog changeLog = issue.getChanges();
 		changeLog.getEntries().add(entry);
-	}
-
-	private Component findComponent(final String componentId) {
-		final Component component = this.components.get(componentId);
-		if(component==null) {
-			throw new IllegalStateException("Unknown component '"+componentId+"'");
-		}
-		return component;
-	}
-
-	/**
-	 * TODO: Implement better way for determining if we can close the issue
-	 * depending on the deadline and remaining effort.
-	 */
-	private boolean mustCloseIssue(final LocalDateTime now) {
-		return this.random.nextInt(100)<80;
-	}
-
-	private Type selectAlternativeType(final Type value) {
-		Type alternativeValue=null;
-		do {
-			alternativeValue=selectType();
-		} while(alternativeValue.equals(value));
-		return alternativeValue;
-	}
-
-	private Severity selectAlternativeSeverity(final Severity value) {
-		Severity alternativeValue=null;
-		do {
-			alternativeValue=selectSeverity();
-		} while(alternativeValue.equals(value));
-		return alternativeValue;
-	}
-
-	private Priority selectAlternativePriority(final Priority value) {
-		Priority alternativeValue=null;
-		do {
-			alternativeValue=selectPriority();
-		} while(alternativeValue.equals(value));
-		return alternativeValue;
-	}
-
-	private Contributor findContributor(final String contributorId) {
-		for(final Contributor target:this.contributors) {
-			if(contributorId.equals(target.getId())) {
-				return target;
-			}
-		}
-		throw new IllegalStateException("Unknown contributor '"+contributorId+"'");
 	}
 
 	/**
@@ -798,6 +912,62 @@ public class ProjectDataGenerator {
 
 	private boolean canReopen(final Issue issue) {
 		return this.random.nextInt(1000)%100==0;
+	}
+
+	private Duration estimateEffort(final LocalDateTime start, final LocalDateTime dueTo) {
+		final Days daysBetween=Days.daysBetween(start,dueTo);
+		int workingDays=0;
+		for(int i=0;i<daysBetween.getDays();i++) {
+			if(Utils.isWorkingDay(start.toLocalDate().plusDays(i))) {
+				workingDays++;
+			}
+		}
+		final int maxMinutes = workingDays*this.workDay.effortPerDay();
+		return
+			Duration.
+				standardMinutes(
+					33*maxMinutes/100+
+					67*maxMinutes/100*(this.random.nextInt(100)/100));
+	}
+
+	private LocalDateTime createDueTo(final LocalDateTime dateTime) {
+		LocalDate localDate = dateTime.toLocalDate().plusDays(1+this.random.nextInt(15));
+		while(Utils.isWorkingDay(localDate)) {
+			localDate=localDate.plusDays(1);
+		}
+		return localDate.toLocalDateTime(this.workDay.workingHour());
+	}
+
+	/**
+	 * TODO: Implement better way for determining if we can close the issue
+	 * depending on the deadline and remaining effort.
+	 */
+	private boolean mustCloseIssue(final LocalDateTime now) {
+		return this.random.nextInt(100)<80;
+	}
+
+	private Type selectAlternativeType(final Type value) {
+		Type alternativeValue=null;
+		do {
+			alternativeValue=selectType();
+		} while(alternativeValue.equals(value));
+		return alternativeValue;
+	}
+
+	private Severity selectAlternativeSeverity(final Severity value) {
+		Severity alternativeValue=null;
+		do {
+			alternativeValue=selectSeverity();
+		} while(alternativeValue.equals(value));
+		return alternativeValue;
+	}
+
+	private Priority selectAlternativePriority(final Priority value) {
+		Priority alternativeValue=null;
+		do {
+			alternativeValue=selectPriority();
+		} while(alternativeValue.equals(value));
+		return alternativeValue;
 	}
 
 	private Type selectType() {
@@ -835,6 +1005,31 @@ public class ProjectDataGenerator {
 	private Version selectVersion() {
 		final List<Version> currentVersions = Lists.newArrayList(this.versions.values());
 		return currentVersions.get(this.random.nextInt(currentVersions.size()*4)%currentVersions.size());
+	}
+
+	private Component findComponent(final String componentId) {
+		final Component component = this.components.get(componentId);
+		if(component==null) {
+			throw new IllegalStateException("Unknown component '"+componentId+"'");
+		}
+		return component;
+	}
+
+	private Version findVersion(final String versionId) {
+		final Version version = this.versions.get(versionId);
+		if(version==null) {
+			throw new IllegalStateException("Unknown version '"+versionId+"'");
+		}
+		return version;
+	}
+
+	private Contributor findContributor(final String contributorId) {
+		for(final Contributor target:this.contributors) {
+			if(contributorId.equals(target.getId())) {
+				return target;
+			}
+		}
+		throw new IllegalStateException("Unknown contributor '"+contributorId+"'");
 	}
 
 	private ArrayList<Issue> findIssuesByStatus(final Status status) {
