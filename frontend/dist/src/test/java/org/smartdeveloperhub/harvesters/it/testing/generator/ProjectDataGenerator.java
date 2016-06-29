@@ -83,6 +83,106 @@ import com.google.common.io.Files;
 
 public class ProjectDataGenerator {
 
+	interface PolicyDecissionPoint<PEP> {
+
+		void decide(PEP point);
+
+		boolean canDecide();
+
+	}
+
+	interface AddRemoveEnforcementPoint  {
+
+		void add();
+
+		void remove();
+
+	}
+
+	private final class AddRemovePolicyDecissionPoint implements PolicyDecissionPoint<AddRemoveEnforcementPoint> {
+
+		private final boolean canAdd;
+		private final boolean canRemove;
+
+		private AddRemovePolicyDecissionPoint(final boolean canAdd, final boolean canRemove) {
+			this.canAdd = canAdd;
+			this.canRemove = canRemove;
+		}
+
+		@Override
+		public void decide(final AddRemoveEnforcementPoint point) {
+			if(this.canAdd && this.canRemove) {
+				if(ProjectDataGenerator.this.random.nextBoolean()) {
+					point.add();
+				} else {
+					point.remove();
+				}
+			} else if(this.canAdd) {
+				point.add();
+			} else {
+				point.remove();
+			}
+		}
+
+		@Override
+		public boolean canDecide() {
+			return this.canAdd || this.canRemove;
+		}
+
+	}
+
+	private final class ComponentManager implements AddRemoveEnforcementPoint {
+
+		private final Set<Item> changes;
+		private final Set<String> issueComponents;
+		private final List<String> added=Lists.newArrayList();
+		private final List<String> removed=Lists.newArrayList();
+
+		ComponentManager(final Issue issue, final Set<Item> changes) {
+			this.changes = changes;
+			this.issueComponents = issue.getComponents();
+		}
+
+		private String selectExistingComponent() {
+			final List<String> componentList=Lists.newArrayList(this.issueComponents);
+			return componentList.get(ProjectDataGenerator.this.random.nextInt(componentList.size()));
+		}
+
+		@Override
+		public void remove() {
+			final String componentId=selectExistingComponent();
+			final Component component=findComponent(componentId);
+			if(this.issueComponents.remove(component.getId())) {
+				this.removed.add(component.getName());
+				final ComponentsChangeItem item=new ComponentsChangeItem();
+				item.setOldValue(componentId);
+				item.setNewValue(null);
+				this.changes.add(item);
+			}
+		}
+
+		@Override
+		public void add() {
+			final Component component=selectComponent();
+			if(this.issueComponents.add(component.getId())) {
+				this.added.add(component.getName());
+				final ComponentsChangeItem item=new ComponentsChangeItem();
+				item.setOldValue(null);
+				item.setNewValue(component.getId());
+				this.changes.add(item);
+			}
+		}
+
+		void logActivity() {
+			if(!this.added.isEmpty()) {
+				LOGGER.debug("     + Related to components: {}",Joiner.on(", ").join(this.added));
+			}
+			if(!this.removed.isEmpty()) {
+				LOGGER.debug("     + Unrelated from components: {}",Joiner.on(", ").join(this.removed));
+			}
+		}
+	}
+
 	private static final String[] COMPONENT_NAMES={
 		"Frontend",
 		"Backend",
@@ -567,51 +667,17 @@ public class ProjectDataGenerator {
 		}
 
 		// Add/remove components
-		final Set<String> issueComponents = issue.getComponents();
-		final boolean canAdd=!this.components.isEmpty();
-		final boolean canRemove=!issueComponents.isEmpty();
-		if((canAdd || canRemove) && this.random.nextBoolean()) {
-			final List<String> componentList=Lists.newArrayList(issueComponents);
-			final int affectedComponents=1+this.random.nextInt(Math.max(2,issueComponents.size()-1));
-			final List<String> added=Lists.newArrayList();
-			final List<String> removed=Lists.newArrayList();
+		final AddRemovePolicyDecissionPoint pdp =
+			new AddRemovePolicyDecissionPoint(
+				!this.components.isEmpty(),
+				!issue.getComponents().isEmpty());
+		if(pdp.canDecide() && this.random.nextBoolean()) {
+			final ComponentManager pep=new ComponentManager(issue,changes);
+			final int affectedComponents=1+this.random.nextInt(Math.max(2,issue.getComponents().size()-1));
 			for(int i=0;i<affectedComponents;i++) {
-				int action=0;
-				if(canAdd && canRemove) {
-					action=this.random.nextBoolean()?1:2;
-				} else if(canAdd) {
-					action=1;
-				} else {
-					action=2;
-				}
-				if(action==1) {
-					final Component component=selectComponent();
-					if(issueComponents.add(component.getId())) {
-						added.add(component.getName());
-						final ComponentsChangeItem item=new ComponentsChangeItem();
-						item.setOldValue(null);
-						item.setNewValue(component.getId());
-						changes.add(item);
-					}
-				}
-				if(action==2) {
-					final String componentId=componentList.get(this.random.nextInt(componentList.size()));
-					final Component component=findComponent(componentId);
-					if(issueComponents.remove(component.getId())) {
-						removed.add(component.getName());
-						final ComponentsChangeItem item=new ComponentsChangeItem();
-						item.setOldValue(componentId);
-						item.setNewValue(null);
-						changes.add(item);
-					}
-				}
+				pdp.decide(pep);
 			}
-			if(!added.isEmpty()) {
-				LOGGER.debug("     + Related to components: {}",Joiner.on(", ").join(added));
-			}
-			if(!removed.isEmpty()) {
-				LOGGER.debug("     + Unrelated from components: {}",Joiner.on(", ").join(removed));
-			}
+			pep.logActivity();
 		}
 
 		/**
