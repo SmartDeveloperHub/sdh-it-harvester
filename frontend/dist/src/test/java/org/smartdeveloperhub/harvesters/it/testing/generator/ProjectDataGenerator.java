@@ -493,7 +493,7 @@ public class ProjectDataGenerator {
 		// Change severity
 		if(this.random.nextBoolean()) {
 			final Severity oldValue=issue.getSeverity();
-			final Severity newValue=selectSeverity();
+			final Severity newValue=selectAlternativeSeverity(oldValue);
 
 			issue.setSeverity(newValue);
 
@@ -508,7 +508,7 @@ public class ProjectDataGenerator {
 		// Change priority
 		if(this.random.nextBoolean()) {
 			final Priority oldValue=issue.getPriority();
-			final Priority newValue=selectPriority();
+			final Priority newValue=selectAlternativePriority(oldValue);
 
 			issue.setPriority(newValue);
 
@@ -522,7 +522,10 @@ public class ProjectDataGenerator {
 
 		// Change due to
 		boolean reescheduled=false;
+		boolean isCloseable=true;
 		if(this.random.nextBoolean()) {
+			isCloseable=false;
+
 			final LocalDateTime oldValue=Utils.toLocalDateTime(issue.getDueTo());
 			final LocalDateTime newValue=createDueTo(now);
 
@@ -543,6 +546,8 @@ public class ProjectDataGenerator {
 
 		// Change effort, if required or decided to.
 		if(reescheduled || issue.getDueTo()!=null && this.random.nextBoolean()) {
+			isCloseable=false;
+
 			final Duration oldValue=issue.getEstimatedTime();
 			final Duration newValue=estimateEffort(Utils.toLocalDateTime(issue.getCreationDate()),Utils.toLocalDateTime(issue.getDueTo()));
 
@@ -561,10 +566,22 @@ public class ProjectDataGenerator {
 		}
 
 		/**
-		 * TODO: Implement better way for determining if we can close the issue
-		 * depending on the deadline and remaining effort.
+		 * TODO: Add logic for adding/removing related components
 		 */
-		if(this.random.nextInt(100)<80) {
+
+		/**
+		 * TODO: Add logic for adding/removing related versions
+		 */
+
+		/**
+		 * TODO: Add logic for adding commits
+		 */
+
+		/**
+		 * TODO: Add logic for adding/removing tags
+		 */
+
+		if(isCloseable && mustCloseIssue(now)) {
 			issue.setStatus(Status.CLOSED);
 			issue.setClosed(now.toDateTime());
 
@@ -590,12 +607,36 @@ public class ProjectDataGenerator {
 		changeLog.getEntries().add(entry);
 	}
 
-	private Type selectAlternativeType(final Type oldType) {
-		Type newType=null;
+	/**
+	 * TODO: Implement better way for determining if we can close the issue
+	 * depending on the deadline and remaining effort.
+	 */
+	private boolean mustCloseIssue(final LocalDateTime now) {
+		return this.random.nextInt(100)<80;
+	}
+
+	private Type selectAlternativeType(final Type value) {
+		Type alternativeValue=null;
 		do {
-			newType=selectType();
-		} while(newType.equals(oldType));
-		return newType;
+			alternativeValue=selectType();
+		} while(alternativeValue.equals(value));
+		return alternativeValue;
+	}
+
+	private Severity selectAlternativeSeverity(final Severity value) {
+		Severity alternativeValue=null;
+		do {
+			alternativeValue=selectSeverity();
+		} while(alternativeValue.equals(value));
+		return alternativeValue;
+	}
+
+	private Priority selectAlternativePriority(final Priority value) {
+		Priority alternativeValue=null;
+		do {
+			alternativeValue=selectPriority();
+		} while(alternativeValue.equals(value));
+		return alternativeValue;
 	}
 
 	private Contributor findContributor(final String contributorId) {
