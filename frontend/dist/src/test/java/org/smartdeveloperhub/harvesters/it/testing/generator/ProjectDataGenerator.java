@@ -54,6 +54,7 @@ import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DescriptionCh
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DueToDateChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.EstimatedTimeChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.OpenedDateChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.PriorityChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.SeverityChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.StatusChangeItem;
@@ -612,7 +613,7 @@ public class ProjectDataGenerator {
 	private void reopenIssues(final LocalDate today) {
 		for(final Issue issue:findIssuesByStatus(Status.CLOSED)) {
 			if(!isInFlight(issue,today) && canReopen(issue)) {
-				reopen(issue);
+				reopen(issue,today);
 			}
 		}
 	}
@@ -848,8 +849,8 @@ public class ProjectDataGenerator {
 		final ChangeInformationPoint tcip=new TagsChangeInformationPoint(issue);
 		if(tcip.canModify() && this.random.nextBoolean()) {
 			final TagManager pep=new TagManager(issue,changes);
-			final int affectedVersions=1+this.random.nextInt(Math.max(2,issue.getTags().size()-1));
-			for(int i=0;i<affectedVersions;i++) {
+			final int affectedTags=1+this.random.nextInt(Math.max(2,issue.getTags().size()-1));
+			for(int i=0;i<affectedTags;i++) {
 				cdp.decide(tcip).apply(pep);
 			}
 			pep.logActivity();
@@ -884,8 +885,60 @@ public class ProjectDataGenerator {
 	/**
 	 * TODO: Implement issue reopening logic
 	 */
-	private void reopen(final Issue issue) {
-		LOGGER.debug("Should reopen closed issue {}",issue.getId());
+	private void reopen(final Issue issue, final LocalDate today) {
+		final Set<Item> changes=Sets.newLinkedHashSet();
+		final LocalDateTime now = today.toLocalDateTime(this.workDay.workingTime());
+		LOGGER.debug("   * Reopened issue {} at {}",issue.getId(),now);
+
+		// Bounce assignment
+		if(this.random.nextBoolean()) {
+			final Contributor oldValue=findContributor(issue.getAssignee());
+			final Contributor newValue=selectContributor();
+
+			issue.setAssignee(newValue.getId());
+
+			final AssigneeChangeItem item = new AssigneeChangeItem();
+			item.setOldValue(oldValue.getId());
+			item.setNewValue(issue.getAssignee());
+			changes.add(item);
+
+			LOGGER.debug("     + Changed assignment from {} to {}",oldValue.getName(),newValue.getName());
+		}
+
+		{
+			issue.setStatus(Status.OPEN);
+
+			final StatusChangeItem item = new StatusChangeItem();
+			item.setOldValue(Status.CLOSED);
+			item.setNewValue(Status.OPEN);
+			changes.add(item);
+		}
+		{
+			final DateTime oldValue = issue.getOpened();
+			issue.setOpened(now.toDateTime());
+
+			final OpenedDateChangeItem item = new OpenedDateChangeItem();
+			item.setOldValue(oldValue);
+			item.setNewValue(issue.getOpened());
+			changes.add(item);
+		}
+		{
+			final DateTime oldValue = issue.getClosed();
+			issue.setClosed(null);
+
+			final ClosedDateChangeItem item = new ClosedDateChangeItem();
+			item.setOldValue(oldValue);
+			item.setNewValue(issue.getClosed());
+			changes.add(item);
+		}
+
+		final Entry entry=new Entry();
+		entry.setTimeStamp(now.toDateTime());
+		entry.setAuthor(issue.getAssignee());
+		entry.getItems().addAll(changes);
+
+		final ChangeLog changeLog = issue.getChanges();
+		changeLog.getEntries().add(entry);
 	}
 
 	private boolean isInFlight(final Issue issue, final LocalDate today) {
@@ -899,7 +952,8 @@ public class ProjectDataGenerator {
 		if(changeSet==null) {
 			return false;
 		}
-		return !changeSet.getTimeStamp().toLocalDate().equals(today);
+		final LocalDate lastChangeDate = changeSet.getTimeStamp().toLocalDate();
+		return lastChangeDate.equals(today);
 	}
 
 	private boolean canEvaluate(final Issue issue) {
