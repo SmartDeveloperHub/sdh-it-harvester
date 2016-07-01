@@ -419,6 +419,9 @@ public class ProjectDataGenerator {
 		"on-hold",
 	};
 
+	private static final Duration MINIMUM_EFFORT=Hours.FOUR.toStandardDuration();
+
+
 	private static final Logger LOGGER=LoggerFactory.getLogger(ProjectDataGenerator.class);
 
 	private final Random random;
@@ -883,24 +886,16 @@ public class ProjectDataGenerator {
 		changeLog.getEntries().add(entry);
 	}
 
-	private static final Duration MINIMUM_EFFORT=Hours.FOUR.toStandardDuration();
-
 	private void estimateIssue(final Issue issue, final Set<Item> changes, final LocalDateTime now) {
 		final LocalDateTime dueTo  = Utils.toLocalDateTime(issue.getDueTo());
 		final Duration oldValue=issue.getEstimatedTime();
 		Duration newValue=null;
 		do {
 			newValue=estimateEffort(now,dueTo);
-			if(newValue.isEqual(MINIMUM_EFFORT)) {
-				if(oldValue!=null && oldValue.isEqual(MINIMUM_EFFORT)) {
-					return;
-				}
+			if(MINIMUM_EFFORT.isEqual(newValue) && MINIMUM_EFFORT.isEqual(oldValue)) {
+				return;
 			}
-		} while(oldValue!=null && oldValue.isEqual(newValue));
-
-		if(newValue.isShorterThan(MINIMUM_EFFORT)) {
-			newValue=MINIMUM_EFFORT;
-		}
+		} while(newValue.isEqual(oldValue));
 
 		issue.setEstimatedTime(newValue);
 
@@ -1060,11 +1055,15 @@ public class ProjectDataGenerator {
 		}
 		final int maxMinutes = workingDays*this.workDay.effortPerDay();
 		final double ratio = (100+this.random.nextInt(900))/1000d;
-		return
+		Duration result =
 			Duration.
 				standardMinutes(
 					33*maxMinutes/100+
 					DoubleMath.roundToInt(67*maxMinutes/100*ratio,RoundingMode.CEILING));
+		if(result.isShorterThan(MINIMUM_EFFORT)) {
+			result=MINIMUM_EFFORT;
+		}
+		return result;
 	}
 
 	private LocalDateTime createDueTo(final LocalDateTime dateTime) {
