@@ -427,11 +427,11 @@ public class ProjectDataGenerator {
 	private final Random random;
 
 	private Project project;
-	private Map<String,Component> components;
+
 	private Set<String> componentNames;
 
+	private Map<String,Component> components;
 	private Map<String,Version> versions;
-
 	private Map<String,Issue> issues;
 
 	private LocalDate projectStart;
@@ -441,7 +441,6 @@ public class ProjectDataGenerator {
 	private SemVer version;
 
 	private List<Contributor> contributors;
-
 
 	private ProjectDataGenerator() {
 		this.random = new Random();
@@ -480,8 +479,8 @@ public class ProjectDataGenerator {
 		this.project.setId(id);
 		this.project.setName(StateUtil.generateProjectName());
 
-		this.components=Maps.newLinkedHashMap();
 		this.componentNames=Sets.newLinkedHashSet();
+		this.components=Maps.newLinkedHashMap();
 		this.versions=Maps.newLinkedHashMap();
 		this.issues=Maps.newLinkedHashMap();
 
@@ -627,6 +626,7 @@ public class ProjectDataGenerator {
 		}
 
 		this.issues.put(issueId,issue);
+		this.project.getTopIssues().add(issueId);
 	}
 
 	private void evaluateIssues(final LocalDate today) {
@@ -848,6 +848,12 @@ public class ProjectDataGenerator {
 		/**
 		 * TODO: Add logic for adding commits
 		 */
+		/**
+		 * TODO: Add logic for adding sub-issues
+		 */
+		/**
+		 * TODO: Add logic for adding blocked-issues
+		 */
 
 		// Add/remove tags
 		final ChangeInformationPoint tcip=new TagsChangeInformationPoint(issue);
@@ -860,7 +866,7 @@ public class ProjectDataGenerator {
 			pep.logActivity();
 		}
 
-		if(isCloseable && mustCloseIssue(now)) {
+		if(isCloseable && mustCloseIssue(issue,now)) {
 			issue.setStatus(Status.CLOSED);
 			issue.setClosed(now.toDateTime());
 
@@ -1074,12 +1080,31 @@ public class ProjectDataGenerator {
 		return localDate.toLocalDateTime(this.workDay.workingHour());
 	}
 
-	/**
-	 * TODO: Implement better way for determining if we can close the issue
-	 * depending on the deadline and remaining effort.
-	 */
-	private boolean mustCloseIssue(final LocalDateTime now) {
-		return this.random.nextInt(100)<80;
+	private boolean mustCloseIssue(final Issue issue, final LocalDateTime now) {
+		long threshold=80;
+		final DateTime dueTo = issue.getDueTo();
+		if(dueTo!=null) {
+			final double mark = toPOSIXMillis(now);
+			final double opened = toPOSIXMillis(issue.getOpened().toLocalDateTime());
+			final double deadline = toPOSIXMillis(dueTo.toLocalDateTime());
+			final double maxDeadline = toPOSIXMillis(dueTo.toLocalDateTime().plusDays(14));
+			final long onTime=
+				DoubleMath.
+					roundToLong(
+						90*((mark-opened)/(deadline-opened)),
+						RoundingMode.CEILING);
+			final long delayed=
+				DoubleMath.
+					roundToLong(
+						10*(Math.max(0,mark-deadline)/(maxDeadline-deadline)),
+						RoundingMode.CEILING);
+			threshold = onTime+delayed;
+		}
+		return this.random.nextInt(100)<threshold;
+	}
+
+	private double toPOSIXMillis(final LocalDateTime value) {
+		return value.toDate().getTime();
 	}
 
 	private Type selectAlternativeType(final Type value) {
