@@ -77,7 +77,6 @@ import org.smartdeveloperhub.harvesters.it.backend.Version;
 import org.smartdeveloperhub.harvesters.it.frontend.controller.LocalData;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.util.StateUtil;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -442,7 +441,11 @@ public class ProjectDataGenerator {
 
 	private List<Contributor> contributors;
 
-	private ProjectDataGenerator() {
+
+	private final LocalData data;
+
+	private ProjectDataGenerator(final LocalData data) {
+		this.data = data;
 		this.random = new Random();
 	}
 
@@ -450,10 +453,46 @@ public class ProjectDataGenerator {
 		try {
 			final LocalData data=new LocalData();
 			data.getContributors().addAll(Contributors.all());
-			final ProjectDataGenerator generator = new ProjectDataGenerator();
+			final ProjectDataGenerator generator=new ProjectDataGenerator(data);
 			generator.
 				generateProjectData(
-					data,
+					"project-sdh",
+					"Smart Developer Hub",
+					Contributors.developers());
+			generator.
+				generateProjectData(
+					"project-sdh-agora",
+					"Graph-based Query System for LDP",
+					Contributors.developers());
+			generator.
+				generateProjectData(
+					"project-sdh-metrics",
+					"Metric Services",
+					Contributors.developers());
+			generator.
+				generateProjectData(
+					"project-sdh-web",
+					"Web Framework and Dashboards",
+					Contributors.developers());
+			generator.
+				generateProjectData(
+					"project-sdh-harvesters",
+					"Harvesters",
+					Contributors.developers());
+			generator.
+				generateProjectData(
+					"project-ldpj",
+					"Linked Data Platform for Java",
+					Contributors.developers());
+			generator.
+				generateProjectData(
+					"project-jenkins",
+					"Jenkins",
+					Contributors.developers());
+			generator.
+				generateProjectData(
+					"project-phoenix",
+					"phoenix",
 					Contributors.developers());
 			final Path path = Paths.get(args[0]);
 			Files.
@@ -467,17 +506,16 @@ public class ProjectDataGenerator {
 		}
 	}
 
-	private void generateProjectData(final LocalData data, final List<Contributor> participants) {
-		final String id = generateProjectId(data);
-		bootstrapProject(id);
+	private void generateProjectData(final String id,final String projectName, final List<Contributor> participants) {
+		bootstrapProject(id,projectName);
 		populateProject(participants);
-		combineProjectData(data);
+		combineProjectData();
 	}
 
-	private void bootstrapProject(final String id) {
+	private void bootstrapProject(final String id, final String name) {
 		this.project=new Project();
 		this.project.setId(id);
-		this.project.setName(StateUtil.generateProjectName());
+		this.project.setName(name);
 
 		this.componentNames=Sets.newLinkedHashSet();
 		this.components=Maps.newLinkedHashMap();
@@ -938,9 +976,6 @@ public class ProjectDataGenerator {
 		return result;
 	}
 
-	/**
-	 * TODO: Implement issue reopening logic
-	 */
 	private void reopen(final Issue issue, final LocalDate today) {
 		final Set<Item> changes=Sets.newLinkedHashSet();
 		final LocalDateTime now = today.toLocalDateTime(this.workDay.workingTime());
@@ -1249,35 +1284,11 @@ public class ProjectDataGenerator {
 		return component;
 	}
 
-	private void combineProjectData(final LocalData data) {
-		data.getProjects().add(this.project);
-		data.getProjectComponents().put(this.project.getId(),Lists.newArrayList(this.components.values()));
-		data.getProjectVersions().put(this.project.getId(),Lists.newArrayList(this.versions.values()));
-		data.getProjectIssues().put(this.project.getId(),Lists.newArrayList(this.issues.values()));
-	}
-
-	private String generateProjectId(final LocalData data) {
-		final Set<String> projectIds=
-			Sets.
-				newHashSet(
-					Iterables.
-						transform(
-							data.getProjects(),
-							new Function<Project,String>() {
-								@Override
-								public String apply(final Project input) {
-									return input.getId();
-								}
-							}
-						)
-					);
-		int starting = projectIds.size();
-		String id;
-		do {
-			starting++;
-			id=Integer.toString(starting);
-		} while(projectIds.contains(id));
-		return id;
+	private void combineProjectData() {
+		this.data.getProjects().add(this.project);
+		this.data.getProjectComponents().put(this.project.getId(),Lists.newArrayList(this.components.values()));
+		this.data.getProjectVersions().put(this.project.getId(),Lists.newArrayList(this.versions.values()));
+		this.data.getProjectIssues().put(this.project.getId(),Lists.newArrayList(this.issues.values()));
 	}
 
 }
