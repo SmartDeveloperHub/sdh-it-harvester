@@ -41,6 +41,7 @@ import java.util.Set;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Duration;
+import org.joda.time.Hours;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -882,18 +883,24 @@ public class ProjectDataGenerator {
 		changeLog.getEntries().add(entry);
 	}
 
+	private static final Duration MINIMUM_EFFORT=Hours.FOUR.toStandardDuration();
+
 	private void estimateIssue(final Issue issue, final Set<Item> changes, final LocalDateTime now) {
 		final LocalDateTime dueTo  = Utils.toLocalDateTime(issue.getDueTo());
 		final Duration oldValue=issue.getEstimatedTime();
 		Duration newValue=null;
 		do {
 			newValue=estimateEffort(now,dueTo);
-			if(newValue.getStandardMinutes()==0) {
-				if(oldValue!=null && oldValue.isEqual(newValue)) {
+			if(newValue.isEqual(MINIMUM_EFFORT)) {
+				if(oldValue!=null && oldValue.isEqual(MINIMUM_EFFORT)) {
 					return;
 				}
 			}
 		} while(oldValue!=null && oldValue.isEqual(newValue));
+
+		if(newValue.isShorterThan(MINIMUM_EFFORT)) {
+			newValue=MINIMUM_EFFORT;
+		}
 
 		issue.setEstimatedTime(newValue);
 
