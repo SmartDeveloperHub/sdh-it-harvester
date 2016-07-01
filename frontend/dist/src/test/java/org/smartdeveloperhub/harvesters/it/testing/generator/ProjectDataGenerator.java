@@ -777,44 +777,13 @@ public class ProjectDataGenerator {
 		boolean isCloseable=true;
 		if(this.random.nextBoolean()) {
 			isCloseable=false;
-
-			final LocalDateTime oldValue=Utils.toLocalDateTime(issue.getDueTo());
-			final LocalDateTime newValue=createDueTo(now);
-
-			issue.setDueTo(newValue.toDateTime());
-
-			final DueToDateChangeItem item = new DueToDateChangeItem();
-			item.setOldValue(Utils.toDateTime(oldValue));
-			item.setNewValue(newValue.toDateTime());
-			changes.add(item);
-
-			if(oldValue==null) {
-				LOGGER.debug("     + Scheduled for {}",newValue);
-			} else {
-				reescheduled=true;
-				LOGGER.debug("     + Reescheduled from {} to {}",oldValue,newValue);
-			}
+			reescheduled=scheduleIssue(issue, changes, now);
 		}
 
 		// Change effort, if required or decided to.
 		if(reescheduled || issue.getDueTo()!=null && this.random.nextBoolean()) {
 			isCloseable=false;
-
-			final Duration oldValue=issue.getEstimatedTime();
-			final Duration newValue=estimateEffort(Utils.toLocalDateTime(issue.getCreationDate()),Utils.toLocalDateTime(issue.getDueTo()));
-
-			issue.setEstimatedTime(newValue);
-
-			final EstimatedTimeChangeItem item = new EstimatedTimeChangeItem();
-			item.setOldValue(oldValue);
-			item.setNewValue(newValue);
-			changes.add(item);
-
-			if(oldValue==null) {
-				LOGGER.debug("     + Estimated {} hours",newValue.getStandardHours());
-			} else {
-				LOGGER.debug("     + Reestimated from {} to {} hours",oldValue.getStandardHours(),newValue.getStandardHours());
-			}
+			estimateIssue(issue, changes);
 		}
 
 		final ChangeDecissionPoint cdp=new ChangeDecissionPoint(this.random);
@@ -882,6 +851,45 @@ public class ProjectDataGenerator {
 		changeLog.getEntries().add(entry);
 	}
 
+	private void estimateIssue(final Issue issue, final Set<Item> changes) {
+		final Duration oldValue=issue.getEstimatedTime();
+		final Duration newValue=estimateEffort(Utils.toLocalDateTime(issue.getCreationDate()),Utils.toLocalDateTime(issue.getDueTo()));
+
+		issue.setEstimatedTime(newValue);
+
+		final EstimatedTimeChangeItem item = new EstimatedTimeChangeItem();
+		item.setOldValue(oldValue);
+		item.setNewValue(newValue);
+		changes.add(item);
+
+		if(oldValue==null) {
+			LOGGER.debug("     + Estimated {} hours",newValue.getStandardHours());
+		} else {
+			LOGGER.debug("     + Reestimated from {} to {} hours",oldValue.getStandardHours(),newValue.getStandardHours());
+		}
+	}
+
+	private boolean scheduleIssue(final Issue issue, final Set<Item> changes, final LocalDateTime now) {
+		final LocalDateTime oldValue=Utils.toLocalDateTime(issue.getDueTo());
+		final LocalDateTime newValue=createDueTo(now);
+
+		issue.setDueTo(newValue.toDateTime());
+
+		final DueToDateChangeItem item = new DueToDateChangeItem();
+		item.setOldValue(Utils.toDateTime(oldValue));
+		item.setNewValue(newValue.toDateTime());
+		changes.add(item);
+
+		boolean result=false;
+		if(oldValue==null) {
+			LOGGER.debug("     + Scheduled for {}",newValue);
+		} else {
+			result=true;
+			LOGGER.debug("     + Reescheduled from {} to {}",oldValue,newValue);
+		}
+		return result;
+	}
+
 	/**
 	 * TODO: Implement issue reopening logic
 	 */
@@ -930,6 +938,33 @@ public class ProjectDataGenerator {
 			item.setOldValue(oldValue);
 			item.setNewValue(issue.getClosed());
 			changes.add(item);
+		}
+		{
+			boolean scheduled=false;
+			if(this.random.nextBoolean()) {
+				scheduled=true;
+				scheduleIssue(issue, changes, now);
+			} else {
+				final DateTime oldValue = issue.getDueTo();
+				if(oldValue!=null) {
+					final DueToDateChangeItem item = new DueToDateChangeItem();
+					item.setOldValue(oldValue);
+					item.setNewValue(null);
+					changes.add(item);
+				}
+			}
+
+			if(scheduled && this.random.nextBoolean()) {
+				estimateIssue(issue, changes);
+			} else {
+				final Duration oldValue = issue.getEstimatedTime();
+				if(oldValue!=null) {
+					final EstimatedTimeChangeItem item = new EstimatedTimeChangeItem();
+					item.setOldValue(oldValue);
+					item.setNewValue(null);
+					changes.add(item);
+				}
+			}
 		}
 
 		final Entry entry=new Entry();
