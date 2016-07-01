@@ -44,6 +44,8 @@ public class Contributors {
 					carlosBlanco(),
 					fernandoSerena(),
 					miguelEstebanGutierrez(),
+					ignacioMolina(),
+					mariaPoveda(),
 					oscarCorcho(),
 					asunGomezPerez(),
 					javierSoriano(),
@@ -51,18 +53,6 @@ public class Contributors {
 					rubenDeDios(),
 					julianGarcia(),
 					cesarRubio());
-	}
-
-	static List<Contributor> developers() {
-		return
-			Lists.
-				newArrayList(
-					alexFernandez(),
-					alejandroVera(),
-					andresGarciaSilva(),
-					carlosBlanco(),
-					fernandoSerena(),
-					miguelEstebanGutierrez());
 	}
 
 	static Contributor alexFernandez() {
@@ -110,6 +100,22 @@ public class Contributors {
 		contributor.setId("1009");
 		contributor.setName("Miguel Esteban Gutierrez");
 		contributor.getEmails().add("m.esteban.gutierrez@gmail.com");
+		return contributor;
+	}
+
+	public static Contributor ignacioMolina() {
+		final Contributor contributor = new Contributor();
+		contributor.setId("XXXX");
+		contributor.setName("Ignacio Molina Cuquerella");
+		contributor.getEmails().add("xxxx@xxxx.xxx");
+		return contributor;
+	}
+
+	public static Contributor mariaPoveda() {
+		final Contributor contributor = new Contributor();
+		contributor.setId("YYYY");
+		contributor.setName("Maria Poveda Villalon");
+		contributor.getEmails().add("yyyy@yyyy.yyy");
 		return contributor;
 	}
 

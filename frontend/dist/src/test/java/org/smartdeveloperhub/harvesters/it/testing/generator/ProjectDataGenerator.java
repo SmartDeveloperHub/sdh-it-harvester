@@ -439,7 +439,7 @@ public class ProjectDataGenerator {
 
 	private SemVer version;
 
-	private List<Contributor> contributors;
+	private List<Contributor> participants;
 
 
 	private final LocalData data;
@@ -458,42 +458,52 @@ public class ProjectDataGenerator {
 				generateProjectData(
 					"project-sdh",
 					"Smart Developer Hub",
-					Contributors.developers());
+					Contributors.alexFernandez(),
+					Contributors.alejandroVera(),
+					Contributors.carlosBlanco(),
+					Contributors.fernandoSerena(),
+					Contributors.andresGarciaSilva(),
+					Contributors.miguelEstebanGutierrez(),
+					Contributors.ignacioMolina(),
+					Contributors.mariaPoveda());
 			generator.
 				generateProjectData(
 					"project-sdh-agora",
 					"Graph-based Query System for LDP",
-					Contributors.developers());
+					Contributors.fernandoSerena(),
+					Contributors.miguelEstebanGutierrez());
 			generator.
 				generateProjectData(
 					"project-sdh-metrics",
 					"Metric Services",
-					Contributors.developers());
+					Contributors.fernandoSerena());
 			generator.
 				generateProjectData(
 					"project-sdh-web",
 					"Web Framework and Dashboards",
-					Contributors.developers());
+					Contributors.alejandroVera(),
+					Contributors.carlosBlanco());
 			generator.
 				generateProjectData(
 					"project-sdh-harvesters",
 					"Harvesters",
-					Contributors.developers());
+					Contributors.alexFernandez(),
+					Contributors.andresGarciaSilva(),
+					Contributors.miguelEstebanGutierrez(),
+					Contributors.ignacioMolina());
 			generator.
 				generateProjectData(
-					"project-ldpj",
+					"project-ldp4j",
 					"Linked Data Platform for Java",
-					Contributors.developers());
+					Contributors.miguelEstebanGutierrez());
 			generator.
 				generateProjectData(
 					"project-jenkins",
-					"Jenkins",
-					Contributors.developers());
+					"Jenkins");
 			generator.
 				generateProjectData(
 					"project-phoenix",
-					"phoenix",
-					Contributors.developers());
+					"phoenix");
 			final Path path = Paths.get(args[0]);
 			Files.
 				write(
@@ -506,9 +516,13 @@ public class ProjectDataGenerator {
 		}
 	}
 
-	private void generateProjectData(final String id,final String projectName, final List<Contributor> participants) {
+	private void generateProjectData(final String id, final String projectName, final Contributor... participants) {
 		bootstrapProject(id,projectName);
-		populateProject(participants);
+		if(participants.length>0) {
+			populateProject(Lists.newArrayList(participants));
+		} else {
+			LOGGER.info("Skipping population of project {} ({}): no developers available",id,projectName);
+		}
 		combineProjectData();
 	}
 
@@ -540,15 +554,15 @@ public class ProjectDataGenerator {
 		}
 	}
 
-	private void populateProject(final List<Contributor> contributors) {
-		this.contributors=Lists.newArrayList(contributors);
+	private void populateProject(final List<Contributor> participants) {
+		this.participants=Lists.newArrayList(participants);
 		for(int day=0;day<this.projectDuration.getDays();day++) {
 			final LocalDate today = this.projectStart.plusDays(day);
 			if(Utils.isWorkingDay(today) || this.random.nextInt(1000)%25==0) {
 				labour(today);
 			}
 		}
-		this.contributors=null;
+		this.participants=null;
 	}
 
 	private void labour(final LocalDate today) {
@@ -577,13 +591,20 @@ public class ProjectDataGenerator {
 		final int inProgressIssues = findIssuesByStatus(Status.IN_PROGRESS).size();
 		final int openIssues = findIssuesByStatus(Status.OPEN).size();
 
+		final int base=
+			this.participants.size()>3?
+				this.participants.size():
+				3;
+
 		int newIssues=0;
-		if(openIssues==0) {
+		if(openIssues<inProgressIssues) {
 			newIssues=
-				this.random.nextInt(this.contributors.size())+
-				this.random.nextInt(this.contributors.size()*2)/3;
+				this.random.nextInt(base)+
+				this.random.nextInt(base*3)/4;
+		} else if(openIssues*2<inProgressIssues) {
+			newIssues=this.random.nextInt(base*3)/4;
 		} else if(openIssues*3<inProgressIssues) {
-			newIssues=this.random.nextInt(this.contributors.size()*2)/3;
+			newIssues=this.random.nextInt(base*2)/3;
 		} else {
 			newIssues=this.random.nextBoolean()?1:0;
 		}
@@ -758,16 +779,17 @@ public class ProjectDataGenerator {
 		// Bounce assignment
 		if(this.random.nextBoolean()) {
 			final Contributor oldValue=findContributor(issue.getAssignee());
-			final Contributor newValue=selectContributor();
+			final Contributor newValue=selectAlternativeContributor(issue.getAssignee());
+			if(newValue!=null) {
+				issue.setAssignee(newValue.getId());
 
-			issue.setAssignee(newValue.getId());
+				final AssigneeChangeItem item = new AssigneeChangeItem();
+				item.setOldValue(oldValue.getId());
+				item.setNewValue(issue.getAssignee());
+				changes.add(item);
 
-			final AssigneeChangeItem item = new AssigneeChangeItem();
-			item.setOldValue(oldValue.getId());
-			item.setNewValue(issue.getAssignee());
-			changes.add(item);
-
-			LOGGER.debug("     + Changed assignment from {} to {}",oldValue.getName(),newValue.getName());
+				LOGGER.debug("     + Changed assignment from {} to {}",oldValue.getName(),newValue.getName());
+			}
 		}
 
 		// Change type
@@ -1166,6 +1188,16 @@ public class ProjectDataGenerator {
 		return alternativeValue;
 	}
 
+	private Contributor selectAlternativeContributor(final String id) {
+		Contributor alternativeValue=null;
+		if(this.participants.size()!=1) {
+			do {
+				alternativeValue=selectContributor();
+			} while(id.equals(alternativeValue.getId()));
+		}
+		return alternativeValue;
+	}
+
 	private Type selectType() {
 		final int typeCase = this.random.nextInt(100)%3;
 		Type type=null;
@@ -1190,7 +1222,7 @@ public class ProjectDataGenerator {
 	}
 
 	private Contributor selectContributor() {
-		return this.contributors.get(this.random.nextInt(this.contributors.size()*4)%this.contributors.size());
+		return this.participants.get(this.random.nextInt(this.participants.size()*4)%this.participants.size());
 	}
 
 	private Component selectComponent() {
@@ -1220,7 +1252,7 @@ public class ProjectDataGenerator {
 	}
 
 	private Contributor findContributor(final String contributorId) {
-		for(final Contributor target:this.contributors) {
+		for(final Contributor target:this.participants) {
 			if(contributorId.equals(target.getId())) {
 				return target;
 			}
