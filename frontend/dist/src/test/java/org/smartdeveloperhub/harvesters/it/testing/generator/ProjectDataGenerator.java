@@ -27,6 +27,7 @@
 package org.smartdeveloperhub.harvesters.it.testing.generator;
 
 import java.io.IOException;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -83,6 +84,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
+import com.google.common.math.DoubleMath;
 
 public class ProjectDataGenerator {
 
@@ -165,12 +167,14 @@ public class ProjectDataGenerator {
 
 		private final Set<Item> changes;
 		private final Set<String> issueComponents;
+		private final Set<String> inFlight;
 		private final List<String> added=Lists.newArrayList();
 		private final List<String> removed=Lists.newArrayList();
 
 		ComponentManager(final Issue issue, final Set<Item> changes) {
 			this.changes = changes;
 			this.issueComponents = issue.getComponents();
+			this.inFlight=Sets.newLinkedHashSet();
 		}
 
 		private String selectExistingComponent() {
@@ -181,8 +185,12 @@ public class ProjectDataGenerator {
 		@Override
 		public void remove() {
 			final String componentId=selectExistingComponent();
+			if(this.inFlight.contains(componentId)) {
+				return;
+			}
 			final Component component=findComponent(componentId);
 			if(this.issueComponents.remove(component.getId())) {
+				this.inFlight.add(componentId);
 				this.removed.add(component.getName());
 				final ComponentsChangeItem item=new ComponentsChangeItem();
 				item.setOldValue(componentId);
@@ -194,7 +202,11 @@ public class ProjectDataGenerator {
 		@Override
 		public void add() {
 			final Component component=selectComponent();
+			if(this.inFlight.contains(component.getId())) {
+				return;
+			}
 			if(this.issueComponents.add(component.getId())) {
+				this.inFlight.add(component.getId());
 				this.added.add(component.getName());
 				final ComponentsChangeItem item=new ComponentsChangeItem();
 				item.setOldValue(null);
@@ -217,12 +229,14 @@ public class ProjectDataGenerator {
 
 		private final Set<Item> changes;
 		private final Set<String> issueVersions;
+		private final Set<String> inFlight;
 		private final List<String> added=Lists.newArrayList();
 		private final List<String> removed=Lists.newArrayList();
 
 		VersionManager(final Issue issue, final Set<Item> changes) {
 			this.changes = changes;
 			this.issueVersions = issue.getVersions();
+			this.inFlight=Sets.newLinkedHashSet();
 		}
 
 		private String selectExistingVersion() {
@@ -233,6 +247,9 @@ public class ProjectDataGenerator {
 		@Override
 		public void remove() {
 			final String versionId=selectExistingVersion();
+			if(this.inFlight.contains(versionId)) {
+				return;
+			}
 			final Version version=findVersion(versionId);
 			if(this.issueVersions.remove(version.getId())) {
 				this.removed.add(version.getName());
@@ -246,7 +263,11 @@ public class ProjectDataGenerator {
 		@Override
 		public void add() {
 			final Version version=selectVersion();
+			if(this.inFlight.contains(version.getId())) {
+				return;
+			}
 			if(this.issueVersions.add(version.getId())) {
+				this.inFlight.add(version.getId());
 				this.added.add(version.getName());
 				final VersionsChangeItem item=new VersionsChangeItem();
 				item.setOldValue(null);
@@ -269,12 +290,14 @@ public class ProjectDataGenerator {
 
 		private final Set<Item> changes;
 		private final Set<String> issueTags;
+		private final Set<String> inFlight;
 		private final List<String> added=Lists.newArrayList();
 		private final List<String> removed=Lists.newArrayList();
 
 		TagManager(final Issue issue, final Set<Item> changes) {
 			this.changes = changes;
 			this.issueTags = issue.getTags();
+			this.inFlight=Sets.newLinkedHashSet();
 		}
 
 		private String selectExistingTag() {
@@ -285,7 +308,11 @@ public class ProjectDataGenerator {
 		@Override
 		public void remove() {
 			final String tag=selectExistingTag();
+			if(this.inFlight.contains(tag)) {
+				return;
+			}
 			if(this.issueTags.remove(tag)) {
+				this.inFlight.add(tag);
 				this.removed.add(tag);
 				final TagsChangeItem item=new TagsChangeItem();
 				item.setOldValue(tag);
@@ -297,7 +324,11 @@ public class ProjectDataGenerator {
 		@Override
 		public void add() {
 			final String tag = selectTag();
+			if(this.inFlight.contains(tag)) {
+				return;
+			}
 			if(this.issueTags.add(tag)) {
+				this.inFlight.add(tag);
 				this.added.add(tag);
 				final TagsChangeItem item=new TagsChangeItem();
 				item.setOldValue(null);
@@ -783,7 +814,7 @@ public class ProjectDataGenerator {
 		// Change effort, if required or decided to.
 		if(reescheduled || issue.getDueTo()!=null && this.random.nextBoolean()) {
 			isCloseable=false;
-			estimateIssue(issue, changes);
+			estimateIssue(issue,changes,now);
 		}
 
 		final ChangeDecissionPoint cdp=new ChangeDecissionPoint(this.random);
@@ -851,9 +882,18 @@ public class ProjectDataGenerator {
 		changeLog.getEntries().add(entry);
 	}
 
-	private void estimateIssue(final Issue issue, final Set<Item> changes) {
+	private void estimateIssue(final Issue issue, final Set<Item> changes, final LocalDateTime now) {
+		final LocalDateTime dueTo  = Utils.toLocalDateTime(issue.getDueTo());
 		final Duration oldValue=issue.getEstimatedTime();
-		final Duration newValue=estimateEffort(Utils.toLocalDateTime(issue.getCreationDate()),Utils.toLocalDateTime(issue.getDueTo()));
+		Duration newValue=null;
+		do {
+			newValue=estimateEffort(now,dueTo);
+			if(newValue.getStandardMinutes()==0) {
+				if(oldValue!=null && oldValue.isEqual(newValue)) {
+					return;
+				}
+			}
+		} while(oldValue!=null && oldValue.isEqual(newValue));
 
 		issue.setEstimatedTime(newValue);
 
@@ -955,7 +995,7 @@ public class ProjectDataGenerator {
 			}
 
 			if(scheduled && this.random.nextBoolean()) {
-				estimateIssue(issue, changes);
+				estimateIssue(issue,changes,now);
 			} else {
 				final Duration oldValue = issue.getEstimatedTime();
 				if(oldValue!=null) {
@@ -1012,11 +1052,12 @@ public class ProjectDataGenerator {
 			}
 		}
 		final int maxMinutes = workingDays*this.workDay.effortPerDay();
+		final double ratio = (100+this.random.nextInt(900))/1000d;
 		return
 			Duration.
 				standardMinutes(
 					33*maxMinutes/100+
-					67*maxMinutes/100*(this.random.nextInt(100)/100));
+					DoubleMath.roundToInt(67*maxMinutes/100*ratio,RoundingMode.CEILING));
 	}
 
 	private LocalDateTime createDueTo(final LocalDateTime dateTime) {
