@@ -29,6 +29,10 @@ package org.smartdeveloperhub.harvesters.it.testing.generator;
 import java.util.List;
 import java.util.Objects;
 
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.Duration;
+import org.joda.time.LocalDate;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 
 import com.google.common.collect.ImmutableList;
@@ -38,11 +42,20 @@ final class ProjectConfiguration {
 	private final String id;
 	private final String name;
 	private final ImmutableList<Contributor> contributors;
+	private final LocalDate startedOn;
+	private final Days duration;
 
-	private ProjectConfiguration(final String id, final String name, final ImmutableList<Contributor> contributors) {
+	private ProjectConfiguration(
+			final String id,
+			final String name,
+			final ImmutableList<Contributor> contributors,
+			final LocalDate startedOn,
+			final Days duration) {
 		this.id = id;
 		this.name = name;
 		this.contributors = contributors;
+		this.startedOn = startedOn;
+		this.duration = duration;
 	}
 
 	String id() {
@@ -57,15 +70,26 @@ final class ProjectConfiguration {
 		return this.contributors;
 	}
 
+	LocalDate startedOn() {
+		return this.startedOn;
+	}
+
+	Duration duration() {
+		return this.duration.toStandardDuration();
+	}
+
 	static Builder builder() {
 		return new Builder();
 	}
 
 	static final class Builder {
 
+		private final ImmutableList.Builder<Contributor> contributors;
+
 		private String id;
 		private String name;
-		private final ImmutableList.Builder<Contributor> contributors;
+		private LocalDate startedOn;
+		private Days duration;
 
 		private Builder() {
 			this.contributors=ImmutableList.<Contributor>builder();
@@ -86,12 +110,20 @@ final class ProjectConfiguration {
 			return this;
 		}
 
+		Builder startedOn(final String dateTime) {
+			this.startedOn=new DateTime(dateTime).toLocalDate();
+			this.duration=Days.daysBetween(this.startedOn,new DateTime().toLocalDateTime());
+			return this;
+		}
+
 		ProjectConfiguration build() {
 			return
 				new ProjectConfiguration(
 					Objects.requireNonNull(this.id,"Project identifier cannot be null"),
 					Objects.requireNonNull(this.name,"Project name cannot be null"),
-					this.contributors.build());
+					this.contributors.build(),
+					Objects.requireNonNull(this.startedOn,"Project start date cannot be null"),
+					this.duration);
 		}
 
 	}

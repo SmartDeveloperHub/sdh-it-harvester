@@ -432,16 +432,15 @@ public class ProjectDataGenerator {
 	private Map<String,Version> versions;
 	private Map<String,Issue> issues;
 
-	private LocalDate projectStart;
-	private Days projectDuration;
 	private WorkDay workDay;
 
 	private SemVer version;
 
 	private List<Contributor> participants;
 
-
 	private final LocalData data;
+
+	private ProjectConfiguration configuration;
 
 	private ProjectDataGenerator(final LocalData data) {
 		this.data = data;
@@ -546,27 +545,27 @@ public class ProjectDataGenerator {
 	}
 
 	private void generateProjectData(final ProjectConfiguration configuration) {
-		bootstrapProject(configuration.id(),configuration.name());
-			populateProject(configuration.contributors());
+		bootstrapProject(configuration);
+		populateProject(configuration.contributors());
 		combineProjectData();
 	}
 
-	private void bootstrapProject(final String id, final String name) {
+	private void bootstrapProject(final ProjectConfiguration configuration) {
+		this.configuration = configuration;
+
 		this.project=new Project();
-		this.project.setId(id);
-		this.project.setName(name);
+		this.project.setId(configuration.id());
+		this.project.setName(configuration.name());
 
 		this.componentNames=Sets.newLinkedHashSet();
 		this.components=Maps.newLinkedHashMap();
 		this.versions=Maps.newLinkedHashMap();
 		this.issues=Maps.newLinkedHashMap();
 
-		this.projectDuration=Days.days(180+this.random.nextInt(360*4));
-		this.projectStart=new DateTime().minus(this.projectDuration).toLocalDate();
 		this.workDay=new WorkDay(this.random);
 
 		LOGGER.info("Bootstrapping project {} ({})",this.project.getName(),this.project.getId());
-		LOGGER.info("- Project started on {} ({} days of ongoing work)",this.projectStart,this.projectDuration.getDays());
+		LOGGER.info("- Project started on {} ({} days of ongoing work)",configuration.startedOn(),configuration.duration().getStandardDays());
 		LOGGER.info("- {}",this.workDay);
 
 		final int initialComponents=1+this.random.nextInt(3);
@@ -586,8 +585,8 @@ public class ProjectDataGenerator {
 		}
 		LOGGER.info("- Populating project {} ({}):",this.project.getName(),this.project.getId());
 		this.participants=Lists.newArrayList(participants);
-		for(int day=0;day<this.projectDuration.getDays();day++) {
-			final LocalDate today = this.projectStart.plusDays(day);
+		for(int day=0;day<this.configuration.duration().getStandardDays();day++) {
+			final LocalDate today = this.configuration.startedOn().plusDays(day);
 			if(Utils.isWorkingDay(today) || this.random.nextInt(1000)%25==0) {
 				labour(today);
 			}
