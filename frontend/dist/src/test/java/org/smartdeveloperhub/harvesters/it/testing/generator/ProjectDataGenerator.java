@@ -217,10 +217,10 @@ public class ProjectDataGenerator {
 
 		void logActivity() {
 			if(!this.added.isEmpty()) {
-				LOGGER.debug("     + Related to components: {}",Joiner.on(", ").join(this.added));
+				LOGGER.trace("     + Related to components: {}",Joiner.on(", ").join(this.added));
 			}
 			if(!this.removed.isEmpty()) {
-				LOGGER.debug("     + Unrelated from components: {}",Joiner.on(", ").join(this.removed));
+				LOGGER.trace("     + Unrelated from components: {}",Joiner.on(", ").join(this.removed));
 			}
 		}
 	}
@@ -278,10 +278,10 @@ public class ProjectDataGenerator {
 
 		void logActivity() {
 			if(!this.added.isEmpty()) {
-				LOGGER.debug("     + Related to versions: {}",Joiner.on(", ").join(this.added));
+				LOGGER.trace("     + Related to versions: {}",Joiner.on(", ").join(this.added));
 			}
 			if(!this.removed.isEmpty()) {
-				LOGGER.debug("     + Unrelated from versions: {}",Joiner.on(", ").join(this.removed));
+				LOGGER.trace("     + Unrelated from versions: {}",Joiner.on(", ").join(this.removed));
 			}
 		}
 	}
@@ -343,10 +343,10 @@ public class ProjectDataGenerator {
 
 		void logActivity() {
 			if(!this.added.isEmpty()) {
-				LOGGER.debug("     + Added tags: {}",Joiner.on(", ").join(this.added));
+				LOGGER.trace("     + Added tags: {}",Joiner.on(", ").join(this.added));
 			}
 			if(!this.removed.isEmpty()) {
-				LOGGER.debug("     + Removed tags: {}",Joiner.on(", ").join(this.removed));
+				LOGGER.trace("     + Removed tags: {}",Joiner.on(", ").join(this.removed));
 			}
 		}
 	}
@@ -420,7 +420,6 @@ public class ProjectDataGenerator {
 
 	private static final Duration MINIMUM_EFFORT=Hours.FOUR.toStandardDuration();
 
-
 	private static final Logger LOGGER=LoggerFactory.getLogger(ProjectDataGenerator.class);
 
 	private final Random random;
@@ -456,54 +455,84 @@ public class ProjectDataGenerator {
 			final ProjectDataGenerator generator=new ProjectDataGenerator(data);
 			generator.
 				generateProjectData(
-					"project-sdh",
-					"Smart Developer Hub",
-					Contributors.alexFernandez(),
-					Contributors.alejandroVera(),
-					Contributors.carlosBlanco(),
-					Contributors.fernandoSerena(),
-					Contributors.andresGarciaSilva(),
-					Contributors.miguelEstebanGutierrez(),
-					Contributors.ignacioMolina(),
-					Contributors.mariaPoveda());
+					ProjectConfiguration.
+						builder().
+							id("project-sdh").
+							name("Smart Developer Hub").
+							contributors(
+								Contributors.alexFernandez(),
+								Contributors.alejandroVera(),
+								Contributors.carlosBlanco(),
+								Contributors.fernandoSerena(),
+								Contributors.andresGarciaSilva(),
+								Contributors.miguelEstebanGutierrez(),
+								Contributors.ignacioMolina(),
+								Contributors.mariaPoveda()).
+							build());
 			generator.
 				generateProjectData(
-					"project-sdh-agora",
-					"Graph-based Query System for LDP",
-					Contributors.fernandoSerena(),
-					Contributors.miguelEstebanGutierrez());
+					ProjectConfiguration.
+						builder().
+							id("project-sdh-agora").
+							name("Graph-based Query System for LDP").
+							contributors(
+								Contributors.fernandoSerena(),
+								Contributors.miguelEstebanGutierrez()).
+							build());
 			generator.
 				generateProjectData(
-					"project-sdh-metrics",
-					"Metric Services",
-					Contributors.fernandoSerena());
+					ProjectConfiguration.
+						builder().
+							id("project-sdh-metrics").
+							name("Metric Services").
+							contributors(
+								Contributors.fernandoSerena()).
+							build());
 			generator.
 				generateProjectData(
-					"project-sdh-web",
-					"Web Framework and Dashboards",
-					Contributors.alejandroVera(),
-					Contributors.carlosBlanco());
+					ProjectConfiguration.
+						builder().
+							id("project-sdh-web").
+							name("Web Framework and Dashboards").
+							contributors(
+								Contributors.alejandroVera(),
+								Contributors.carlosBlanco()).
+							build());
 			generator.
 				generateProjectData(
-					"project-sdh-harvesters",
-					"Harvesters",
-					Contributors.alexFernandez(),
-					Contributors.andresGarciaSilva(),
-					Contributors.miguelEstebanGutierrez(),
-					Contributors.ignacioMolina());
+					ProjectConfiguration.
+						builder().
+							id("project-sdh-harvesters").
+							name("Harvesters").
+							contributors(
+								Contributors.alexFernandez(),
+								Contributors.andresGarciaSilva(),
+								Contributors.miguelEstebanGutierrez(),
+								Contributors.ignacioMolina()).
+							build());
 			generator.
 				generateProjectData(
-					"project-ldp4j",
-					"Linked Data Platform for Java",
-					Contributors.miguelEstebanGutierrez());
+					ProjectConfiguration.
+						builder().
+							id("project-ldp4j").
+							name("Linked Data Platform for Java").
+							contributors(
+								Contributors.miguelEstebanGutierrez()).
+							build());
 			generator.
 				generateProjectData(
-					"project-jenkins",
-					"Jenkins");
+					ProjectConfiguration.
+						builder().
+							id("project-jenkins").
+							name("Jenkins").
+							build());
 			generator.
 				generateProjectData(
-					"project-phoenix",
-					"phoenix");
+					ProjectConfiguration.
+						builder().
+							id("project-phoenix").
+							name("phoenix").
+							build());
 			final Path path = Paths.get(args[0]);
 			Files.
 				write(
@@ -516,13 +545,9 @@ public class ProjectDataGenerator {
 		}
 	}
 
-	private void generateProjectData(final String id, final String projectName, final Contributor... participants) {
-		bootstrapProject(id,projectName);
-		if(participants.length>0) {
-			populateProject(Lists.newArrayList(participants));
-		} else {
-			LOGGER.info("Skipping population of project {} ({}): no developers available",id,projectName);
-		}
+	private void generateProjectData(final ProjectConfiguration configuration) {
+		bootstrapProject(configuration.id(),configuration.name());
+			populateProject(configuration.contributors());
 		combineProjectData();
 	}
 
@@ -555,6 +580,11 @@ public class ProjectDataGenerator {
 	}
 
 	private void populateProject(final List<Contributor> participants) {
+		if(participants.isEmpty()) {
+			LOGGER.info("- Skipping project {} ({}) population: no developers available",this.project.getName(),this.project.getId());
+			return;
+		}
+		LOGGER.info("- Populating project {} ({}):",this.project.getName(),this.project.getId());
 		this.participants=Lists.newArrayList(participants);
 		for(int day=0;day<this.projectDuration.getDays();day++) {
 			final LocalDate today = this.projectStart.plusDays(day);
@@ -566,7 +596,7 @@ public class ProjectDataGenerator {
 	}
 
 	private void labour(final LocalDate today) {
-		LOGGER.info("- Labour on {}working day {} in project {} ({}):",Utils.isWorkingDay(today)?"":"non-",today,this.project.getName(),this.project.getId());
+		LOGGER.debug("- Labour on {}working day {} in project {} ({}):",Utils.isWorkingDay(today)?"":"non-",today,this.project.getName(),this.project.getId());
 		createNewComponents();
 		createNewVersions();
 		createNewIssues(today);
@@ -629,34 +659,34 @@ public class ProjectDataGenerator {
 		final Contributor reporter = selectContributor();
 		issue.setReporter(reporter.getId());
 
-		LOGGER.debug("   * Created issue {} at {}, reported by {}",issue.getId(),creationDate,reporter.getName());
+		LOGGER.trace("   * Created issue {} at {}, reported by {}",issue.getId(),creationDate,reporter.getName());
 
 		issue.setSeverity(selectSeverity());
-		LOGGER.debug("     + Severity: {}",issue.getSeverity());
+		LOGGER.trace("     + Severity: {}",issue.getSeverity());
 
 		issue.setPriority(selectPriority());
-		LOGGER.debug("     + Priority: {}",issue.getPriority());
+		LOGGER.trace("     + Priority: {}",issue.getPriority());
 
 		if(this.random.nextBoolean()) {
 			issue.setType(selectType());
-			LOGGER.debug("     + Type: {}",issue.getType());
+			LOGGER.trace("     + Type: {}",issue.getType());
 		}
 
 		if(this.random.nextBoolean()) {
 			assignee=selectContributor();
 			issue.setAssignee(assignee.getId());
-			LOGGER.debug("     + Assigned to {}",assignee.getName());
+			LOGGER.trace("     + Assigned to {}",assignee.getName());
 		}
 
 		if(this.random.nextBoolean()) {
 			final LocalDateTime dueTo=createDueTo(creationDate);
 			issue.setDueTo(dueTo.toDateTime());
-			LOGGER.debug("     + Scheduled for {}",dueTo);
+			LOGGER.trace("     + Scheduled for {}",dueTo);
 			if(this.random.nextBoolean()) {
 				issue.
 					setEstimatedTime(
 						estimateEffort(creationDate, dueTo));
-				LOGGER.debug("     + Estimated {} hours ",issue.getEstimatedTime().getStandardHours());
+				LOGGER.trace("     + Estimated {} hours ",issue.getEstimatedTime().getStandardHours());
 			}
 		}
 
@@ -669,7 +699,7 @@ public class ProjectDataGenerator {
 					names.add(component.getName());
 				}
 			}
-			LOGGER.debug("     + Related to components: {}",Joiner.on(", ").join(names));
+			LOGGER.trace("     + Related to components: {}",Joiner.on(", ").join(names));
 		}
 
 		if(!this.versions.isEmpty() && this.random.nextBoolean()) {
@@ -681,7 +711,7 @@ public class ProjectDataGenerator {
 					names.add(version.getName());
 				}
 			}
-			LOGGER.debug("     + Affects versions: {}",Joiner.on(", ").join(names));
+			LOGGER.trace("     + Affects versions: {}",Joiner.on(", ").join(names));
 		}
 
 		this.issues.put(issueId,issue);
@@ -715,7 +745,7 @@ public class ProjectDataGenerator {
 	private void evaluate(final Issue issue, final LocalDate today) {
 		final Set<Item> changes=Sets.newLinkedHashSet();
 		final LocalDateTime now = today.toLocalDateTime(this.workDay.workingTime());
-		LOGGER.debug("   * Evaluated issue {} at {}",issue.getId(),now);
+		LOGGER.trace("   * Evaluated issue {} at {}",issue.getId(),now);
 
 		if(issue.getAssignee()==null) {
 			final Contributor assignee = selectContributor();
@@ -726,7 +756,7 @@ public class ProjectDataGenerator {
 			item.setNewValue(issue.getAssignee());
 			changes.add(item);
 
-			LOGGER.debug("     + Assigned to {}",assignee.getName());
+			LOGGER.trace("     + Assigned to {}",assignee.getName());
 		}
 
 		if(issue.getType()==null) {
@@ -737,7 +767,7 @@ public class ProjectDataGenerator {
 			item.setNewValue(issue.getType());
 			changes.add(item);
 
-			LOGGER.debug("     + Type: {}",issue.getType());
+			LOGGER.trace("     + Type: {}",issue.getType());
 		}
 
 		if(this.random.nextInt(100)<10) {
@@ -749,10 +779,10 @@ public class ProjectDataGenerator {
 			item.setNewValue(issue.getClosed());
 			changes.add(item);
 
-			LOGGER.debug("     + Action: close");
+			LOGGER.trace("     + Action: close");
 		} else {
 			issue.setStatus(Status.IN_PROGRESS);
-			LOGGER.debug("     + Action: start work");
+			LOGGER.trace("     + Action: start work");
 		}
 
 		final StatusChangeItem item = new StatusChangeItem();
@@ -774,7 +804,7 @@ public class ProjectDataGenerator {
 	private void workOn(final Issue issue, final LocalDate today) {
 		final Set<Item> changes=Sets.newLinkedHashSet();
 		final LocalDateTime now = today.toLocalDateTime(this.workDay.workingTime());
-		LOGGER.debug("   * Worked on issue {} at {}",issue.getId(),now);
+		LOGGER.trace("   * Worked on issue {} at {}",issue.getId(),now);
 
 		// Bounce assignment
 		if(this.random.nextBoolean()) {
@@ -788,7 +818,7 @@ public class ProjectDataGenerator {
 				item.setNewValue(issue.getAssignee());
 				changes.add(item);
 
-				LOGGER.debug("     + Changed assignment from {} to {}",oldValue.getName(),newValue.getName());
+				LOGGER.trace("     + Changed assignment from {} to {}",oldValue.getName(),newValue.getName());
 			}
 		}
 
@@ -804,7 +834,7 @@ public class ProjectDataGenerator {
 			item.setNewValue(newValue);
 			changes.add(item);
 
-			LOGGER.debug("     + Changed type from {} to {}",oldValue,newValue);
+			LOGGER.trace("     + Changed type from {} to {}",oldValue,newValue);
 		}
 
 		// Change title
@@ -819,7 +849,7 @@ public class ProjectDataGenerator {
 			item.setNewValue(newValue);
 			changes.add(item);
 
-			LOGGER.debug("     + Changed title from '{}' to '{}'",oldValue,newValue);
+			LOGGER.trace("     + Changed title from '{}' to '{}'",oldValue,newValue);
 		}
 
 		// Change description
@@ -834,7 +864,7 @@ public class ProjectDataGenerator {
 			item.setNewValue(newValue);
 			changes.add(item);
 
-			LOGGER.debug("     + Changed description from '{}' to '{}'",oldValue,newValue);
+			LOGGER.trace("     + Changed description from '{}' to '{}'",oldValue,newValue);
 		}
 
 		// Change severity
@@ -849,7 +879,7 @@ public class ProjectDataGenerator {
 			item.setNewValue(newValue);
 			changes.add(item);
 
-			LOGGER.debug("     + Changed severity from {} to {}",oldValue,newValue);
+			LOGGER.trace("     + Changed severity from {} to {}",oldValue,newValue);
 		}
 
 		// Change priority
@@ -864,7 +894,7 @@ public class ProjectDataGenerator {
 			item.setNewValue(newValue);
 			changes.add(item);
 
-			LOGGER.debug("     + Changed priority from {} to {}",oldValue,newValue);
+			LOGGER.trace("     + Changed priority from {} to {}",oldValue,newValue);
 		}
 
 		// Change due to
@@ -940,7 +970,7 @@ public class ProjectDataGenerator {
 			cdChange.setNewValue(issue.getClosed());
 			changes.add(cdChange);
 
-			LOGGER.debug("     + Action: close");
+			LOGGER.trace("     + Action: close");
 		}
 
 		final Entry entry=new Entry();
@@ -971,9 +1001,9 @@ public class ProjectDataGenerator {
 		changes.add(item);
 
 		if(oldValue==null) {
-			LOGGER.debug("     + Estimated {} hours",newValue.getStandardHours());
+			LOGGER.trace("     + Estimated {} hours",newValue.getStandardHours());
 		} else {
-			LOGGER.debug("     + Reestimated from {} to {} hours",oldValue.getStandardHours(),newValue.getStandardHours());
+			LOGGER.trace("     + Reestimated from {} to {} hours",oldValue.getStandardHours(),newValue.getStandardHours());
 		}
 	}
 
@@ -990,10 +1020,10 @@ public class ProjectDataGenerator {
 
 		boolean result=false;
 		if(oldValue==null) {
-			LOGGER.debug("     + Scheduled for {}",newValue);
+			LOGGER.trace("     + Scheduled for {}",newValue);
 		} else {
 			result=true;
-			LOGGER.debug("     + Reescheduled from {} to {}",oldValue,newValue);
+			LOGGER.trace("     + Reescheduled from {} to {}",oldValue,newValue);
 		}
 		return result;
 	}
@@ -1001,7 +1031,7 @@ public class ProjectDataGenerator {
 	private void reopen(final Issue issue, final LocalDate today) {
 		final Set<Item> changes=Sets.newLinkedHashSet();
 		final LocalDateTime now = today.toLocalDateTime(this.workDay.workingTime());
-		LOGGER.debug("   * Reopened issue {} at {}",issue.getId(),now);
+		LOGGER.trace("   * Reopened issue {} at {}",issue.getId(),now);
 
 		// Bounce assignment
 		if(this.random.nextBoolean()) {
@@ -1015,7 +1045,7 @@ public class ProjectDataGenerator {
 			item.setNewValue(issue.getAssignee());
 			changes.add(item);
 
-			LOGGER.debug("     + Changed assignment from {} to {}",oldValue.getName(),newValue.getName());
+			LOGGER.trace("     + Changed assignment from {} to {}",oldValue.getName(),newValue.getName());
 		}
 
 		{
@@ -1292,13 +1322,13 @@ public class ProjectDataGenerator {
 		version.setProjectId(this.project.getId());
 		this.versions.put(version.getId(),version);
 		this.project.getVersions().add(version.getId());
-		LOGGER.info("- Created version {} ({}) for project {} ({}) ",version.getName(),version.getId(),this.project.getName(),this.project.getId());
+		LOGGER.trace("- Created version {} ({}) for project {} ({}) ",version.getName(),version.getId(),this.project.getName(),this.project.getId());
 		return version;
 	}
 
 	private Component createComponent() {
 		if(this.componentNames.size()>=COMPONENT_NAMES.length) {
-			LOGGER.debug("- Skipped component creation for project {} ({}): all predefined components have been created",this.project.getName(),this.project.getId());
+			LOGGER.trace("- Skipped component creation for project {} ({}): all predefined components have been created",this.project.getName(),this.project.getId());
 			return Iterables.getLast(this.components.values());
 		}
 		final Component component=new Component();
@@ -1312,7 +1342,7 @@ public class ProjectDataGenerator {
 		this.componentNames.add(component.getName());
 		this.components.put(component.getId(),component);
 		this.project.getComponents().add(component.getId());
-		LOGGER.info("- Created component {} ({}) for project {} ({}) ",component.getName(),component.getId(),this.project.getName(),this.project.getId());
+		LOGGER.trace("- Created component {} ({}) for project {} ({}) ",component.getName(),component.getId(),this.project.getName(),this.project.getId());
 		return component;
 	}
 
