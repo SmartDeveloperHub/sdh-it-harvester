@@ -112,7 +112,7 @@ final class ProjectConfiguration {
 
 		Builder startedOn(final String dateTime) {
 			this.startedOn=new DateTime(dateTime).toLocalDate();
-			this.duration=Days.daysBetween(this.startedOn,new DateTime().toLocalDateTime());
+			this.duration=Days.daysBetween(this.startedOn,new DateTime().toLocalDate());
 			return this;
 		}
 

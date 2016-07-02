@@ -467,6 +467,7 @@ public class ProjectDataGenerator {
 								Contributors.miguelEstebanGutierrez(),
 								Contributors.ignacioMolina(),
 								Contributors.mariaPoveda()).
+							startedOn("2015-05-12T14:41:20Z").
 							build());
 			generator.
 				generateProjectData(
@@ -477,6 +478,7 @@ public class ProjectDataGenerator {
 							contributors(
 								Contributors.fernandoSerena(),
 								Contributors.miguelEstebanGutierrez()).
+							startedOn("2015-05-12T14:41:20Z").
 							build());
 			generator.
 				generateProjectData(
@@ -486,6 +488,7 @@ public class ProjectDataGenerator {
 							name("Metric Services").
 							contributors(
 								Contributors.fernandoSerena()).
+							startedOn("2015-05-12T14:41:20Z").
 							build());
 			generator.
 				generateProjectData(
@@ -496,6 +499,7 @@ public class ProjectDataGenerator {
 							contributors(
 								Contributors.alejandroVera(),
 								Contributors.carlosBlanco()).
+							startedOn("2015-05-12T14:41:20Z").
 							build());
 			generator.
 				generateProjectData(
@@ -508,6 +512,7 @@ public class ProjectDataGenerator {
 								Contributors.andresGarciaSilva(),
 								Contributors.miguelEstebanGutierrez(),
 								Contributors.ignacioMolina()).
+							startedOn("2015-05-12T14:41:20Z").
 							build());
 			generator.
 				generateProjectData(
@@ -517,6 +522,7 @@ public class ProjectDataGenerator {
 							name("Linked Data Platform for Java").
 							contributors(
 								Contributors.miguelEstebanGutierrez()).
+							startedOn("2014-04-23T08:34:38Z").
 							build());
 			generator.
 				generateProjectData(
@@ -524,6 +530,7 @@ public class ProjectDataGenerator {
 						builder().
 							id("project-jenkins").
 							name("Jenkins").
+							startedOn("2015-05-12T14:41:20Z").
 							build());
 			generator.
 				generateProjectData(
@@ -531,6 +538,7 @@ public class ProjectDataGenerator {
 						builder().
 							id("project-phoenix").
 							name("phoenix").
+							startedOn("2015-05-12T14:41:20Z").
 							build());
 			final Path path = Paths.get(args[0]);
 			Files.
