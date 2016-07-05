@@ -55,7 +55,7 @@
 
 	<properties>
 		<deployment.dir>${basedir}${file.separator}.webapp</deployment.dir>
-		<harvester.config>${basedir}${file.separator}.config${file.separator}local-data.json</harvester.config>
+		<harvester.localData>${env.LOCAL_DATA}</harvester.localData>
 		<harvester.collector>${env.TARGET}</harvester.collector>
 		<harvester.http.port>${env.HTTP_PORT}</harvester.http.port>
 		<harvester.http.host>${env.HTTP_HOST}</harvester.http.host>
@@ -98,9 +98,6 @@
 								<include>.webapp${file.separator}</include>
 								<include>.webapp${file.separator}*</include>
 								<include>.webapp${file.separator}**${file.separator}*</include>
-								<include>.crawler${file.separator}</include>
-								<include>.crawler${file.separator}*</include>
-								<include>.crawler${file.separator}**${file.separator}*</include>
 							</includes>
 						</fileset>
 					</filesets>
@@ -183,7 +180,7 @@
 							<path>/harvester</path>
 							<systemProperties>
 								<it.harvester.collector>${harvester.collector}</it.harvester.collector>
-								<it.harvester.localController>${harvester.config}</it.harvester.localController>
+								<it.harvester.localController>${harvester.localData}</it.harvester.localController>
 								<it.harvester.base>${harvester.base}</it.harvester.base>
 							</systemProperties>
 							<useTestClasspath>false</useTestClasspath>
