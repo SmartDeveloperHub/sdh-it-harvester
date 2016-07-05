@@ -61,7 +61,6 @@
 	<properties>
 		<jena.version>2.13.0</jena.version>
 		<failsafe.arg.line>-Xmx1024m -XX:MaxPermSize=256m</failsafe.arg.line>
-		<generator.version>0.1.0-SNAPSHOT</generator.version>
 		<app.generator.main>org.smartdeveloperhub.harvesters.it.testing.generator.ProjectDataGenerator</app.generator.main>
 	</properties>
 
@@ -314,7 +313,7 @@
 									<jvmSettings>
 										<extraArguments>
 											<extraArgument>-Dservice.version=${project.version}</extraArgument>
-											<extraArgument>-Dservice.build=${sdh.buildNumber}</extraArgument>
+											<extraArgument>-Dservice.build=${git.commitsCount} (${git.branch}@${git.buildnumber})</extraArgument>
 										</extraArguments>
 									</jvmSettings>
 								</program>

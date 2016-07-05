@@ -38,14 +38,15 @@ import org.smartdeveloperhub.harvesters.it.frontend.controller.LocalData;
 
 import com.google.common.io.Files;
 
-public class ProjectDataGenerator {
+public final class ProjectDataGenerator {
 
 	private static final Logger LOGGER=LoggerFactory.getLogger(ProjectDataGenerator.class);
 
 	private final LocalData data;
 
-	private ProjectDataGenerator(final LocalData data) {
-		this.data = data;
+	private ProjectDataGenerator() {
+		this.data=new LocalData();
+		this.data.getContributors().addAll(Contributors.all());
 	}
 
 	private void generateProjectData(final ProjectConfiguration configuration) {
@@ -54,108 +55,154 @@ public class ProjectDataGenerator {
 		generator.addData(this.data);
 	}
 
+	private LocalData data() {
+		return this.data;
+	}
+
 	public static void main(final String... args) {
+		final Path path = getOutputPath(args);
 		try {
-			final LocalData data=new LocalData();
-			data.getContributors().addAll(Contributors.all());
-			final ProjectDataGenerator generator=new ProjectDataGenerator(data);
-			generator.
-				generateProjectData(
-					ProjectConfiguration.
-						builder().
-							id("project-sdh").
-							name("Smart Developer Hub").
-							contributors(
-								Contributors.alexFernandez(),
-								Contributors.alejandroVera(),
-								Contributors.carlosBlanco(),
-								Contributors.fernandoSerena(),
-								Contributors.andresGarciaSilva(),
-								Contributors.miguelEstebanGutierrez(),
-								Contributors.ignacioMolina(),
-								Contributors.mariaPoveda()).
-							startedOn("2015-05-12T14:41:20Z").
-							build());
-			generator.
-				generateProjectData(
-					ProjectConfiguration.
-						builder().
-							id("project-sdh-agora").
-							name("Graph-based Query System for LDP").
-							contributors(
-								Contributors.fernandoSerena(),
-								Contributors.miguelEstebanGutierrez()).
-							startedOn("2015-05-12T14:41:20Z").
-							build());
-			generator.
-				generateProjectData(
-					ProjectConfiguration.
-						builder().
-							id("project-sdh-metrics").
-							name("Metric Services").
-							contributors(
-								Contributors.fernandoSerena()).
-							startedOn("2015-05-12T14:41:20Z").
-							build());
-			generator.
-				generateProjectData(
-					ProjectConfiguration.
-						builder().
-							id("project-sdh-web").
-							name("Web Framework and Dashboards").
-							contributors(
-								Contributors.alejandroVera(),
-								Contributors.carlosBlanco()).
-							startedOn("2015-05-12T14:41:20Z").
-							build());
-			generator.
-				generateProjectData(
-					ProjectConfiguration.
-						builder().
-							id("project-sdh-harvesters").
-							name("Harvesters").
-							contributors(
-								Contributors.alexFernandez(),
-								Contributors.andresGarciaSilva(),
-								Contributors.miguelEstebanGutierrez(),
-								Contributors.ignacioMolina()).
-							startedOn("2015-05-12T14:41:20Z").
-							build());
-			generator.
-				generateProjectData(
-					ProjectConfiguration.
-						builder().
-							id("project-ldp4j").
-							name("Linked Data Platform for Java").
-							contributors(
-								Contributors.miguelEstebanGutierrez()).
-							startedOn("2014-04-23T08:34:38Z").
-							build());
-			generator.
-				generateProjectData(
-					ProjectConfiguration.
-						builder().
-							id("project-jenkins").
-							name("Jenkins").
-							startedOn("2015-05-12T14:41:20Z").
-							build());
-			generator.
-				generateProjectData(
-					ProjectConfiguration.
-						builder().
-							id("project-phoenix").
-							name("phoenix").
-							startedOn("2015-05-12T14:41:20Z").
-							build());
-			final Path path = Paths.get(args[0]);
+			System.out.printf("Project Test Data Generator %s%n",serviceVersion());
+			final LocalData localData = generateData();
 			Files.
 				write(
-					Entities.marshallEntity(data),
+					Entities.marshallEntity(localData),
 					path.toFile(),
 					StandardCharsets.UTF_8);
 		} catch (final IOException e) {
 			LOGGER.error("Project generation failed",e);
 			System.exit(-1);
 		}
+	}
+
+	private static Path getOutputPath(final String... args) {
+		if(args.length!=1) {
+			System.err.printf("Invalid argument number: 1 argument required (%d found)%n", args.length);
+			showUsage(args);
+			System.exit(-1);
+		}
+		final Path path = Paths.get(args[0]);
+		if(path.toFile().isDirectory()) {
+			System.err.printf("Error: %s is a directory%n",path);
+			showUsage(args);
+			System.exit(-2);
+		}
+		return path;
+	}
+
+	private static void showUsage(final String... args) {
+		System.err.printf("USAGE: %s <output file>%n",AppAssembler.applicationName(ProjectDataGenerator.class));
+		System.err.printf(" <output file> : Name of the file where the generated data will be stored.%n");
+		Application.logContext(args);
+	}
+
+	private static String serviceVersion() {
+		final String build=serviceBuild();
+		final String version=System.getProperty("service.version","");
+		if(version.isEmpty()) {
+			return version;
+		}
+		return " v"+version+build;
+	}
+
+	private static String serviceBuild() {
+		String build = System.getProperty("service.build","");
+		if(!build.isEmpty()) {
+			build="-b"+build;
+		}
+		return build;
+	}
+
+	private static LocalData generateData() {
+		final ProjectDataGenerator generator=new ProjectDataGenerator();
+		generator.
+			generateProjectData(
+				ProjectConfiguration.
+					builder().
+						id("project-sdh").
+						name("Smart Developer Hub").
+						contributors(
+							Contributors.alexFernandez(),
+							Contributors.alejandroVera(),
+							Contributors.carlosBlanco(),
+							Contributors.fernandoSerena(),
+							Contributors.andresGarciaSilva(),
+							Contributors.miguelEstebanGutierrez(),
+							Contributors.ignacioMolina(),
+							Contributors.mariaPoveda()).
+						startedOn("2015-05-12T14:41:20Z").
+						build());
+		generator.
+			generateProjectData(
+				ProjectConfiguration.
+					builder().
+						id("project-sdh-agora").
+						name("Graph-based Query System for LDP").
+						contributors(
+							Contributors.fernandoSerena(),
+							Contributors.miguelEstebanGutierrez()).
+						startedOn("2015-05-12T14:41:20Z").
+						build());
+		generator.
+			generateProjectData(
+				ProjectConfiguration.
+					builder().
+						id("project-sdh-metrics").
+						name("Metric Services").
+						contributors(
+							Contributors.fernandoSerena()).
+						startedOn("2015-05-12T14:41:20Z").
+						build());
+		generator.
+			generateProjectData(
+				ProjectConfiguration.
+					builder().
+						id("project-sdh-web").
+						name("Web Framework and Dashboards").
+						contributors(
+							Contributors.alejandroVera(),
+							Contributors.carlosBlanco()).
+						startedOn("2015-05-12T14:41:20Z").
+						build());
+		generator.
+			generateProjectData(
+				ProjectConfiguration.
+					builder().
+						id("project-sdh-harvesters").
+						name("Harvesters").
+						contributors(
+							Contributors.alexFernandez(),
+							Contributors.andresGarciaSilva(),
+							Contributors.miguelEstebanGutierrez(),
+							Contributors.ignacioMolina()).
+						startedOn("2015-05-12T14:41:20Z").
+						build());
+		generator.
+			generateProjectData(
+				ProjectConfiguration.
+					builder().
+						id("project-ldp4j").
+						name("Linked Data Platform for Java").
+						contributors(
+							Contributors.miguelEstebanGutierrez()).
+						startedOn("2014-04-23T08:34:38Z").
+						build());
+		generator.
+			generateProjectData(
+				ProjectConfiguration.
+					builder().
+						id("project-jenkins").
+						name("Jenkins").
+						startedOn("2015-05-12T14:41:20Z").
+						build());
+		generator.
+			generateProjectData(
+				ProjectConfiguration.
+					builder().
+						id("project-phoenix").
+						name("phoenix").
+						startedOn("2015-05-12T14:41:20Z").
+						build());
+		return generator.data();
 	}
 }
