@@ -600,6 +600,7 @@ private final class ComponentChangeInformationPoint implements ChangeInformation
 		}
 
 		this.issues.put(issueId,issue);
+		this.project.getIssues().add(issueId);
 		this.project.getTopIssues().add(issueId);
 	}
 
