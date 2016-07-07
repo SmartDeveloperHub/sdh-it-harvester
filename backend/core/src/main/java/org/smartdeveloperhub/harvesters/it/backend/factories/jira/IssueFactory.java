@@ -313,10 +313,10 @@ public class IssueFactory {
 						}
 
 					} catch (IllegalStateException e) {
-						logger.warn("Exception! IllegalState.\n" + 
-										"Property: " + jiraItem.getField() +
-										" - oldValue: " + jiraItem.getFromString() +
-										" - newValue: " + jiraItem.getToString() + ". {}", e);
+//						logger.warn("Exception! IllegalState.\n" + 
+//										"Property: " + jiraItem.getField() +
+//										" - oldValue: " + jiraItem.getFromString() +
+//										" - newValue: " + jiraItem.getToString() + ". {}", e);
 					}
 				}
 			}
@@ -449,8 +449,8 @@ public class IssueFactory {
 
 			item = Item.builder()
 							.components()
-								.newValue(jiraItem.getFromString())
-								.oldValue(jiraItem.getToString())
+								.oldValue(jiraItem.getFromString())
+								.newValue(jiraItem.getToString())
 								.build();
 
 		} else if (ChangeLogProperty.TITLE.is(field)) {
