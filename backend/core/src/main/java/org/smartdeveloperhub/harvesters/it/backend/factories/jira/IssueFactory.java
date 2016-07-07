@@ -321,8 +321,10 @@ public class IssueFactory {
 				}
 			}
 
-			entry.setItems(items);
-			entries.add(entry);
+			if (!items.isEmpty()) {
+				entry.setItems(items);
+				entries.add(entry);
+			}
 		}
 
 		changeLog.setEntries(entries);
