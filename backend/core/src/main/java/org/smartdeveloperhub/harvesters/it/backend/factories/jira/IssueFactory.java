@@ -313,15 +313,16 @@ public class IssueFactory {
 						}
 
 					} catch (IllegalStateException e) {
-//						logger.warn("Exception! IllegalState.\n" + 
-//										"Property: " + jiraItem.getField() +
-//										" - oldValue: " + jiraItem.getFromString() +
-//										" - newValue: " + jiraItem.getToString() + ". {}", e);
+						logger.warn("Ignoring entry because IllegalState.\n" + 
+										"Property: " + jiraItem.getField() +
+										" - oldValue: " + jiraItem.getFromString() +
+										" - newValue: " + jiraItem.getToString() + ". {}", e);
 					}
 				}
 			}
 
 			if (!items.isEmpty()) {
+
 				entry.setItems(items);
 				entries.add(entry);
 			}
