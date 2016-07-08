@@ -208,24 +208,6 @@
 
 	</dependencies>
 
-	<profiles>
-		<profile>
-			<id>local-data</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<controllerImplementation>org.smartdeveloperhub.harvesters.it.frontend.controller.LocalBackendControllerFactory</controllerImplementation>
-			</properties>
-		</profile>
-		<profile>
-			<id>remote</id>
-			<properties>
-				<controllerImplementation>org.smartdeveloperhub.harvesters.it.frontend.controller.RemoteBackendControllerFactory</controllerImplementation>
-			</properties>
-		</profile>
-	</profiles>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -280,7 +262,6 @@
 						<resource>
 							<directory>${basedir}${file.separator}src${file.separator}main${file.separator}conf</directory>
 							<targetPath>WEB-INF/classes/META-INF/services</targetPath>
-							<filtering>true</filtering>
 							<includes>
 								<include>org.smartdeveloperhub.harvesters.it.frontend.spi.BackendControllerFactory</include>
 							</includes>
