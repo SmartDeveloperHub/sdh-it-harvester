@@ -34,12 +34,15 @@ import com.atlassian.jira.rest.client.api.domain.BasicProject;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.Project;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
+import com.atlassian.jira.rest.client.api.domain.User;
 import com.atlassian.jira.rest.client.api.domain.Version;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
+import com.google.common.collect.Lists;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 import org.smartdeveloperhub.harvesters.it.backend.State;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.Crawler;
@@ -49,6 +52,12 @@ import org.smartdeveloperhub.harvesters.it.backend.factories.jira.IssueFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ProjectFactory;
 import org.smartdeveloperhub.harvesters.it.backend.factories.jira.VersionFactory;
 import org.smartdeveloperhub.harvesters.it.backend.storage.Storage;
+import org.smartdeveloperhub.harvesters.it.notification.NotificationPublisher;
+import org.smartdeveloperhub.harvesters.it.notification.event.ContributorCreatedEvent;
+import org.smartdeveloperhub.harvesters.it.notification.event.Event;
+import org.smartdeveloperhub.harvesters.it.notification.event.Modification;
+import org.smartdeveloperhub.harvesters.it.notification.event.ProjectCreatedEvent;
+import org.smartdeveloperhub.harvesters.it.notification.event.ProjectUpdatedEvent;
 
 import java.io.IOException;
 import java.net.URI;
@@ -76,6 +85,8 @@ public class JiraCrawler implements Crawler {
 	private URI uri;
 	private String username;
 	private String password;
+	private NotificationPublisher publisher;
+	private String instance;
 	private Storage storage;
 	private ProjectFactory projectFactory;
 	private ContributorFactory contributorFactory;
@@ -83,7 +94,8 @@ public class JiraCrawler implements Crawler {
 	private VersionFactory versionFactory;
 	private ComponentFactory componentFactory;
 
-	public JiraCrawler(String url, String username, String password, Storage storage,
+	public JiraCrawler(String url, String username, String password,
+					NotificationPublisher publisher, String instance, Storage storage,
 					ProjectFactory projectFactory, ContributorFactory contributorFactory,
 					IssueFactory issueFactory, VersionFactory versionFactory,
 					ComponentFactory componentFactory) throws URISyntaxException {
@@ -93,6 +105,11 @@ public class JiraCrawler implements Crawler {
 												"Username can't be null.");
 		this.password = Objects.requireNonNull(password,
 												"Password can't be null.");
+
+		this.publisher = Objects.requireNonNull(publisher,
+												"NotificationPublisher cannot be null.");
+
+		this.instance = Objects.requireNonNull(instance, "Instance cann't be null");
 
 		// Storage
 		this.storage = Objects.requireNonNull(storage, "Storage cannot be null");
@@ -148,7 +165,14 @@ public class JiraCrawler implements Crawler {
 
 				LOGGER.info("Updating contributors");
 				// Scan for new contributors
-				updateContributors(contributors, jiraIssues);
+				Set<String> newContributors = updateContributors(contributors, jiraIssues);
+
+				if (!newContributors.isEmpty()) {
+
+					ContributorCreatedEvent event = new ContributorCreatedEvent();
+					event.setNewContributors(Lists.newArrayList(newContributors));
+					sendNotification(event);
+				}
 
 				LOGGER.info("Creating issues");
 				for (Issue jiraIssue : jiraIssues) {
@@ -173,21 +197,79 @@ public class JiraCrawler implements Crawler {
 
 				if (oldProject != null) {
 
+					Set<String> newTop = difference(project.getTopIssues(), oldProject.getTopIssues());
+					Set<String> newIssues = difference(project.getIssues(), oldProject.getIssues());
+					Set<String> updatedTop = difference(project.getTopIssues(), newTop);
+					Set<String> updatedIssues = difference(project.getIssues(), newIssues);
+
 					project.getTopIssues().addAll(oldProject.getTopIssues());
 					project.getIssues().addAll(oldProject.getIssues());
+
+					ProjectUpdatedEvent event = new ProjectUpdatedEvent();
+					Set<String> news = new HashSet<>();
+					news.addAll(newTop);
+					news.addAll(newIssues);
+					Set<String> updated = new HashSet<>();
+					updated.addAll(updatedTop);
+					updated.addAll(updatedIssues);
+
+					addIssueChanges(event, news, updated);
+
+					if (!news.isEmpty() || !updated.isEmpty()) {
+						sendNotification(event);
+					}
+
+				} else {
+
+					ProjectCreatedEvent event = new ProjectCreatedEvent();
+					event.setNewProjects(Lists.newArrayList(jiraProject.getKey()));
+					sendNotification(event);
 				}
 
 				projects.put(jiraProject.getKey(), project);
 
+				// Store components & notifying new ones
+				Set<Component> components = getAllComponents(jiraProject.getKey(), jiraProject.getComponents());
+
+				Set<String> componentIds = new HashSet<>();
+				for (Component component : components) {
+					componentIds.add(component.getId());
+				}
+
 				LOGGER.info("Storing issues and components and versions.");
-				// Store components
-				storage.storeComponents(jiraProject.getKey(),
-										getAllComponents(jiraProject.getKey(),
-														jiraProject.getComponents()));
+				Map<String, Component> oldComponentsMap = storage.loadComponents(jiraProject.getKey());
+
+				Set<String> newComponents = difference(componentIds, oldComponentsMap.keySet());
+
+				ProjectUpdatedEvent event = new ProjectUpdatedEvent();
+				for (String id : newComponents) {
+					event.append(Modification.create().component(id));
+				}
+
+				storage.storeComponents(jiraProject.getKey(), components);
+
 				// Store versions
-				storage.storeVersions(jiraProject.getKey(),
-										getAllVersions(jiraProject.getKey(),
-														jiraProject.getVersions()));
+				Set<org.smartdeveloperhub.harvesters.it.backend.Version> versions = getAllVersions(jiraProject.getKey(), jiraProject.getVersions());
+
+				Set<String> versionIds = new HashSet<>();
+				for (org.smartdeveloperhub.harvesters.it.backend.Version version : versions) {
+					versionIds.add(version.getId());
+				}
+
+				Map<String, org.smartdeveloperhub.harvesters.it.backend.Version> oldVersionsMap = storage.loadVersions(jiraProject.getKey());
+
+				Set<String> newVersions = difference(versionIds, oldVersionsMap.keySet());
+
+				for (String id : newVersions) {
+					event.append(Modification.create().version(id));
+				}
+
+				if (!newComponents.isEmpty() || !newVersions.isEmpty()) {
+
+					sendNotification(event);
+				}
+
+				storage.storeVersions(jiraProject.getKey(), versions);
 				// Store new issues
 				storage.storeIssues(jiraProject.getKey(), issues.values());
 			}
@@ -218,6 +300,41 @@ public class JiraCrawler implements Crawler {
 		LOGGER.info("Finished crawling services.");
 	}
 
+	private void addIssueChanges(ProjectUpdatedEvent event, Set<String> newIssues, Set<String> updatedIssues) {
+
+		for (String id : newIssues) {
+
+			event.append(Modification.create().issue(id));
+		}
+
+		for (String id : updatedIssues) {
+
+			event.append(Modification.update().issue(id));
+		}
+	}
+
+	private Set<String> difference(Set<String> minuend, Set<String> subtrahend) {
+
+		Set<String> difference = new HashSet<>();
+		difference.addAll(minuend);
+		difference.removeAll(subtrahend);
+
+		return difference;
+	}
+
+	/**
+	 * Method to send notification through the publisher adding timestamp and
+	 * instance information.
+	 * @param event Event to send.
+	 * @throws IOException when an I/O exception occurs.
+	 */
+	private void sendNotification(Event event) throws IOException {
+
+		event.setTimestamp(System.currentTimeMillis());
+		event.setInstance(instance);
+		publisher.publish(event);
+	}
+
 	private void getTopAndChildIssues(
 			Map<String, org.smartdeveloperhub.harvesters.it.backend.Issue> issues,
 			Set<org.smartdeveloperhub.harvesters.it.backend.Issue> topIssues,
@@ -239,22 +356,55 @@ public class JiraCrawler implements Crawler {
 		topIssues.addAll(auxIssues.values());
 	}
 
-	private void updateContributors(Map<String, Contributor> contributors,
+	/**
+	 * Update Contributors Map and return the new ones.
+	 * @param contributors Map of contributors
+	 * @param jiraIssues a jira issue
+	 * @return Ids of contributors that were not present in the map.
+	 */
+	private Set<String> updateContributors(Map<String, Contributor> contributors,
 									Iterable<Issue> jiraIssues) {
+
+		Set<String> newContributors = new HashSet<>(); 
 
 		for (Issue jiraIssue : jiraIssues) {
 
 			if (jiraIssue.getReporter() != null) {
 
-				Contributor contributor = contributorFactory.createContributor(jiraIssue.getReporter());
-				contributors.put(contributor.getId(), contributor);
+				Contributor added = addContributor(contributors, jiraIssue.getReporter());
+
+				if (added != null) {
+
+					newContributors.add(added.getId());
+				}
 			}
 			if (jiraIssue.getAssignee() != null) {
 
-				Contributor contributor = contributorFactory.createContributor(jiraIssue.getAssignee());
-				contributors.put(contributor.getId(), contributor);
+				Contributor added = addContributor(contributors, jiraIssue.getAssignee());
+
+				if (added != null) {
+
+					newContributors.add(added.getId());
+				}
 			}
 		}
+
+		return newContributors;
+	}
+
+	/**
+	 * Add contributor to the map and returned if there a new one.
+	 * @param contributors map of contributors
+	 * @param user information regarding user.
+	 * @return new Contributor or null if there is not.
+	 */
+	private Contributor addContributor(Map<String, Contributor> contributors, User user) {
+
+		Contributor contributor = contributorFactory.createContributor(user);
+		Contributor oldContributor = contributors.put(contributor.getId(),
+												contributor);
+
+		return oldContributor != null ? null : contributor;
 	}
 
 	private Set<org.smartdeveloperhub.harvesters.it.backend.Component>

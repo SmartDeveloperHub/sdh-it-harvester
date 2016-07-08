@@ -47,6 +47,8 @@ import org.smartdeveloperhub.harvesters.it.backend.factories.jira.VersionFactory
 import org.smartdeveloperhub.harvesters.it.backend.storage.Storage;
 import org.smartdeveloperhub.harvesters.it.backend.storage.redis.RedisStorage;
 import org.smartdeveloperhub.harvesters.it.backend.utils.MappingLoader;
+import org.smartdeveloperhub.harvesters.it.notification.CollectorConfiguration;
+import org.smartdeveloperhub.harvesters.it.notification.NotificationPublisher;
 
 import java.io.File;
 import java.io.IOException;
@@ -76,12 +78,18 @@ public class Orchestrator {
 	private final static String REDIS_SERVER = "redisServer";
 	private final static String REDIS_PORT = "redisPort";
 
+	private final static String INSTANCE = "instance";
+	private final static String BROKER_HOST = "brokerHost";
+	private final static String BROKER_PORT = "brokerPort";
+	private final static String VIRTUAL_HOST = "virtualHost";
+	private final static String EXCHANGE_NAME = "exchange_name";
+
 	private final static String SERVLET_PORT = "servletPort";
 	private final static String SERVLET_PATH = "servletPath";
 	private final static String CRAWLER_PERIOD = "collectorPeriodicity";
-	
-	private Fetcher fetcher;
+
 	private ExecutorService executorService;
+	private NotificationPublisher publisher;
 
 	public Orchestrator(ExecutorService executor) {
 
@@ -90,7 +98,7 @@ public class Orchestrator {
 											"ExecutorService can't be null.");
 	}
 
-	public void start() throws IOException {
+	public void start() throws IOException, LifecycleException, URISyntaxException {
 
 		Properties properties = new Properties();
 		properties.load(this.getClass().getResourceAsStream("/config.properties"));
@@ -107,6 +115,23 @@ public class Orchestrator {
 		int servletPort = Integer.parseInt(properties.getProperty(SERVLET_PORT));
 		String servletPath = properties.getProperty(SERVLET_PATH);
 		long crawlerTime = Long.parseLong(properties.getProperty(CRAWLER_PERIOD));
+
+		String instance = properties.getProperty(INSTANCE, "http://localhost");
+		String brokerHost = properties.getProperty(BROKER_HOST, "localhost");
+		int brokerPort = Integer.parseInt(properties.getProperty(BROKER_PORT, "5672"));
+		String virtualHost = properties.getProperty(VIRTUAL_HOST, "/");
+		String exchangeName = properties.getProperty(EXCHANGE_NAME, "itcollector");
+
+		// Setup of the notification publisher
+		CollectorConfiguration amqpConfig = new CollectorConfiguration();
+		amqpConfig.setInstance(instance);
+		amqpConfig.setBrokerHost(brokerHost);
+		amqpConfig.setBrokerPort(brokerPort);
+		amqpConfig.setVirtualHost(virtualHost);
+		amqpConfig.setExchangeName(exchangeName);
+
+		publisher = NotificationPublisher.newInstance(amqpConfig);
+		publisher.start();
 
 		// Loading mappings values
 		MappingLoader mappingLoader = new MappingLoader();
@@ -148,29 +173,28 @@ public class Orchestrator {
 
 		Tomcat.addServlet(rootCtx, "ITHarvester", servlet);
 		rootCtx.addServletMapping(servletPath, "ITHarvester");
-		try {
-			tomcat.start();
-		} catch (LifecycleException e) {
 
-			LOGGER.error("Error when trying to start tomcat service. {}", e);
-		}
+		tomcat.start();
 		
-		try {
-
-			Crawler crawler = new JiraCrawler(url, username, password, storage,
-												projectFactory, contributorFactory,
-												issueFactory, versionFactory,
-												componentFactory);
-			fetcher = new Fetcher(crawler);
+		Crawler crawler = new JiraCrawler(url, username, password, publisher,
+											instance, storage,
+											projectFactory, contributorFactory,
+											issueFactory, versionFactory,
+											componentFactory);
+		Fetcher fetcher = new Fetcher(crawler);
 
 		((ScheduledThreadPoolExecutor) executorService).scheduleAtFixedRate(
 				fetcher, 0, crawlerTime, TimeUnit.MINUTES);
 
-		} catch (URISyntaxException e) {
+	}
 
-			LOGGER.error("Error when trying to construct collector. {}", e);
+	public void shutdown() {
+
+		executorService.shutdown();
+		if (publisher != null) {
+
+			publisher.shutdown();
 		}
-
 	}
 
 	public static void main(String[] args) {
@@ -185,6 +209,7 @@ public class Orchestrator {
 		} catch (Exception e) {
 
 			LOGGER.error("Exception while running service. {}", e);
+			orchestrator.shutdown();
 		}
 	}
 }

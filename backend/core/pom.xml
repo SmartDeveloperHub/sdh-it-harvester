@@ -101,6 +101,12 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.smartdeveloperhub.harvesters.it</groupId>
+			<artifactId>it-harvester-notification</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
 		<!-- http://mvnrepository.com/artifact/redis.clients/jedis -->
 		<dependency>
 			<groupId>redis.clients</groupId>
