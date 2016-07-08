@@ -103,19 +103,19 @@ public class Contributors {
 		return contributor;
 	}
 
-	public static Contributor ignacioMolina() {
+	static Contributor ignacioMolina() {
 		final Contributor contributor = new Contributor();
-		contributor.setId("XXXX");
+		contributor.setId("1015");
 		contributor.setName("Ignacio Molina Cuquerella");
-		contributor.getEmails().add("xxxx@xxxx.xxx");
+		contributor.getEmails().add("imolina@centeropenmiddleware.com");
 		return contributor;
 	}
 
-	public static Contributor mariaPoveda() {
+	static Contributor mariaPoveda() {
 		final Contributor contributor = new Contributor();
-		contributor.setId("YYYY");
+		contributor.setId("1016");
 		contributor.setName("Maria Poveda Villalon");
-		contributor.getEmails().add("yyyy@yyyy.yyy");
+		contributor.getEmails().add("mpoveda@fi.upm.es");
 		return contributor;
 	}
 
