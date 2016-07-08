@@ -62,7 +62,7 @@
 
 	<properties>
 		<jackson.version>2.7.4</jackson.version>
-		<ldp4j.version>0.3.0-SNAPSHOT</ldp4j.version>
+		<ldp4j.version>0.2.1</ldp4j.version>
 	</properties>
 
 	<dependencyManagement>

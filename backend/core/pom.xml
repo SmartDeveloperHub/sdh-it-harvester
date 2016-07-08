@@ -58,7 +58,7 @@
 	<!-- =================================================================== -->
 
 	<properties>
-		<ldp4j.version>0.3.0-SNAPSHOT</ldp4j.version>
+		<ldp4j.version>0.2.1</ldp4j.version>
 		<jackson.version>2.4.4</jackson.version>
 		<rabbitmq.version>3.5.5</rabbitmq.version>
 	</properties>
