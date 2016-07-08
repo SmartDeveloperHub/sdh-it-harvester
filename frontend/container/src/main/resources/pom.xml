@@ -55,6 +55,7 @@
 
 	<properties>
 		<deployment.dir>${basedir}${file.separator}.webapp</deployment.dir>
+		<harvester.backendFactory>${env.BACKEND_FACTORY}</harvester.backendFactory>
 		<harvester.localData>${env.LOCAL_DATA}</harvester.localData>
 		<harvester.collector>${env.TARGET}</harvester.collector>
 		<harvester.http.port>${env.HTTP_PORT}</harvester.http.port>
@@ -179,6 +180,7 @@
 							<configurationDir>${basedir}${file.separator}.container</configurationDir>
 							<path>/harvester</path>
 							<systemProperties>
+								<it.harvester.defaultControllerFactory>${harvester.backendFactory}</it.harvester.defaultControllerFactory>
 								<it.harvester.collector>${harvester.collector}</it.harvester.collector>
 								<it.harvester.localController>${harvester.localData}</it.harvester.localController>
 								<it.harvester.base>${harvester.base}</it.harvester.base>
