@@ -49,6 +49,7 @@ import org.smartdeveloperhub.harvesters.it.backend.ProjectScoped;
 import org.smartdeveloperhub.harvesters.it.backend.State;
 import org.smartdeveloperhub.harvesters.it.backend.Version;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.ActivityListener;
+import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.NotifyingTestingCollector;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.ProjectChange;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.TestingCollector;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.handlers.EntityNotFoundException;
@@ -76,13 +77,23 @@ public final class TestingService {
 
 	public static class Builder {
 
+		private static final class NotifyingTestingCollectorProvider implements TestingCollectorProvider {
+			@Override
+			public TestingCollector provide(final CollectorConfiguration configuration) {
+				LOGGER.info("Using Notifying testing collector...");
+				return new NotifyingTestingCollector(configuration);
+			}
+		}
+
 		private int port=8080;
 		private String exchangeName="it.collector.mock";
 		private ActivityListener listener;
 		private final Map<String,HttpHandler> endpoints;
 		private APIVersion version=APIVersion.v1;
+		private TestingCollectorProvider provider;
 
 		private Builder() {
+			this.provider=new NotifyingTestingCollectorProvider();
 			this.endpoints=Maps.newLinkedHashMap();
 		}
 
@@ -111,6 +122,12 @@ public final class TestingService {
 			return this;
 		}
 
+		public Builder collector(final TestingCollectorProvider provider) {
+			checkNotNull(provider, "Testing collector provider cannot be null");
+			this.provider=provider;
+			return this;
+		}
+
 		public Builder addEndpoint(final String path, final HttpHandler handler) {
 			checkNotNull(path,"Path cannot be null");
 			checkNotNull(handler,"Handler cannot be null");
@@ -125,7 +142,8 @@ public final class TestingService {
 					this.exchangeName,
 					this.version,
 					this.listener,
-					this.endpoints);
+					this.endpoints,
+					this.provider);
 		}
 
 	}
@@ -148,14 +166,12 @@ public final class TestingService {
 
 	private boolean serverStarted;
 
-	private TestingService(final int port, final String exchangeName, final APIVersion version, final ActivityListener listener, final Map<String, HttpHandler> endpoints) {
+	private TestingService(final int port, final String exchangeName, final APIVersion version, final ActivityListener listener, final Map<String, HttpHandler> endpoints, final TestingCollectorProvider provider) {
 		this.port      = port;
 		this.version   = version;
 		this.config    = createControllerConfiguration(port, exchangeName);
 		this.publisher = NotificationPublisher.newInstance(this.config);
-		this.collector =
-			new TestingCollector(this.config).
-				registerListener(listener);
+		this.collector = provider.provide(this.config).registerListener(listener);
 		final PathTemplateHandler handler=
 			pathTemplate(false).
 				add("/collector/api",
@@ -302,13 +318,13 @@ public final class TestingService {
 	}
 
 	public TestingService start() throws IOException {
-		LOGGER.info("Starting Jira Collector Publisher Service...");
+		LOGGER.info("Starting IT Collector Publisher Service...");
 		this.publisher.start();
-		LOGGER.info("Jira Collector Publisher Service started. Using exchange {}",this.config.getExchangeName());
+		LOGGER.info("IT Collector Publisher Service started. Using exchange {}",this.config.getExchangeName());
 		this.collectorStarted=true;
-		LOGGER.info("Starting Jira Collector Service ({}) ...",this.version);
+		LOGGER.info("Starting IT Collector Service ({}) ...",this.version);
 		this.server.start();
-		LOGGER.info("Jira Collector Service started. Service available locally at port {}",this.port);
+		LOGGER.info("IT Collector Service started. Service available locally at port {}",this.port);
 		this.serverStarted=true;
 		return this;
 	}
@@ -366,15 +382,15 @@ public final class TestingService {
 
 	public TestingService shutdown() {
 		if(this.serverStarted) {
-			LOGGER.info("Stopping Jira Collector Service...");
+			LOGGER.info("Stopping IT Collector Service...");
 			this.server.stop();
-			LOGGER.info("Jira Collector Service stopped.");
+			LOGGER.info("IT Collector Service stopped.");
 			this.serverStarted=false;
 		}
 		if(this.collectorStarted) {
-			LOGGER.info("Stopping Jira Collector Publisher Service...");
+			LOGGER.info("Stopping IT Collector Publisher Service...");
 			this.publisher.shutdown();
-			LOGGER.info("Jira Collector Publisher Service stopped.");
+			LOGGER.info("IT Collector Publisher Service stopped.");
 			this.collectorStarted=false;
 		}
 		return this;
