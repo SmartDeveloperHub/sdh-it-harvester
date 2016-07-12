@@ -100,6 +100,18 @@ public class LocalBackendControllerTest {
 	}
 
 	@Test
+	public void failsIfSpecifiedConfigurationFileIsNotAvailable() throws Exception {
+		final Path path = Paths.get("Unknown/path");
+		final LocalBackendController sut = new LocalBackendController(BASE,path);
+		try {
+			sut.getCollector();
+			fail("Should fail if specified configuration fail is not available");
+		} catch (final IOException e) {
+			assertThat(e.getMessage(),equalTo("Could not find local configuration file '"+path+"'"));
+		}
+	}
+
+	@Test
 	public void failsIfDefaultConfigurationFileIsNotAvailable() throws Exception {
 		final LocalBackendController sut = new LocalBackendController(BASE);
 		try {

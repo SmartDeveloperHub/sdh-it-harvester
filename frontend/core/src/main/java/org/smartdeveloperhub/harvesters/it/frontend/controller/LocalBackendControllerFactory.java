@@ -27,6 +27,7 @@
 package org.smartdeveloperhub.harvesters.it.frontend.controller;
 
 import java.net.URI;
+import java.nio.file.Path;
 
 import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
 import org.smartdeveloperhub.harvesters.it.frontend.spi.BackendControllerFactory;
@@ -36,6 +37,10 @@ public final class LocalBackendControllerFactory implements BackendControllerFac
 	@Override
 	public BackendController create(final URI target) {
 		return new LocalBackendController(target);
+	}
+
+	public BackendController create(final URI target, final Path path) {
+		return new LocalBackendController(target, path);
 	}
 
 }
