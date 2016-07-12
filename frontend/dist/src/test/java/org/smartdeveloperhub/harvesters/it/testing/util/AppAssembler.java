@@ -24,7 +24,7 @@
  *   Bundle      : it-frontend-dist-0.1.0-SNAPSHOT.war
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.testing.generator;
+package org.smartdeveloperhub.harvesters.it.testing.util;
 
 
 public final class AppAssembler {

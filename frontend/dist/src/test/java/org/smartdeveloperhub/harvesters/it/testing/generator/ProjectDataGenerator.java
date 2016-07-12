@@ -35,6 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.backend.Entities;
 import org.smartdeveloperhub.harvesters.it.frontend.controller.LocalData;
+import org.smartdeveloperhub.harvesters.it.testing.util.AppAssembler;
+import org.smartdeveloperhub.harvesters.it.testing.util.Application;
 
 import com.google.common.io.Files;
 
