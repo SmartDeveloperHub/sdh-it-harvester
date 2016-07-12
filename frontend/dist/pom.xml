@@ -135,7 +135,7 @@
 		<dependency>
 			<groupId>org.smartdeveloperhub.testing</groupId>
 			<artifactId>sdh-testing-hamcrest</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
+			<version>0.1.0</version>
 			<scope>test</scope>
 		</dependency>
 
