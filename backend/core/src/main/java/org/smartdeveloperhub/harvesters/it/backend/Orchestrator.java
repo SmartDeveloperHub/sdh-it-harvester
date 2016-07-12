@@ -129,6 +129,11 @@ public class Orchestrator {
 		amqpConfig.setBrokerPort(brokerPort);
 		amqpConfig.setVirtualHost(virtualHost);
 		amqpConfig.setExchangeName(exchangeName);
+		Notifications notifications = new Notifications();
+		notifications.setBrokerHost(brokerHost);
+		notifications.setBrokerPort(brokerPort);
+		notifications.setExchangeName(exchangeName);
+		notifications.setVirtualHost(virtualHost);
 
 		publisher = NotificationPublisher.newInstance(amqpConfig);
 		publisher.start();
@@ -157,7 +162,8 @@ public class Orchestrator {
 		VersionFactory versionFactory = new VersionFactory();
 		ComponentFactory componentFactory = new ComponentFactory();
 		Storage storage = new RedisStorage(redisServer, redisPort);
-		Exhibitor exhibitor = new Exhibitor(version, storage);
+
+		Exhibitor exhibitor = new Exhibitor(version, notifications, storage);
 
 		// Deploying tomcat to listen incoming CAPs
 		Tomcat tomcat = new Tomcat();

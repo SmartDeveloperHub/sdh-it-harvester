@@ -7,9 +7,11 @@ import org.smartdeveloperhub.harvesters.it.backend.Commit;
 import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
+import org.smartdeveloperhub.harvesters.it.backend.Notifications;
 import org.smartdeveloperhub.harvesters.it.backend.Project;
 import org.smartdeveloperhub.harvesters.it.backend.Version;
 import org.smartdeveloperhub.harvesters.it.backend.storage.Storage;
+import org.smartdeveloperhub.harvesters.it.notification.Notification;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,12 +23,14 @@ public class Exhibitor {
 	private static final Logger LOGGER =
 									LoggerFactory.getLogger(Exhibitor.class);
 	private String version;
+	private Notifications notifications;
 	private Storage storage;
 
-	public Exhibitor(String version, Storage storage) {
+	public Exhibitor(String version, Notifications notifications, Storage storage) {
 
 		this.version = Objects.requireNonNull(version, "Version cannot be null.");
 		this.storage = Objects.requireNonNull(storage, "Storage cannot be null.");
+		this.notifications = Objects.requireNonNull(notifications, "Notifications cannot be null.");
 	}
 
 	public Collector getApi() {
@@ -34,6 +38,7 @@ public class Exhibitor {
 		Collector collector = new Collector();
 
 		collector.setVersion(version);
+		collector.setNotifications(notifications);
 
 		return collector;
 	}

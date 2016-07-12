@@ -141,14 +141,14 @@ public class JiraCrawler implements Crawler {
 
 //			Set<org.smartdeveloperhub.harvesters.it.backend.Project> projects = new HashSet<>();
 
-			LOGGER.info("Loading stored contributors");
+//			LOGGER.info("Loading stored contributors");
 			// load Contributors from storage
 			Map<String, Contributor> contributors = storage.loadContributors();
 
 			// load projects from storage
 			Map<String, org.smartdeveloperhub.harvesters.it.backend.Project> projects = storage.loadProjects();
 
-			LOGGER.info("Exploring projects");
+//			LOGGER.info("Exploring projects");
 			for (Project jiraProject : getProjects(client)) {
 
 				Set<org.smartdeveloperhub.harvesters.it.backend.Issue> topIssues = 
@@ -158,12 +158,12 @@ public class JiraCrawler implements Crawler {
 				Map<String, org.smartdeveloperhub.harvesters.it.backend.Issue> issues =
 						new HashMap<String, org.smartdeveloperhub.harvesters.it.backend.Issue>();
 
-				LOGGER.info("Retrieving project issues.");
+//				LOGGER.info("Retrieving project issues.");
 				Iterable<Issue> jiraIssues = getProjectIssues(client,
 																jiraProject.getKey(),
 																lastUpdate);
 
-				LOGGER.info("Updating contributors");
+//				LOGGER.info("Updating contrCibutors");
 				// Scan for new contributors
 				Set<String> newContributors = updateContributors(contributors, jiraIssues);
 
@@ -174,7 +174,7 @@ public class JiraCrawler implements Crawler {
 					sendNotification(event);
 				}
 
-				LOGGER.info("Creating issues");
+//				LOGGER.info("Creating issues");
 				for (Issue jiraIssue : jiraIssues) {
 
 					org.smartdeveloperhub.harvesters.it.backend.Issue issue =
@@ -236,7 +236,7 @@ public class JiraCrawler implements Crawler {
 					componentIds.add(component.getId());
 				}
 
-				LOGGER.info("Storing issues and components and versions.");
+//				LOGGER.info("Storing issues and components and versions.");
 				Map<String, Component> oldComponentsMap = storage.loadComponents(jiraProject.getKey());
 
 				Set<String> newComponents = difference(componentIds, oldComponentsMap.keySet());
