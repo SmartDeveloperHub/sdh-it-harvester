@@ -53,6 +53,9 @@
 				<include>ext/it-frontend-dist*.jar</include>
 				<include>ext/it-frontend-test*.jar</include>
 				<include>ext/Haikunator*.jar</include>
+				<include>ext/undertow*.jar</include>
+				<include>ext/jboss-logging*.jar</include>
+				<include>ext/xnio-*.jar</include>
 			</includes>
 			<excludes>
 				<exclude>lib/*.war</exclude>
@@ -71,10 +74,26 @@
 				<exclude>lib/geronimo*.jar</exclude>
 				<exclude>lib/cxf*.jar</exclude>
 				<exclude>lib/aopalliance*.jar</exclude>
-				<exclude>lib/amqp*.jar</exclude>
+				<!-- exclude>lib/amqp*.jar</exclude -->
 				<exclude>lib/mapdb*.jar</exclude>
 			</excludes>
 			<directory>${basedir}${file.separator}target${file.separator}generator${file.separator}</directory>
+			<filtered>false</filtered>
+		</fileSet>
+		<fileSet>
+			<outputDirectory>conf</outputDirectory>
+			<includes>
+				<include>logging.cfg</include>
+			</includes>
+			<directory>${basedir}${file.separator}src${file.separator}test${file.separator}assembly${file.separator}resources${file.separator}</directory>
+			<filtered>false</filtered>
+		</fileSet>
+		<fileSet>
+			<outputDirectory>ext</outputDirectory>
+			<includes>
+				<include>${project.artifactId}-${project.version}-tests.jar</include>
+			</includes>
+			<directory>${basedir}${file.separator}target${file.separator}</directory>
 			<filtered>false</filtered>
 		</fileSet>
 	</fileSets>
