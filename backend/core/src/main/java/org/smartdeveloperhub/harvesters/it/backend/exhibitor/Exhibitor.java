@@ -26,6 +26,8 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend.exhibitor;
 
+import com.google.common.collect.Lists;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.backend.Collector;
@@ -37,7 +39,6 @@ import org.smartdeveloperhub.harvesters.it.backend.Notifications;
 import org.smartdeveloperhub.harvesters.it.backend.Project;
 import org.smartdeveloperhub.harvesters.it.backend.Version;
 import org.smartdeveloperhub.harvesters.it.backend.storage.Storage;
-import org.smartdeveloperhub.harvesters.it.notification.Notification;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -106,7 +107,7 @@ public class Exhibitor {
 
 	public Collection<String> getCommits() {
 		// TODO:
-		return null;
+		return Lists.newArrayList();
 	}
 
 	public Commit getCommit(String commitId) {

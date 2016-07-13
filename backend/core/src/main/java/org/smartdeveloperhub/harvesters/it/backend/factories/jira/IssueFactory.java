@@ -33,6 +33,7 @@ import com.atlassian.jira.rest.client.api.domain.IssueLink;
 import com.atlassian.jira.rest.client.api.domain.IssueLinkType;
 import com.atlassian.jira.rest.client.api.domain.IssueLinkType.Direction;
 import com.atlassian.jira.rest.client.api.domain.Subtask;
+import com.atlassian.jira.rest.client.api.domain.TimeTracking;
 import com.atlassian.jira.rest.client.api.domain.Version;
 
 import org.joda.time.DateTime;
@@ -68,7 +69,7 @@ import java.util.Set;
  */
 public class IssueFactory {
 
-	private static final Logger logger =
+	private static final Logger LOGGER =
 									LoggerFactory.getLogger(IssueFactory.class);
 
 	private Map<String, Status> statusMapping;
@@ -130,6 +131,22 @@ public class IssueFactory {
 		issue.setOpened(getOpenedDate(jiraIssue, issue.getChanges()));
 		issue.setClosed(getClosedDate(jiraIssue, issue.getChanges()));
 		issue.setDueTo(jiraIssue.getDueDate());
+		TimeTracking track = jiraIssue.getTimeTracking();
+		if (track != null) {
+
+			Integer originalEstimatedMin = track.getOriginalEstimateMinutes();
+			if (originalEstimatedMin != null) {
+
+				issue.setEstimatedTime(Duration.
+										standardMinutes(originalEstimatedMin));
+				LOGGER.info("Original estimated time for Issue {}: {}",
+							issue.getId(),
+							issue.getEstimatedTime());
+			}
+		}  else {
+			LOGGER.info("No time tracking available for issue {}",
+						issue.getId());
+		}
 		issue.setStatus(createStatus(jiraIssue));
 		issue.setPriority(fromMap(jiraIssue.getPriority().getName(), priorityMapping));
 		issue.setSeverity(fromMap(jiraIssue.getPriority().getName(), severityMapping));
@@ -140,10 +157,10 @@ public class IssueFactory {
 
 		issue.setChildIssues(getChildIssuesById(jiraIssue));
 		issue.setBlockedIssues(getBlockedIssuesById(jiraIssue));
-		
+		issue.setTags(jiraIssue.getLabels());
+
 		// TODO: not available.
 //		issue.setCommits(commits);
-//		issue.setTags(tags);
 
 		return issue;
 	}
@@ -313,7 +330,7 @@ public class IssueFactory {
 						}
 
 					} catch (IllegalStateException e) {
-						logger.warn("Ignoring entry because IllegalState.\n" + 
+						LOGGER.warn("Ignoring entry because IllegalState.\n" + 
 										"Property: " + jiraItem.getField() +
 										" - oldValue: " + jiraItem.getFromString() +
 										" - newValue: " + jiraItem.getToString() + ". {}", e);

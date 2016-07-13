@@ -214,7 +214,7 @@ public class JiraCrawler implements Crawler {
 					updated.addAll(updatedIssues);
 
 					addIssueChanges(event, news, updated);
-
+					event.setProject(project.getId());
 					if (!news.isEmpty() || !updated.isEmpty()) {
 						sendNotification(event);
 					}
@@ -242,6 +242,7 @@ public class JiraCrawler implements Crawler {
 				Set<String> newComponents = difference(componentIds, oldComponentsMap.keySet());
 
 				ProjectUpdatedEvent event = new ProjectUpdatedEvent();
+				event.setProject(jiraProject.getKey());
 				for (String id : newComponents) {
 					event.append(Modification.create().component(id));
 				}
