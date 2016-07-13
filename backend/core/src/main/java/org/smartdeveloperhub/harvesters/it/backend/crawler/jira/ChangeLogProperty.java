@@ -43,7 +43,7 @@ public enum ChangeLogProperty {
 	COMPONENT("Component"),
 	PRIORITY("priority"),
 	SEVERITY("severity"),
-	ESTIMATED_TIME("timeestimate"),
+	ESTIMATED_TIME("timeoriginalestimate"),
 	VERSION("Fix Version"),
 	BLOCKERS("Link");
 
