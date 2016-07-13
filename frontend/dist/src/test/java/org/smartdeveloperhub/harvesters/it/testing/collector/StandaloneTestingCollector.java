@@ -92,7 +92,7 @@ public final class StandaloneTestingCollector {
 		Application.logContext(args);
 	}
 
-	private static String serviceVersion() {
+	static String serviceVersion() {
 		final String build=serviceBuild();
 		final String version=System.getProperty("service.version","");
 		if(version.isEmpty()) {
@@ -101,7 +101,7 @@ public final class StandaloneTestingCollector {
 		return " v"+version+build;
 	}
 
-	private static String serviceBuild() {
+	static String serviceBuild() {
 		String build = System.getProperty("service.build","");
 		if(!build.isEmpty()) {
 			build="-b"+build;
@@ -109,7 +109,7 @@ public final class StandaloneTestingCollector {
 		return build;
 	}
 
-	private static int port() {
+	static int port() {
 		final String preference=
 			System.
 				getProperty(
@@ -125,7 +125,7 @@ public final class StandaloneTestingCollector {
 		return port;
 	}
 
-	private static APIVersion apiVersion() {
+	static APIVersion apiVersion() {
 		final String preference=
 			System.
 				getProperty(

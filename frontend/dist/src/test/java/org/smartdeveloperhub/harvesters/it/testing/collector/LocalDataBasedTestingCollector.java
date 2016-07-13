@@ -36,6 +36,7 @@ import org.smartdeveloperhub.harvesters.it.backend.Commit;
 import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
+import org.smartdeveloperhub.harvesters.it.backend.Notifications;
 import org.smartdeveloperhub.harvesters.it.backend.Project;
 import org.smartdeveloperhub.harvesters.it.backend.ProjectScoped;
 import org.smartdeveloperhub.harvesters.it.backend.State;
@@ -45,6 +46,7 @@ import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.ActivityLi
 import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.ProjectChange;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.TestingCollector;
 import org.smartdeveloperhub.harvesters.it.frontend.testing.handlers.EntityNotFoundException;
+import org.smartdeveloperhub.harvesters.it.notification.CollectorConfiguration;
 import org.smartdeveloperhub.harvesters.it.notification.event.CommitCreatedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.CommitDeletedEvent;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorCreatedEvent;
@@ -57,10 +59,12 @@ final class LocalDataBasedTestingCollector implements TestingCollector {
 
 	private final BackendController delegate;
 	private final URI target;
+	private final CollectorConfiguration configuration;
 
-	LocalDataBasedTestingCollector(final BackendController delegate, final URI target) {
+	LocalDataBasedTestingCollector(final BackendController delegate, final URI target, final CollectorConfiguration configuration) {
 		this.delegate = delegate;
 		this.target = target;
+		this.configuration = configuration;
 	}
 
 	@Override
@@ -70,11 +74,19 @@ final class LocalDataBasedTestingCollector implements TestingCollector {
 
 	@Override
 	public Collector getCollector() {
-		try {
-			return this.delegate.getCollector();
-		} catch (final IOException e) {
-			throw new IllegalStateException("Should not fail",e);
-		}
+		final Collector collector = new Collector();
+		collector.setVersion(StandaloneTestingCollector.serviceVersion());
+		collector.setNotifications(getNotifications());
+		return collector;
+	}
+
+	private Notifications getNotifications() {
+		final Notifications notifications=new Notifications();
+		notifications.setBrokerHost(this.configuration.getBrokerHost());
+		notifications.setBrokerPort(this.configuration.getBrokerPort());
+		notifications.setExchangeName(this.configuration.getExchangeName());
+		notifications.setVirtualHost(this.configuration.getVirtualHost());
+		return notifications;
 	}
 
 	@Override

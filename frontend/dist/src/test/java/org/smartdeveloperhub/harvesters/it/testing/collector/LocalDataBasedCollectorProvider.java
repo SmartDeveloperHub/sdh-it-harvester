@@ -52,6 +52,7 @@ final class LocalDataBasedCollectorProvider implements TestingCollectorProvider 
 			new LocalDataBasedTestingCollector(
 				new LocalBackendControllerFactory().
 					create(target,this.localData.toPath()),
-				target);
+				target,
+				configuration);
 	}
 }
