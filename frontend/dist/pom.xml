@@ -288,7 +288,7 @@
 							<goal>assemble</goal>
 						</goals>
 						<configuration>
-							<assembleDirectory>${project.build.directory}${file.separator}generator</assembleDirectory>
+							<assembleDirectory>${project.build.directory}${file.separator}testing</assembleDirectory>
 							<binFileExtensions>
 								<unix>.sh</unix>
 							</binFileExtensions>
@@ -329,7 +329,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<configuration>
-					<outputDirectory>${project.build.directory}${file.separator}generator${file.separator}ext</outputDirectory>
+					<outputDirectory>${project.build.directory}${file.separator}testing${file.separator}ext</outputDirectory>
 				</configuration>
 				<executions>
 					<execution>
