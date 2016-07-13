@@ -32,8 +32,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
 	Identifiable.ID,
-	Named.NAME,
 	ProjectScoped.PROJECT_ID,
+	Named.NAME
 })
 public final class Version extends ProjectScoped<String> {
 

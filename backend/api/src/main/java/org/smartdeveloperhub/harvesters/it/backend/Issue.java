@@ -31,12 +31,39 @@ import java.util.Set;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.collect.Sets;
 
 /**
  * TODO: For the time being, the issue only identifies the issues blocked from the same project.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+	Identifiable.ID,
+	ProjectScoped.PROJECT_ID,
+	Named.NAME,
+	"type",
+	"description",
+	"status",
+	"severity",
+	"priority",
+	"creationDate",
+	"opened",
+	"closed",
+	"dueTo",
+	"estimatedTime",
+	"versions",
+	"components",
+	"reporter",
+	"assignee",
+	"tags",
+	"commits",
+	"childIssues",
+	"blockedIssues",
+	"changes"
+})
 public final class Issue extends ProjectScoped<String> {
 
 	public enum Type {
