@@ -139,9 +139,10 @@ public class IssueFactory {
 
 				issue.setEstimatedTime(Duration.
 										standardMinutes(originalEstimatedMin));
-				LOGGER.info("Original estimated time for Issue {}: {}",
-							issue.getId(),
-							issue.getEstimatedTime());
+			} else {
+				LOGGER.info("No original estimated time for Issue {}: {}",
+						issue.getId(),
+						issue.getEstimatedTime());
 			}
 		}  else {
 			LOGGER.info("No time tracking available for issue {}",
