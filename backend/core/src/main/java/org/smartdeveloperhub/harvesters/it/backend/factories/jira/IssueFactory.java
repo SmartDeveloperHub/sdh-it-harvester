@@ -123,7 +123,7 @@ public class IssueFactory {
 		issue.setProjectId(jiraIssue.getProject().getKey());
 		issue.setCreationDate(jiraIssue.getCreationDate());
 		issue.setDescription(jiraIssue.getDescription());
-		issue.setReporter(jiraIssue.getReporter().getEmailAddress());
+		issue.setReporter(jiraIssue.getReporter().getName());
 
 		issue.setName(jiraIssue.getSummary());
 		issue.setAssignee(getAssignee(jiraIssue));

@@ -37,7 +37,7 @@ public class ContributorFactory {
 
 		Contributor contributor = new Contributor();
 
-		contributor.setId(jiraUser.getEmailAddress());
+		contributor.setId(jiraUser.getName());
 		contributor.setName(jiraUser.getDisplayName());
 		contributor.setEmails(Sets.newHashSet(jiraUser.getEmailAddress()));
 
