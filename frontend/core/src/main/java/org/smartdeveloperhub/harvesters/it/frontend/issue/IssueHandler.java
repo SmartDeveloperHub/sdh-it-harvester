@@ -41,6 +41,7 @@ import org.ldp4j.application.session.ResourceSnapshot;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
+import org.smartdeveloperhub.harvesters.it.backend.Issue.Type;
 import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
 import org.smartdeveloperhub.harvesters.it.frontend.project.ProjectHandler;
 import org.smartdeveloperhub.harvesters.it.frontend.util.AbstractEntityResourceHandler;
@@ -127,6 +128,15 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 						withLiteral(dueToDate).
 					property(IT.ESTIMATED_TIME).
 						withLiteral(issue.getEstimatedTime());
+
+		/**
+		 * TODO: Unit test behaviour
+		 */
+		if(Type.TASK.equals(issue.getType())) {
+			individual.
+				property(RDF.TYPE).
+					withIndividual(IT.TASK_TYPE);
+		}
 
 		populateTags(issue,individual);
 
