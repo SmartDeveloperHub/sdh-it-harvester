@@ -132,10 +132,11 @@ public final class IssueHandler extends AbstractEntityResourceHandler<Issue,Issu
 		/**
 		 * TODO: Unit test behaviour
 		 */
-		if(Type.TASK.equals(issue.getType())) {
+		final Type type = issue.getType();
+		if(type!=null) {
 			individual.
 				property(RDF.TYPE).
-					withIndividual(IT.TASK_TYPE);
+					withIndividual(IT.forType(type));
 		}
 
 		populateTags(issue,individual);
