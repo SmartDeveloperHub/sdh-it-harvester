@@ -55,8 +55,12 @@ public class ProjectFactory {
 		project.setVersions(getVersionsByIds(jiraProject));
 		project.setComponents(getComponentsByIds(jiraProject));
 
-		project.setTopIssues(getIssuesByIds(topIssues));
-		project.setIssues(getIssuesByIds(issues));
+		Set<String> topIds = getIssuesByIds(topIssues);
+		Set<String> issuesIds = getIssuesByIds(topIssues);
+		issuesIds.addAll(topIds);
+
+		project.setTopIssues(topIds);
+		project.setIssues(issuesIds);
 
 		return project;
 	}

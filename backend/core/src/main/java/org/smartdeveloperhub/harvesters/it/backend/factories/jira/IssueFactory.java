@@ -306,7 +306,8 @@ public class IssueFactory {
 			entry.setTimeStamp(group.getCreated());
 
 			Contributor contributor = selectContributorByName(contributors,
-																group.getAuthor().getDisplayName());
+																group.getAuthor()
+																		.getDisplayName());
 
 			entry.setAuthor(contributor.getId());
 
