@@ -478,6 +478,10 @@ public class IssueFactory {
 									newHashSet(jiraItem.getToString()
 															.split(" "));
 
+			// For these cases where there is no tag
+			oldTags.remove("");
+			newTags.remove("");
+
 			Set<String> toAdd = Sets.difference(newTags, oldTags);
 			Set<String> toDel = Sets.difference(oldTags, newTags);
 
