@@ -43,11 +43,11 @@ public class ProjectFactory {
 	 * Method for building {@link Project} from Jira projects.
 	 * @param jiraProject for retrieve Project information.
 	 * @param topIssues of the project.
-	 * @param issues of the project.
+	 * @param childIssues of the project.
 	 * @return {@link Project}
 	 */
 	public Project createProject(com.atlassian.jira.rest.client.api.domain.Project jiraProject,
-									Set<Issue> topIssues, Set<Issue> issues) {
+									Set<Issue> topIssues, Set<Issue> childIssues) {
 
 		Project project = new Project();
 		project.setId(jiraProject.getKey());
@@ -56,7 +56,7 @@ public class ProjectFactory {
 		project.setComponents(getComponentsByIds(jiraProject));
 
 		Set<String> topIds = getIssuesByIds(topIssues);
-		Set<String> issuesIds = getIssuesByIds(topIssues);
+		Set<String> issuesIds = getIssuesByIds(childIssues);
 		issuesIds.addAll(topIds);
 
 		project.setTopIssues(topIds);

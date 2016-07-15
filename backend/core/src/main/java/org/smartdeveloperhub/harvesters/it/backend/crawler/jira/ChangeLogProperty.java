@@ -42,7 +42,7 @@ public enum ChangeLogProperty {
 	DUE_DATE("duedate"),
 	COMPONENT("Component"),
 	PRIORITY("priority"),
-	SEVERITY("severity"),
+	SEVERITY("priority"),
 	ESTIMATED_TIME("timeoriginalestimate"),
 	VERSION("Fix Version"),
 	BLOCKERS("Link");
