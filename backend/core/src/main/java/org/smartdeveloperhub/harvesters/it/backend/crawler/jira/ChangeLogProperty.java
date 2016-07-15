@@ -45,7 +45,8 @@ public enum ChangeLogProperty {
 	SEVERITY("priority"),
 	ESTIMATED_TIME("timeoriginalestimate"),
 	VERSION("Version"),
-	BLOCKERS("Link");
+	BLOCKERS("Link"),
+	TAGS("labels");
 
 	private String name;
 	

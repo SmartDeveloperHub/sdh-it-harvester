@@ -34,6 +34,7 @@ import com.atlassian.jira.rest.client.api.domain.IssueLinkType;
 import com.atlassian.jira.rest.client.api.domain.IssueLinkType.Direction;
 import com.atlassian.jira.rest.client.api.domain.Subtask;
 import com.atlassian.jira.rest.client.api.domain.TimeTracking;
+import com.atlassian.jira.rest.client.api.domain.User;
 import com.atlassian.jira.rest.client.api.domain.Version;
 
 import org.joda.time.DateTime;
@@ -126,7 +127,13 @@ public class IssueFactory {
 		issue.setReporter(jiraIssue.getReporter().getName());
 
 		issue.setName(jiraIssue.getSummary());
-		issue.setAssignee(getAssignee(jiraIssue));
+
+		User assignee = jiraIssue.getAssignee();
+
+		if (assignee != null) {
+
+			issue.setAssignee(assignee.getName());
+		}
 		issue.setChanges(createChangeLog(jiraIssue, contributors));
 		issue.setOpened(getOpenedDate(jiraIssue, issue.getChanges()));
 		issue.setClosed(getClosedDate(jiraIssue, issue.getChanges()));
@@ -224,12 +231,6 @@ public class IssueFactory {
 		return blocked;
 	}
 
-	private String getAssignee(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
-
-		return jiraIssue.getAssignee() != null ?
-				jiraIssue.getAssignee().getEmailAddress() : null;
-	}
-
 	private Set<String> getComponents(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue) {
 
 		Set<String> components = new HashSet<>();
@@ -321,7 +322,7 @@ public class IssueFactory {
 					Item item = null;
 					try {
 
-						item = buildChangeLogItem(jiraItem);
+						item = buildChangeLogItem(jiraItem, contributors);
 						if (item != null) {
 
 							items.add(item);
@@ -365,7 +366,7 @@ public class IssueFactory {
 		throw new IllegalArgumentException("Contributor not found.");
 	}
 
-	private Item buildChangeLogItem(ChangelogItem jiraItem) {
+	private Item buildChangeLogItem(ChangelogItem jiraItem, Map<String, Contributor> contributors) {
 
 		Item item = null;
 		String field = jiraItem.getField();
@@ -412,7 +413,8 @@ public class IssueFactory {
 		} else if (ChangeLogProperty.DUE_DATE.is(field)) {
 
 			DateTimeFormatter formatter =
-							DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SS");
+							DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SS")
+											.withZoneUTC();
 
 			DateTime fromDate = (jiraItem.getFromString() != null ?
 									formatter.parseDateTime(jiraItem.getFromString()) :
@@ -467,12 +469,19 @@ public class IssueFactory {
 									.build();
 			}
 
+		} else if (ChangeLogProperty.TAGS.is(field)) {
+
+			item = Item.builder().tags()
+									.oldValue(jiraItem.getFromString())
+									.newValue(jiraItem.getToString())
+									.build();
+
 		} else if (ChangeLogProperty.COMPONENT.is(field)) {
 
 			item = Item.builder()
 							.components()
-								.oldValue(jiraItem.getFromString())
-								.newValue(jiraItem.getToString())
+								.oldValue(jiraItem.getFrom())
+								.newValue(jiraItem.getTo())
 								.build();
 
 		} else if (ChangeLogProperty.TITLE.is(field)) {
@@ -487,16 +496,32 @@ public class IssueFactory {
 
 			item = Item.builder()
 							.versions()
-								.oldValue(jiraItem.getFromString())
-								.newValue(jiraItem.getToString())
+								.oldValue(jiraItem.getFrom())
+								.newValue(jiraItem.getTo())
 								.build();
 
 		} else if (ChangeLogProperty.ASSIGNEE.is(field)) {
 
+			String oldAssignee = null;
+			String newAssignee = null;
+
+			if (jiraItem.getFromString() != null) {
+				oldAssignee = selectContributorByName(contributors,
+													jiraItem.getFromString())
+														.getId();
+			}
+
+			if (jiraItem.getToString() != null) {
+				newAssignee = selectContributorByName(contributors,
+													jiraItem.getToString())
+														.getId();
+			}
+
+
 			item = Item.builder()
 							.assignee()
-								.oldValue(jiraItem.getFromString())
-								.newValue(jiraItem.getToString())
+								.oldValue(oldAssignee)
+								.newValue(newAssignee)
 								.build();
 
 		} else if (ChangeLogProperty.DESCRIPTION.is(field)) {
