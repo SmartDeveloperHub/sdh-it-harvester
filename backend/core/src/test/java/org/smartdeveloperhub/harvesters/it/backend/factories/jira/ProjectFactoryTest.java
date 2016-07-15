@@ -162,9 +162,10 @@ public class ProjectFactoryTest {
 		then(project.getName()).isEqualTo(PROJECT_NAME);
 		then(project.getComponents()).isEmpty();
 		then(project.getVersions()).isEmpty();
-		then(project.getIssues()).isEmpty();
-		Set<String> issues = project.getTopIssues();
-		then(issues.iterator().next()).isEqualTo("SDH-1");
+		Set<String> issues = project.getIssues();
+		Set<String> topIssues = project.getTopIssues();
+		then(topIssues.iterator().next()).isEqualTo("SDH-1");
+		then(issues.contains(topIssues));
 	}
 
 	@Test(expected=NullPointerException.class)
