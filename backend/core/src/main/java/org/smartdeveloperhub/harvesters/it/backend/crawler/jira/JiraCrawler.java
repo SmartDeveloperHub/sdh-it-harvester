@@ -38,6 +38,7 @@ import com.atlassian.jira.rest.client.api.domain.User;
 import com.atlassian.jira.rest.client.api.domain.Version;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -197,10 +198,10 @@ public class JiraCrawler implements Crawler {
 
 				if (oldProject != null) {
 
-					Set<String> newTop = difference(project.getTopIssues(), oldProject.getTopIssues());
-					Set<String> newIssues = difference(project.getIssues(), oldProject.getIssues());
-					Set<String> updatedTop = difference(project.getTopIssues(), newTop);
-					Set<String> updatedIssues = difference(project.getIssues(), newIssues);
+					Set<String> newTop = Sets.difference(project.getTopIssues(), oldProject.getTopIssues());
+					Set<String> newIssues = Sets.difference(project.getIssues(), oldProject.getIssues());
+					Set<String> updatedTop = Sets.difference(project.getTopIssues(), newTop);
+					Set<String> updatedIssues = Sets.difference(project.getIssues(), newIssues);
 
 					project.getTopIssues().addAll(oldProject.getTopIssues());
 					project.getIssues().addAll(oldProject.getIssues());
@@ -239,7 +240,7 @@ public class JiraCrawler implements Crawler {
 //				LOGGER.info("Storing issues and components and versions.");
 				Map<String, Component> oldComponentsMap = storage.loadComponents(jiraProject.getKey());
 
-				Set<String> newComponents = difference(componentIds, oldComponentsMap.keySet());
+				Set<String> newComponents = Sets.difference(componentIds, oldComponentsMap.keySet());
 
 				ProjectUpdatedEvent event = new ProjectUpdatedEvent();
 				event.setProject(jiraProject.getKey());
@@ -259,7 +260,7 @@ public class JiraCrawler implements Crawler {
 
 				Map<String, org.smartdeveloperhub.harvesters.it.backend.Version> oldVersionsMap = storage.loadVersions(jiraProject.getKey());
 
-				Set<String> newVersions = difference(versionIds, oldVersionsMap.keySet());
+				Set<String> newVersions = Sets.difference(versionIds, oldVersionsMap.keySet());
 
 				for (String id : newVersions) {
 					event.append(Modification.create().version(id));
@@ -312,15 +313,6 @@ public class JiraCrawler implements Crawler {
 
 			event.append(Modification.update().issue(id));
 		}
-	}
-
-	private Set<String> difference(Set<String> minuend, Set<String> subtrahend) {
-
-		Set<String> difference = new HashSet<>();
-		difference.addAll(minuend);
-		difference.removeAll(subtrahend);
-
-		return difference;
 	}
 
 	/**

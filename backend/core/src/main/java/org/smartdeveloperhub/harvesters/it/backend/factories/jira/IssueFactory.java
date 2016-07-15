@@ -63,6 +63,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import jersey.repackaged.com.google.common.collect.Sets;
+
 /**
  * Class factory for building {@link Issue}s.
  * @author imolina
@@ -299,7 +301,7 @@ public class IssueFactory {
 		
 		ChangeLog changeLog = new ChangeLog();
 		Set<Entry> entries = new HashSet<>();
-		Set<String> failed = new HashSet<>();
+
 		for (com.atlassian.jira.rest.client.api.domain.ChangelogGroup group :
 													jiraIssue.getChangelog()) {
 
@@ -319,18 +321,9 @@ public class IssueFactory {
 				// Register only changes on Jira Attributes
 				if (jiraItem.getFieldType() == com.atlassian.jira.rest.client.api.domain.FieldType.JIRA) {
 
-					Item item = null;
 					try {
 
-						item = buildChangeLogItem(jiraItem, contributors);
-						if (item != null) {
-
-							items.add(item);
-
-						} else {
-
-							failed.add(jiraItem.getField());
-						}
+						items.addAll(buildChangeLogItem(jiraItem, contributors));
 
 					} catch (IllegalStateException e) {
 						LOGGER.warn("Ignoring entry because IllegalState.\n" + 
@@ -366,49 +359,53 @@ public class IssueFactory {
 		throw new IllegalArgumentException("Contributor not found.");
 	}
 
-	private Item buildChangeLogItem(ChangelogItem jiraItem, Map<String, Contributor> contributors) {
+	private Set<Item> buildChangeLogItem(ChangelogItem jiraItem, Map<String, Contributor> contributors) {
 
-		Item item = null;
+		Set<Item> items = new HashSet<>();
 		String field = jiraItem.getField();
 		if (ChangeLogProperty.STATUS.is(field)) {
 
-			item = Item.builder()
+			Item item = Item.builder()
 							.status()
 								.oldValue(fromMap(jiraItem.getFromString(),
 													statusMapping))
 								.newValue(fromMap(jiraItem.getToString(),
 													statusMapping))
 								.build();
+			items.add(item);
 
 		} else if (ChangeLogProperty.PRIORITY.is(field)) {
 
-			item = Item.builder()
+			Item item = Item.builder()
 							.priority()
 								.oldValue(fromMap(jiraItem.getFromString(),
 													priorityMapping))
 								.newValue(fromMap(jiraItem.getToString(),
 													priorityMapping))
 								.build();
+			items.add(item);
 
 		} else if (ChangeLogProperty.SEVERITY.is(field)) {
 
-			item = Item.builder()
+			Item item = Item.builder()
 							.severity()
 								.oldValue(fromMap(jiraItem.getFromString(),
 													severityMapping))
 								.newValue(fromMap(jiraItem.getToString(),
 													severityMapping))
 								.build();
+			items.add(item);
 
 		} else if (ChangeLogProperty.ISSUE_TYPE.is(field)) {
 
-			item = Item.builder()
+			Item item = Item.builder()
 							.type()
 								.oldValue(fromMap(jiraItem.getFromString(),
 													typeMapping))
 								.newValue(fromMap(jiraItem.getToString(),
 													typeMapping))
 								.build();
+			items.add(item);
 
 		} else if (ChangeLogProperty.DUE_DATE.is(field)) {
 
@@ -423,11 +420,12 @@ public class IssueFactory {
 									formatter.parseDateTime(jiraItem.getToString()) :
 									null);
 
-			item = Item.builder()
+			Item item = Item.builder()
 							.dueToDate()
 								.oldValue(fromDate)
 								.newValue(toDate)
 								.build();
+			items.add(item);
 
 		} else if (ChangeLogProperty.ESTIMATED_TIME.is(field)) {
 
@@ -440,11 +438,12 @@ public class IssueFactory {
 													Integer.valueOf(jiraItem.getTo())) :
 										null);
 
-			item = Item.builder()
+			Item item = Item.builder()
 							.estimatedTime()
 								.oldValue(oldDuration)
 								.newValue(newDuration)
 								.build();
+			items.add(item);
 
 		} else if (ChangeLogProperty.BLOCKERS.is(field)) {
 
@@ -462,43 +461,68 @@ public class IssueFactory {
 
 			if (oldLink != null || newLink != null) {
 
-				item = Item.builder()
+				Item item = Item.builder()
 								.blockedIssues()
 									.oldValue(oldLink)
 									.newValue(newLink)
 									.build();
+				items.add(item);
 			}
 
 		} else if (ChangeLogProperty.TAGS.is(field)) {
 
-			item = Item.builder().tags()
-									.oldValue(jiraItem.getFromString())
-									.newValue(jiraItem.getToString())
-									.build();
+			Set<String> oldTags = Sets.
+									newHashSet(jiraItem.getFromString()
+															.split(" "));
+			Set<String> newTags = Sets.
+									newHashSet(jiraItem.getToString()
+															.split(" "));
+
+			Set<String> toAdd = Sets.difference(newTags, oldTags);
+			Set<String> toDel = Sets.difference(oldTags, newTags);
+
+			for (String tag : toAdd) {
+				Item item = Item.builder()
+									.tags()
+										.newValue(tag)
+										.build();
+				items.add(item);
+			}
+
+			for (String tag : toDel) {
+				Item item = Item.builder()
+									.tags()
+										.oldValue(tag)
+										.build();
+				items.add(item);
+			}
 
 		} else if (ChangeLogProperty.COMPONENT.is(field)) {
 
-			item = Item.builder()
+			Item item = Item.builder()
 							.components()
 								.oldValue(jiraItem.getFrom())
 								.newValue(jiraItem.getTo())
 								.build();
+			items.add(item);
 
 		} else if (ChangeLogProperty.TITLE.is(field)) {
 
-			item = Item.builder()
+			Item item = Item.builder()
 							.title()
 								.oldValue(jiraItem.getFromString())
 								.newValue(jiraItem.getToString())
 								.build();
+			items.add(item);
 
 		} else if (ChangeLogProperty.VERSION.is(field)) {
 
-			item = Item.builder()
+			Item item = Item.builder()
 							.versions()
 								.oldValue(jiraItem.getFrom())
 								.newValue(jiraItem.getTo())
 								.build();
+			items.add(item);
 
 		} else if (ChangeLogProperty.ASSIGNEE.is(field)) {
 
@@ -518,25 +542,25 @@ public class IssueFactory {
 			}
 
 
-			item = Item.builder()
+			Item item = Item.builder()
 							.assignee()
 								.oldValue(oldAssignee)
 								.newValue(newAssignee)
 								.build();
+			items.add(item);
 
 		} else if (ChangeLogProperty.DESCRIPTION.is(field)) {
 
-			item = Item.builder()
+			Item item = Item.builder()
 							.description()
 								.oldValue(jiraItem.getFromString())
 								.newValue(jiraItem.getToString())
 								.build();
+			items.add(item);
 
-		} /*else if (ChangeLogProperty.ASSIGNEE.is(field)) {
-			
-		}*/
+		}
 
-		return item;
+		return items;
 	}
 
 	private DateTime getLastStatusDate(Status status, ChangeLog changeLog) {
