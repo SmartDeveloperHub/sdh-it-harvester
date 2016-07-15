@@ -42,6 +42,8 @@ import org.ldp4j.commons.testing.Utils;
 import org.smartdeveloperhub.harvesters.it.frontend.spi.BackendControllerFactory;
 
 import mockit.Expectations;
+import mockit.Mock;
+import mockit.MockUp;
 import mockit.Mocked;
 import mockit.integration.junit4.JMockit;
 
@@ -90,6 +92,64 @@ public class BackendControllersTest {
 		WorkingBackendControllerFactory.setController(null);
 		final BackendController controller = BackendControllers.createController(TARGET);
 		assertThat(controller,sameInstance(expected));
+	}
+
+	@Test
+	public void createsControllerFromDeclaredDefaultFactoryWhenAvailable(@Mocked final BackendControllerFactory factory,@Mocked final BackendController expected) throws Exception {
+		new MockUp<WorkingBackendControllerFactory>() {
+			@Mock
+			public BackendController create(final URI target) {
+				return expected;
+			}
+		};
+		System.setProperty(BackendControllers.DEFAULT_FACTORY_CLASS_NAME,WorkingBackendControllerFactory.class.getName());
+		try {
+			BackendControllers.setDefaultFactory(null);
+			WorkingBackendControllerFactory.setController(null);
+			final BackendController controller = BackendControllers.createController(TARGET);
+			assertThat(controller,sameInstance(expected));
+		} finally {
+			System.clearProperty(BackendControllers.DEFAULT_FACTORY_CLASS_NAME);
+		}
+	}
+
+	@Test
+	public void createsControllerFromDiscoveredFactoriesIfDeclaredDefaultFactoryDoesNotExist(@Mocked final BackendControllerFactory factory,@Mocked final BackendController expected) throws Exception {
+		System.setProperty(BackendControllers.DEFAULT_FACTORY_CLASS_NAME,"unknown");
+		try {
+			BackendControllers.setDefaultFactory(null);
+			WorkingBackendControllerFactory.setController(expected);
+			final BackendController controller = BackendControllers.createController(TARGET);
+			assertThat(controller,sameInstance(expected));
+		} finally {
+			System.clearProperty(BackendControllers.DEFAULT_FACTORY_CLASS_NAME);
+		}
+	}
+
+	@Test
+	public void createsControllerFromDiscoveredFactoryIfDeclaredDefaultFactoryIsNotValid(@Mocked final BackendControllerFactory factory,@Mocked final BackendController expected) throws Exception {
+		System.setProperty(BackendControllers.DEFAULT_FACTORY_CLASS_NAME,String.class.getName());
+		try {
+			BackendControllers.setDefaultFactory(null);
+			WorkingBackendControllerFactory.setController(expected);
+			final BackendController controller = BackendControllers.createController(TARGET);
+			assertThat(controller,sameInstance(expected));
+		} finally {
+			System.clearProperty(BackendControllers.DEFAULT_FACTORY_CLASS_NAME);
+		}
+	}
+
+	@Test
+	public void createsControllerFromDiscoveredFactoryIfDeclaredDefaultFactoryCannotBeInstantiated(@Mocked final BackendControllerFactory factory,@Mocked final BackendController expected) throws Exception {
+		System.setProperty(BackendControllers.DEFAULT_FACTORY_CLASS_NAME,CustomBackendControllerFactory.class.getName());
+		try {
+			BackendControllers.setDefaultFactory(null);
+			WorkingBackendControllerFactory.setController(expected);
+			final BackendController controller = BackendControllers.createController(TARGET);
+			assertThat(controller,sameInstance(expected));
+		} finally {
+			System.clearProperty(BackendControllers.DEFAULT_FACTORY_CLASS_NAME);
+		}
 	}
 
 	@Test

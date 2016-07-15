@@ -20,27 +20,17 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
- *   Artifact    : org.smartdeveloperhub.harvesters.it.frontend:it-frontend-core:0.1.0-SNAPSHOT
- *   Bundle      : it-frontend-core-0.1.0-SNAPSHOT.jar
+ *   Artifact    : org.smartdeveloperhub.harvesters.it.frontend:it-frontend-test:0.1.0-SNAPSHOT
+ *   Bundle      : it-frontend-test-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.frontend.controller;
+package org.smartdeveloperhub.harvesters.it.frontend.testing;
 
-import java.net.URI;
-import java.nio.file.Path;
+import org.smartdeveloperhub.harvesters.it.frontend.testing.collector.TestingCollector;
+import org.smartdeveloperhub.harvesters.it.notification.CollectorConfiguration;
 
-import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
-import org.smartdeveloperhub.harvesters.it.frontend.spi.BackendControllerFactory;
+public interface TestingCollectorProvider {
 
-public final class LocalBackendControllerFactory implements BackendControllerFactory {
-
-	@Override
-	public BackendController create(final URI target) {
-		return new LocalBackendController(target);
-	}
-
-	public BackendController create(final URI target, final Path path) {
-		return new LocalBackendController(target, path);
-	}
+	TestingCollector provide(CollectorConfiguration configuration);
 
 }

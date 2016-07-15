@@ -51,8 +51,8 @@ public final class ChangeLog extends Entity {
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	@JsonPropertyOrder({
-		Entry.TIMESTAMP,
 		Entry.AUTHOR,
+		Entry.TIMESTAMP,
 		Entry.ITEMS
 	})
 	public static final class Entry extends Entity implements Comparable<Entry> {

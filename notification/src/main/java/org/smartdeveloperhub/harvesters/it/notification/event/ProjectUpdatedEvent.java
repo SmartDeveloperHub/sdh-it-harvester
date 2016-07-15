@@ -263,6 +263,7 @@ public class ProjectUpdatedEvent extends Event {
 	 *
 	 * @return <tt>true</tt> if this event contains no changes
 	 */
+	@JsonIgnore
 	public boolean isEmpty() {
 		return this.size==0;
 	}

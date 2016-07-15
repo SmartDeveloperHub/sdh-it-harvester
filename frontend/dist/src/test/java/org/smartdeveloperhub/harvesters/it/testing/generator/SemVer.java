@@ -20,27 +20,43 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
- *   Artifact    : org.smartdeveloperhub.harvesters.it.frontend:it-frontend-core:0.1.0-SNAPSHOT
- *   Bundle      : it-frontend-core-0.1.0-SNAPSHOT.jar
+ *   Artifact    : org.smartdeveloperhub.harvesters.it.frontend:it-frontend-dist:0.1.0-SNAPSHOT
+ *   Bundle      : it-frontend-dist-0.1.0-SNAPSHOT.war
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.frontend.controller;
+package org.smartdeveloperhub.harvesters.it.testing.generator;
 
-import java.net.URI;
-import java.nio.file.Path;
+final class SemVer {
 
-import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
-import org.smartdeveloperhub.harvesters.it.frontend.spi.BackendControllerFactory;
+	private final int major;
+	private final int minor;
+	private final int revision;
 
-public final class LocalBackendControllerFactory implements BackendControllerFactory {
-
-	@Override
-	public BackendController create(final URI target) {
-		return new LocalBackendController(target);
+	private SemVer(final int major, final int minor, final int revision) {
+		this.major = major;
+		this.minor = minor;
+		this.revision = revision;
 	}
 
-	public BackendController create(final URI target, final Path path) {
-		return new LocalBackendController(target, path);
+	SemVer nextMajor() {
+		return new SemVer(this.major+1,0,0);
+	}
+
+	SemVer nextMinor() {
+		return new SemVer(this.major,this.minor+1,0);
+	}
+
+	SemVer nextRevision() {
+		return new SemVer(this.major,this.minor,this.revision+1);
+	}
+
+	@Override
+	public String toString() {
+		return this.major+"."+this.minor+"."+this.revision;
+	}
+
+	static SemVer create() {
+		return new SemVer(0,0,0);
 	}
 
 }

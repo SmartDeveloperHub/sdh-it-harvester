@@ -31,6 +31,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 
 import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,6 +55,21 @@ public class LocalBackendControllerFactoryTest {
 			}
 		};
 		final BackendController created = new LocalBackendControllerFactory().create(target);
+		assertThat(created,instanceOf(LocalBackendController.class));
+	}
+
+	@Test
+	public void testCreateFromPath() throws Exception {
+		final URI target=URI.create("exampleURI");
+		final Path path=Paths.get("example.data");
+		new MockUp<LocalBackendController>() {
+			@Mock
+			void $init(final URI aTarget,final Path aPath) {
+				assertThat(aTarget,equalTo(target));
+				assertThat(aPath,equalTo(path));
+			}
+		};
+		final BackendController created = new LocalBackendControllerFactory().create(target,path);
 		assertThat(created,instanceOf(LocalBackendController.class));
 	}
 

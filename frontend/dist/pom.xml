@@ -61,6 +61,8 @@
 	<properties>
 		<jena.version>2.13.0</jena.version>
 		<failsafe.arg.line>-Xmx1024m -XX:MaxPermSize=256m</failsafe.arg.line>
+		<app.generator.main>org.smartdeveloperhub.harvesters.it.testing.generator.ProjectDataGenerator</app.generator.main>
+		<app.collector.main>org.smartdeveloperhub.harvesters.it.testing.collector.StandaloneTestingCollector</app.collector.main>
 	</properties>
 
 	<dependencyManagement>
@@ -89,6 +91,13 @@
 		<dependency>
 			<groupId>org.ldp4j.commons</groupId>
 			<artifactId>ldp4j-commons-testing</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-jsonSchema</artifactId>
+			<version>${jackson.version}</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -253,6 +262,110 @@
 				</configuration>
 			</plugin>
 
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<webResources>
+						<resource>
+							<directory>${basedir}${file.separator}src${file.separator}main${file.separator}conf</directory>
+							<targetPath>WEB-INF/classes/META-INF/services</targetPath>
+							<includes>
+								<include>org.smartdeveloperhub.harvesters.it.frontend.spi.BackendControllerFactory</include>
+							</includes>
+						</resource>
+					</webResources>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>appassembler-maven-plugin</artifactId>
+				<version>1.10</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>assemble</goal>
+						</goals>
+						<configuration>
+							<assembleDirectory>${project.build.directory}${file.separator}testing</assembleDirectory>
+							<binFileExtensions>
+								<unix>.sh</unix>
+							</binFileExtensions>
+							<repositoryLayout>flat</repositoryLayout>
+							<repositoryName>lib</repositoryName>
+							<endorsedDir>ext</endorsedDir>
+							<configurationDirectory>conf</configurationDirectory>
+							<includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
+							<programs>
+								<program>
+									<id>generator</id>
+									<mainClass>${app.generator.main}</mainClass>
+									<jvmSettings>
+										<extraArguments>
+											<extraArgument>-Dservice.version=${project.version}</extraArgument>
+											<extraArgument>-Dservice.build=${git.commitsCount} (${git.branch}@${git.buildnumber})</extraArgument>
+											<extraArgument>-Dlog4j.configuration=logging.cfg</extraArgument>
+										</extraArguments>
+									</jvmSettings>
+								</program>
+								<program>
+									<id>collector</id>
+									<mainClass>${app.collector.main}</mainClass>
+									<jvmSettings>
+										<extraArguments>
+											<extraArgument>-Dservice.version=${project.version}</extraArgument>
+											<extraArgument>-Dservice.build=${git.commitsCount} (${git.branch}@${git.buildnumber})</extraArgument>
+											<extraArgument>-Dlog4j.configuration=logging.cfg</extraArgument>
+										</extraArguments>
+									</jvmSettings>
+								</program>
+							</programs>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<configuration>
+					<outputDirectory>${project.build.directory}${file.separator}testing${file.separator}ext</outputDirectory>
+				</configuration>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<excludeTypes>pom</excludeTypes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>Create Generator Distribution</id>
+						<configuration>
+							<appendAssemblyId>true</appendAssemblyId>
+							<attach>true</attach>
+							<descriptors>
+								<descriptor>src${file.separator}test${file.separator}assembly${file.separator}assembly.xml</descriptor>
+							</descriptors>
+							<delimiters>
+								<delimiter>@</delimiter>
+							</delimiters>
+						</configuration>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

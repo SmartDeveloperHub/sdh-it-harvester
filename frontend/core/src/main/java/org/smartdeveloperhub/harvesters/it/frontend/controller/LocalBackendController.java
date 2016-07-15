@@ -60,10 +60,24 @@ final class LocalBackendController implements BackendController {
 	private static final Logger LOGGER=LoggerFactory.getLogger(LocalBackendController.class);
 
 	private final URI target;
+	private Path path;
 	private LocalData data;
 
-	public LocalBackendController(final URI target) {
+	LocalBackendController(final URI target, final Path path) {
 		this.target = target;
+		if(path!=null) {
+			this.path=path;
+		} else {
+			String location = System.getProperty(CONFIG_FILE_LOCATION);
+			if(location==null) {
+				location=DEFAULT_CONFIG_FILE;
+			}
+			this.path=Paths.get(location);
+		}
+	}
+
+	LocalBackendController(final URI target) {
+		this(target,null);
 	}
 
 	private synchronized LocalData getLocalData() throws IOException {
@@ -74,25 +88,20 @@ final class LocalBackendController implements BackendController {
 	}
 
 	private LocalData loadLocalData() throws IOException {
-		String location = System.getProperty(CONFIG_FILE_LOCATION);
-		if(location==null) {
-			location=DEFAULT_CONFIG_FILE;
-		}
-		final Path path = Paths.get(location);
-		if(!Files.isRegularFile(path)) {
-			LOGGER.error("Could not find local configuration file '{}'",path);
-			throw new IOException("Could not find local configuration file '"+path+"'");
+		if(!Files.isRegularFile(this.path)) {
+			LOGGER.error("Could not find local configuration file '{}'",this.path);
+			throw new IOException("Could not find local configuration file '"+this.path+"'");
 		}
 		try {
 			final String content=
 				Resources.
 					toString(
-						path.toFile().toURI().toURL(),
+						this.path.toFile().toURI().toURL(),
 						StandardCharsets.UTF_8);
 			return Entities.unmarshallEntity(content,LocalData.class);
 		} catch (final IOException e) {
-			LOGGER.error("Could not load local configuration file '{}'. Full stacktrace follows",path,e);
-			throw new IOException("Could not load local configuration file '"+path+"'",e);
+			LOGGER.error("Could not load local configuration file '{}'. Full stacktrace follows",this.path,e);
+			throw new IOException("Could not load local configuration file '"+this.path+"'",e);
 		}
 	}
 

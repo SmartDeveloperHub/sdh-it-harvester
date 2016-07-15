@@ -20,27 +20,36 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
- *   Artifact    : org.smartdeveloperhub.harvesters.it.frontend:it-frontend-core:0.1.0-SNAPSHOT
- *   Bundle      : it-frontend-core-0.1.0-SNAPSHOT.jar
+ *   Artifact    : org.smartdeveloperhub.harvesters.it.frontend:it-frontend-dist:0.1.0-SNAPSHOT
+ *   Bundle      : it-frontend-dist-0.1.0-SNAPSHOT.war
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.frontend.controller;
+package org.smartdeveloperhub.harvesters.it.testing.generator;
 
-import java.net.URI;
-import java.nio.file.Path;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
 
-import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
-import org.smartdeveloperhub.harvesters.it.frontend.spi.BackendControllerFactory;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public final class LocalBackendControllerFactory implements BackendControllerFactory {
+import com.google.common.io.Files;
 
-	@Override
-	public BackendController create(final URI target) {
-		return new LocalBackendController(target);
-	}
+public class ProjectDataGeneratorTest {
 
-	public BackendController create(final URI target, final Path path) {
-		return new LocalBackendController(target, path);
+	private static final Logger LOGGER=LoggerFactory.getLogger(ProjectDataGenerator.class);
+
+	@Rule
+	public TemporaryFolder util=new TemporaryFolder();
+
+	@Test
+	public void testMain() throws Exception {
+		final File file = this.util.newFile();
+		ProjectDataGenerator.main(file.toString());
+		final String content = Files.toString(file, StandardCharsets.UTF_8);
+		LOGGER.trace("Serialization:\n{}",content);
 	}
 
 }

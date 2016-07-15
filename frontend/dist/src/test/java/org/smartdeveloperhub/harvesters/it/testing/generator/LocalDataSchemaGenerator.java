@@ -20,27 +20,30 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
- *   Artifact    : org.smartdeveloperhub.harvesters.it.frontend:it-frontend-core:0.1.0-SNAPSHOT
- *   Bundle      : it-frontend-core-0.1.0-SNAPSHOT.jar
+ *   Artifact    : org.smartdeveloperhub.harvesters.it.frontend:it-frontend-dist:0.1.0-SNAPSHOT
+ *   Bundle      : it-frontend-dist-0.1.0-SNAPSHOT.war
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.frontend.controller;
+package org.smartdeveloperhub.harvesters.it.testing.generator;
 
-import java.net.URI;
-import java.nio.file.Path;
+import org.smartdeveloperhub.harvesters.it.frontend.controller.LocalData;
 
-import org.smartdeveloperhub.harvesters.it.frontend.BackendController;
-import org.smartdeveloperhub.harvesters.it.frontend.spi.BackendControllerFactory;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
+import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
 
-public final class LocalBackendControllerFactory implements BackendControllerFactory {
+public class LocalDataSchemaGenerator {
 
-	@Override
-	public BackendController create(final URI target) {
-		return new LocalBackendController(target);
-	}
-
-	public BackendController create(final URI target, final Path path) {
-		return new LocalBackendController(target, path);
+	public static void main(final String... args) throws JsonProcessingException {
+		final ObjectMapper m =
+			new ObjectMapper().
+				enable(SerializationFeature.INDENT_OUTPUT);
+		final SchemaFactoryWrapper visitor = new SchemaFactoryWrapper();
+		m.acceptJsonFormatVisitor(m.constructType(LocalData.class), visitor);
+		final JsonSchema finalSchema = visitor.finalSchema();
+		System.out.println(m.writeValueAsString(finalSchema));
 	}
 
 }

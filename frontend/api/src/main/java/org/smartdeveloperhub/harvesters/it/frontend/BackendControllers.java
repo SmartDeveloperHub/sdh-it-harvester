@@ -123,6 +123,7 @@ public final class BackendControllers {
 	private static final Logger LOGGER=LoggerFactory.getLogger(BackendControllers.class);
 	private static final AtomicReference<BackendControllerFactory> DEFAULT_FACTORY=new AtomicReference<>();
 
+	public static final String DEFAULT_FACTORY_CLASS_NAME="it.harvester.defaultControllerFactory";
 
 	private BackendControllers() {
 	}
@@ -138,7 +139,7 @@ public final class BackendControllers {
 	}
 
 	public static BackendController createController(final URI target) {
-		final BackendControllerFactory factory = DEFAULT_FACTORY.get();
+		final BackendControllerFactory factory = getDefaultFactory();
 		if(factory!=null) {
 			final BackendController controller = createController(target, factory, true);
 			if(controller!=null) {
@@ -148,6 +149,46 @@ public final class BackendControllers {
 		return createDynamicController(target);
 	}
 
+
+	private static BackendControllerFactory getDefaultFactory() {
+		BackendControllerFactory factory = DEFAULT_FACTORY.get();
+		if(factory==null) {
+			factory=loadDefaultFactory();
+		}
+		return factory;
+	}
+
+
+	private static BackendControllerFactory loadDefaultFactory() {
+		final String defaultFactoryClassName = System.getProperty(DEFAULT_FACTORY_CLASS_NAME);
+		if(defaultFactoryClassName==null) {
+			LOGGER.debug("No default factory class name specified");
+			return null;
+		}
+		try {
+			return instantiateDefaultFactory(Class.forName(defaultFactoryClassName));
+		} catch (final ClassNotFoundException e) {
+			LOGGER.warn("Default factory class {} could not be found. Full stacktrace follows",defaultFactoryClassName,e);
+			return null;
+		}
+	}
+
+
+	private static BackendControllerFactory instantiateDefaultFactory(final Class<?> clazz) {
+		if(!BackendControllerFactory.class.isAssignableFrom(clazz)) {
+			LOGGER.warn("Default factory class {} does not implement {}",BackendControllerFactory.class.getName());
+			return null;
+		}
+		final Class<? extends BackendControllerFactory> factoryClass = clazz.asSubclass(BackendControllerFactory.class);
+		try {
+			final BackendControllerFactory factory=factoryClass.newInstance();
+			setDefaultFactory(factory);
+			return factory;
+		} catch (final Exception e) {
+			LOGGER.warn("Default factory class {} could not be instantiated. Full stacktrace follows",clazz.getName(),e);
+			return null;
+		}
+	}
 
 	private static BackendController createDynamicController(final URI target) {
 		final ServiceLoader<BackendControllerFactory> factories=ServiceLoader.load(BackendControllerFactory.class);
