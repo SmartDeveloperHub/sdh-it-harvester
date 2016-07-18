@@ -37,18 +37,18 @@
 	<!-- =================================================================== -->
 
 	<parent>
-		<groupId>org.smartdeveloperhub.harvesters.scm</groupId>
-		<artifactId>scm-harvester-aggregator</artifactId>
-		<version>0.3.0-SNAPSHOT</version>
+		<groupId>org.smartdeveloperhub.harvesters.it.frontend</groupId>
+		<artifactId>it-frontend-aggregator</artifactId>
+		<version>${project.version}</version>
 	</parent>
 
-	<artifactId>scm-harvester-dist</artifactId>
+	<artifactId>it-harvester-dist-test</artifactId>
 
 	<!-- =================================================================== -->
 	<!--   MODULE INFORMATION                                                -->
 	<!-- =================================================================== -->
 
-	<name>SDH :: SCMH :: Distribution</name>
+	<name>SDH :: ITH :: Distribution (TEST)</name>
 
 	<!-- =================================================================== -->
 	<!--   BUILD SETTINGS                                                    -->
