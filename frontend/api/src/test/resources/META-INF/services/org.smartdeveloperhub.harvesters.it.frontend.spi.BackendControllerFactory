@@ -1,0 +1,3 @@
+org.smartdeveloperhub.harvesters.it.frontend.NullBackendControllerFactory
+org.smartdeveloperhub.harvesters.it.frontend.FailingBackendControllerFactory
+org.smartdeveloperhub.harvesters.it.frontend.WorkingBackendControllerFactory

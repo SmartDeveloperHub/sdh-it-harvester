@@ -1,0 +1,296 @@
+{
+  "collector" : {
+    "version" : "1.0.0"
+  },
+  "contributors" : [ {
+    "id" : "contributor1",
+    "name" : "Contributor contributor1",
+    "emails" : [ "contributor1@example.org" ]
+  }, {
+    "id" : "contributor2",
+    "name" : "Contributor contributor2",
+    "emails" : [ "contributor2@example.org" ]
+  } ],
+  "commits" : [ {
+    "id" : "commit1",
+    "repository" : "http://www.example.org/repositories/project.git",
+    "branch" : "develop",
+    "hash" : "38a5fdda"
+  }, {
+    "id" : "commit2",
+    "repository" : "http://www.example.org/repositories/project.git",
+    "branch" : "develop",
+    "hash" : "38a5fddb"
+  } ],
+  "projects" : [ {
+    "id" : "project1",
+    "name" : "Project 'project1'",
+    "versions" : [ "version1", "version2" ],
+    "components" : [ "component1", "component2" ],
+    "topIssues" : [ "issue1" ],
+    "issues" : [ "issue1", "issue2" ]
+  }, {
+    "id" : "project2",
+    "name" : "Project 'project2'",
+    "versions" : [ "version1", "version2" ],
+    "components" : [ "component1", "component2" ],
+    "topIssues" : [ "issue1" ],
+    "issues" : [ "issue1", "issue2" ]
+  } ],
+  "projectComponents" : {
+    "project1" : [ {
+      "id" : "component1",
+      "projectId" : "project1",
+      "name" : "Component 'component1' of project 'project1'"
+    }, {
+      "id" : "component2",
+      "projectId" : "project1",
+      "name" : "Component 'component2' of project 'project1'"
+    } ],
+    "project2" : [ {
+      "id" : "component1",
+      "projectId" : "project2",
+      "name" : "Component 'component1' of project 'project2'"
+    }, {
+      "id" : "component2",
+      "projectId" : "project2",
+      "name" : "Component 'component2' of project 'project2'"
+    } ]
+  },
+  "projectVersions" : {
+    "project1" : [ {
+      "id" : "version1",
+      "name" : "Version 'version1' of project 'project1'",
+      "projectId" : "project1"
+    }, {
+      "id" : "version2",
+      "name" : "Version 'version2' of project 'project1'",
+      "projectId" : "project1"
+    } ],
+    "project2" : [ {
+      "id" : "version1",
+      "name" : "Version 'version1' of project 'project2'",
+      "projectId" : "project2"
+    }, {
+      "id" : "version2",
+      "name" : "Version 'version2' of project 'project2'",
+      "projectId" : "project2"
+    } ]
+  },
+  "projectIssues" : {
+    "project1" : [ {
+      "projectId" : "project1",
+      "type" : null,
+      "description" : null,
+      "status" : "IN_PROGRESS",
+      "severity" : "BLOCKER",
+      "priority" : "VERY_HIGH",
+      "creationDate" : "2016-06-16T10:29:39.230Z",
+      "opened" : "2016-06-16T10:29:39.230Z",
+      "closed" : null,
+      "dueTo" : null,
+      "estimatedTime" : null,
+      "versions" : [ "version1" ],
+      "components" : [ "component1" ],
+      "reporter" : "contributor1",
+      "assignee" : "contributor2",
+      "tags" : [ ],
+      "commits" : [ "commit1" ],
+      "childIssues" : [ ],
+      "blockedIssues" : [ ],
+      "changes" : {
+        "entries" : [ {
+          "author" : "contributor2",
+          "items" : [ {
+            "property" : "assignee",
+            "newValue" : "contributor2"
+          }, {
+            "property" : "status",
+            "oldValue" : "OPEN",
+            "newValue" : "IN_PROGRESS"
+          } ],
+          "timeStamp" : "2016-06-16T11:29:39.327Z"
+        }, {
+          "author" : "contributor2",
+          "items" : [ {
+            "property" : "versions",
+            "newValue" : "version1"
+          }, {
+            "property" : "components",
+            "newValue" : "component1"
+          } ],
+          "timeStamp" : "2016-06-16T13:29:39.327Z"
+        }, {
+          "author" : "contributor2",
+          "items" : [ {
+            "property" : "commits",
+            "newValue" : "commit1"
+          } ],
+          "timeStamp" : "2016-06-16T15:29:39.327Z"
+        } ]
+      },
+      "id" : "issue1",
+      "name" : "Issue 'issue1' of project 'project1'"
+    }, {
+      "projectId" : "project1",
+      "type" : null,
+      "description" : null,
+      "status" : "IN_PROGRESS",
+      "severity" : "BLOCKER",
+      "priority" : "VERY_HIGH",
+      "creationDate" : "2016-06-16T10:29:39.348Z",
+      "opened" : "2016-06-16T10:29:39.348Z",
+      "closed" : null,
+      "dueTo" : null,
+      "estimatedTime" : null,
+      "versions" : [ "version1" ],
+      "components" : [ "component1" ],
+      "reporter" : "contributor1",
+      "assignee" : "contributor2",
+      "tags" : [ ],
+      "commits" : [ "commit1" ],
+      "childIssues" : [ ],
+      "blockedIssues" : [ ],
+      "changes" : {
+        "entries" : [ {
+          "author" : "contributor2",
+          "items" : [ {
+            "property" : "assignee",
+            "newValue" : "contributor2"
+          }, {
+            "property" : "status",
+            "oldValue" : "OPEN",
+            "newValue" : "IN_PROGRESS"
+          } ],
+          "timeStamp" : "2016-06-16T11:29:39.348Z"
+        }, {
+          "author" : "contributor2",
+          "items" : [ {
+            "property" : "versions",
+            "newValue" : "version1"
+          }, {
+            "property" : "components",
+            "newValue" : "component1"
+          } ],
+          "timeStamp" : "2016-06-16T13:29:39.348Z"
+        }, {
+          "author" : "contributor2",
+          "items" : [ {
+            "property" : "commits",
+            "newValue" : "commit1"
+          } ],
+          "timeStamp" : "2016-06-16T15:29:39.348Z"
+        } ]
+      },
+      "id" : "issue2",
+      "name" : "Issue 'issue2' of project 'project1'"
+    } ],
+    "project2" : [ {
+      "projectId" : "project2",
+      "type" : null,
+      "description" : null,
+      "status" : "IN_PROGRESS",
+      "severity" : "BLOCKER",
+      "priority" : "VERY_HIGH",
+      "creationDate" : "2016-06-16T10:29:39.348Z",
+      "opened" : "2016-06-16T10:29:39.348Z",
+      "closed" : null,
+      "dueTo" : null,
+      "estimatedTime" : null,
+      "versions" : [ "version1" ],
+      "components" : [ "component1" ],
+      "reporter" : "contributor1",
+      "assignee" : "contributor2",
+      "tags" : [ ],
+      "commits" : [ "commit1" ],
+      "childIssues" : [ ],
+      "blockedIssues" : [ ],
+      "changes" : {
+        "entries" : [ {
+          "author" : "contributor2",
+          "items" : [ {
+            "property" : "assignee",
+            "newValue" : "contributor2"
+          }, {
+            "property" : "status",
+            "oldValue" : "OPEN",
+            "newValue" : "IN_PROGRESS"
+          } ],
+          "timeStamp" : "2016-06-16T11:29:39.348Z"
+        }, {
+          "author" : "contributor2",
+          "items" : [ {
+            "property" : "versions",
+            "newValue" : "version1"
+          }, {
+            "property" : "components",
+            "newValue" : "component1"
+          } ],
+          "timeStamp" : "2016-06-16T13:29:39.348Z"
+        }, {
+          "author" : "contributor2",
+          "items" : [ {
+            "property" : "commits",
+            "newValue" : "commit1"
+          } ],
+          "timeStamp" : "2016-06-16T15:29:39.348Z"
+        } ]
+      },
+      "id" : "issue1",
+      "name" : "Issue 'issue1' of project 'project2'"
+    }, {
+      "projectId" : "project2",
+      "type" : null,
+      "description" : null,
+      "status" : "IN_PROGRESS",
+      "severity" : "BLOCKER",
+      "priority" : "VERY_HIGH",
+      "creationDate" : "2016-06-16T10:29:39.349Z",
+      "opened" : "2016-06-16T10:29:39.349Z",
+      "closed" : null,
+      "dueTo" : null,
+      "estimatedTime" : null,
+      "versions" : [ "version1" ],
+      "components" : [ "component1" ],
+      "reporter" : "contributor1",
+      "assignee" : "contributor2",
+      "tags" : [ ],
+      "commits" : [ "commit1" ],
+      "childIssues" : [ ],
+      "blockedIssues" : [ ],
+      "changes" : {
+        "entries" : [ {
+          "author" : "contributor2",
+          "items" : [ {
+            "property" : "assignee",
+            "newValue" : "contributor2"
+          }, {
+            "property" : "status",
+            "oldValue" : "OPEN",
+            "newValue" : "IN_PROGRESS"
+          } ],
+          "timeStamp" : "2016-06-16T11:29:39.349Z"
+        }, {
+          "author" : "contributor2",
+          "items" : [ {
+            "property" : "versions",
+            "newValue" : "version1"
+          }, {
+            "property" : "components",
+            "newValue" : "component1"
+          } ],
+          "timeStamp" : "2016-06-16T13:29:39.349Z"
+        }, {
+          "author" : "contributor2",
+          "items" : [ {
+            "property" : "commits",
+            "newValue" : "commit1"
+          } ],
+          "timeStamp" : "2016-06-16T15:29:39.349Z"
+        } ]
+      },
+      "id" : "issue2",
+      "name" : "Issue 'issue2' of project 'project2'"
+    } ]
+  }
+}

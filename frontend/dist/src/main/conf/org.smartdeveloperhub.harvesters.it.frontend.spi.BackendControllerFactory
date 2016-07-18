@@ -1,0 +1,2 @@
+org.smartdeveloperhub.harvesters.it.frontend.controller.RemoteBackendControllerFactory
+org.smartdeveloperhub.harvesters.it.frontend.controller.LocalBackendControllerFactory
