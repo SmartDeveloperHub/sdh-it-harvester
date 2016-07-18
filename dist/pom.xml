@@ -85,7 +85,8 @@
 		<dependency>
 			<groupId>org.smartdeveloperhub.harvesters.it.backend</groupId>
 			<artifactId>it-backend-dist</artifactId>
-			<type>war</type>
+			<type>zip</type>
+			<classifier>cli</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.smartdeveloperhub.harvesters.it.frontend</groupId>

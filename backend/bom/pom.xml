@@ -101,7 +101,8 @@
 				<groupId>org.smartdeveloperhub.harvesters.it.backend</groupId>
 				<artifactId>it-backend-dist</artifactId>
 				<version>${project.version}</version>
-				<type>war</type>
+				<type>zip</type>
+				<classifier>cli</classifier>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
