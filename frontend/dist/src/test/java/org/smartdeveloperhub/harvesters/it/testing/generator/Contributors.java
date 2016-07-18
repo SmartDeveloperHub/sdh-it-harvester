@@ -20,8 +20,8 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
- *   Artifact    : org.smartdeveloperhub.harvesters.it.frontend:it-frontend-dist:0.1.0-SNAPSHOT
- *   Bundle      : it-frontend-dist-0.1.0-SNAPSHOT.war
+ *   Artifact    : org.smartdeveloperhub.harvesters.it.frontend:it-frontend-dist:0.2.0-SNAPSHOT
+ *   Bundle      : it-frontend-dist-0.2.0-SNAPSHOT.war
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
 package org.smartdeveloperhub.harvesters.it.testing.generator;
