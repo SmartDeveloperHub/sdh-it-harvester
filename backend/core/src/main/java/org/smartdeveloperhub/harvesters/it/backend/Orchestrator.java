@@ -26,6 +26,24 @@
  */
 package org.smartdeveloperhub.harvesters.it.backend;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
@@ -49,22 +67,6 @@ import org.smartdeveloperhub.harvesters.it.backend.storage.redis.RedisStorage;
 import org.smartdeveloperhub.harvesters.it.backend.utils.MappingLoader;
 import org.smartdeveloperhub.harvesters.it.notification.CollectorConfiguration;
 import org.smartdeveloperhub.harvesters.it.notification.NotificationPublisher;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Main class for the backend of the Issue Tracker Harvester.
@@ -94,82 +96,80 @@ public class Orchestrator {
 	private final static String CRAWLER_PERIOD = "collectorPeriodicity";
 	private final static String CONTRIBUTORS_FILE = "contributorsFile";
 
-	private ExecutorService executorService;
+	private final ExecutorService executorService;
 	private NotificationPublisher publisher;
 
-	public Orchestrator(ExecutorService executor) {
+	public Orchestrator(final ExecutorService executor) {
 
 		this.executorService = Objects.requireNonNull(
 											executor,
 											"ExecutorService can't be null.");
 	}
 
-	public void start() throws IOException, LifecycleException, URISyntaxException {
+	public void start(final Properties properties) throws IOException, LifecycleException, URISyntaxException {
 
-		Properties properties = new Properties();
-		properties.load(this.getClass().getResourceAsStream("/config.properties"));
 
 		// Read config
-		String version = properties.getProperty(SOFTWARE_VERSION);
-		String url = properties.getProperty(JIRA_URL);
-		String username = properties.getProperty(JIRA_USERNAME);
-		String password = properties.getProperty(JIRA_PASSWORD);
+		final String version = properties.getProperty(SOFTWARE_VERSION);
+		final String url = properties.getProperty(JIRA_URL);
+		final String username = properties.getProperty(JIRA_USERNAME);
+		final String password = properties.getProperty(JIRA_PASSWORD);
 
-		String redisServer = properties.getProperty(REDIS_SERVER);
-		int redisPort = Integer.parseInt(properties.getProperty(REDIS_PORT));
+		final String redisServer = properties.getProperty(REDIS_SERVER);
+		final int redisPort = Integer.parseInt(properties.getProperty(REDIS_PORT));
 
-		int servletPort = Integer.parseInt(properties.getProperty(SERVLET_PORT));
-		String servletPath = properties.getProperty(SERVLET_PATH);
-		long crawlerTime = Long.parseLong(properties.getProperty(CRAWLER_PERIOD));
+		final int servletPort = Integer.parseInt(properties.getProperty(SERVLET_PORT));
+		final String servletPath = properties.getProperty(SERVLET_PATH);
+		final long crawlerTime = Long.parseLong(properties.getProperty(CRAWLER_PERIOD));
 
-		String instance = properties.getProperty(INSTANCE, "http://localhost");
-		String brokerHost = properties.getProperty(BROKER_HOST, "localhost");
-		int brokerPort = Integer.parseInt(properties.getProperty(BROKER_PORT, "5672"));
-		String virtualHost = properties.getProperty(VIRTUAL_HOST, "/");
-		String exchangeName = properties.getProperty(EXCHANGE_NAME, "itcollector");
+		final String instance = properties.getProperty(INSTANCE, "http://localhost");
+		final String brokerHost = properties.getProperty(BROKER_HOST, "localhost");
+		final int brokerPort = Integer.parseInt(properties.getProperty(BROKER_PORT, "5672"));
+		final String virtualHost = properties.getProperty(VIRTUAL_HOST, "/");
+		final String exchangeName = properties.getProperty(EXCHANGE_NAME, "itcollector");
 
-		String contributorsFile = properties.getProperty(CONTRIBUTORS_FILE, "");
+		final String contributorsFile = properties.getProperty(CONTRIBUTORS_FILE, "");
 
 		// Setup of the notification publisher
-		CollectorConfiguration amqpConfig = new CollectorConfiguration();
+		final CollectorConfiguration amqpConfig = new CollectorConfiguration();
 		amqpConfig.setInstance(instance);
 		amqpConfig.setBrokerHost(brokerHost);
 		amqpConfig.setBrokerPort(brokerPort);
 		amqpConfig.setVirtualHost(virtualHost);
 		amqpConfig.setExchangeName(exchangeName);
-		Notifications notifications = new Notifications();
+		final Notifications notifications = new Notifications();
 		notifications.setBrokerHost(brokerHost);
 		notifications.setBrokerPort(brokerPort);
 		notifications.setExchangeName(exchangeName);
 		notifications.setVirtualHost(virtualHost);
 
-		publisher = NotificationPublisher.newInstance(amqpConfig);
-		publisher.start();
+		this.publisher = NotificationPublisher.newInstance(amqpConfig);
+		this.publisher.start();
 
 		// Loading mappings values
-		MappingLoader mappingLoader = new MappingLoader();
-		Map<String, Status> statusMapping =
+		final MappingLoader mappingLoader = new MappingLoader();
+		final Map<String, Status> statusMapping =
 								mappingLoader.load("/mappings/status.properties",
 													Status.class);
-		Map<String, Priority> priorityMapping =
+		final Map<String, Priority> priorityMapping =
 								mappingLoader.load("/mappings/priority.properties",
 													Priority.class);
-		Map<String, Severity> severityMapping =
+		final Map<String, Severity> severityMapping =
 								mappingLoader.load("/mappings/severity.properties",
 													Severity.class);
-		Map<String, Type> typeMapping =
+		final Map<String, Type> typeMapping =
 								mappingLoader.load("/mappings/type.properties",
 													Type.class);
 
-		ProjectFactory projectFactory = new ProjectFactory();
-		ContributorFactory contributorFactory = new ContributorFactory();
-		IssueFactory issueFactory = new IssueFactory(statusMapping,
+		final ProjectFactory projectFactory = new ProjectFactory();
+		final ContributorFactory contributorFactory = new ContributorFactory();
+		final IssueFactory issueFactory = new IssueFactory(statusMapping,
 													priorityMapping,
 													severityMapping,
 													typeMapping);
-		VersionFactory versionFactory = new VersionFactory();
-		ComponentFactory componentFactory = new ComponentFactory();
-		Storage storage = new RedisStorage(redisServer, redisPort);
+		final VersionFactory versionFactory = new VersionFactory();
+		final ComponentFactory componentFactory = new ComponentFactory();
+		final Storage storage = new RedisStorage(redisServer, redisPort);
 
 		/*
 		 * TODO: remove this section
@@ -179,36 +179,36 @@ public class Orchestrator {
 		if (Files.exists(Paths.get(contributorsFile))) {
 
 			LOGGER.info("Loading contributors from {}.", Paths.get(contributorsFile).toAbsolutePath());
-			List<String> contributorsInfo = Files.readAllLines(Paths.get(contributorsFile), Charset.defaultCharset());
-			Map<String, Contributor> contributors = new HashMap<>();
-	
-			for (String contributorInfo : contributorsInfo) {
-	
-				String id = contributorInfo.split(" ")[0];
-				String mail = contributorInfo.split(" ")[1];
-	
-				Contributor contributor = new Contributor();
+			final List<String> contributorsInfo = Files.readAllLines(Paths.get(contributorsFile), Charset.defaultCharset());
+			final Map<String, Contributor> contributors = new HashMap<>();
+
+			for (final String contributorInfo : contributorsInfo) {
+
+				final String id = contributorInfo.split(" ")[0];
+				final String mail = contributorInfo.split(" ")[1];
+
+				final Contributor contributor = new Contributor();
 				contributor.setId(id);
 				contributor.getEmails().add(mail);
 				contributors.put(id, contributor);
 			}
-	
+
 			storage.storeContriburos(contributors);
 		}
 		/*
-		 * End of provisional section 
+		 * End of provisional section
 		 */
 
-		Exhibitor exhibitor = new Exhibitor(version, notifications, storage);
+		final Exhibitor exhibitor = new Exhibitor(version, notifications, storage);
 
 		// Deploying tomcat
-		Tomcat tomcat = new Tomcat();
+		final Tomcat tomcat = new Tomcat();
 		tomcat.setPort(servletPort);
 
-		File base = new File(System.getProperty("java.io.tmpdir"));
-		Context rootCtx = tomcat.addContext("", base.getAbsolutePath());
+		final File base = new File(System.getProperty("java.io.tmpdir"));
+		final Context rootCtx = tomcat.addContext("", base.getAbsolutePath());
 
-		ServletContainer servlet = new ServletContainer(
+		final ServletContainer servlet = new ServletContainer(
 										new ResourceConfig()
 											.register(ITHarvesterEntityProvider.class)
 											.register(new ExhibitorService(exhibitor)));
@@ -217,41 +217,55 @@ public class Orchestrator {
 		rootCtx.addServletMapping(servletPath, "ITHarvester");
 
 		tomcat.start();
-		
-		Crawler crawler = new JiraCrawler(url, username, password, publisher,
+
+		final Crawler crawler = new JiraCrawler(url, username, password, this.publisher,
 											instance, storage,
 											projectFactory, contributorFactory,
 											issueFactory, versionFactory,
 											componentFactory);
-		Fetcher fetcher = new Fetcher(crawler);
+		final Fetcher fetcher = new Fetcher(crawler);
 
-		((ScheduledThreadPoolExecutor) executorService).scheduleAtFixedRate(
+		((ScheduledThreadPoolExecutor) this.executorService).scheduleAtFixedRate(
 				fetcher, 0, crawlerTime, TimeUnit.MINUTES);
 
 	}
 
 	public void shutdown() {
 
-		executorService.shutdown();
-		if (publisher != null) {
+		this.executorService.shutdown();
+		if (this.publisher != null) {
 
-			publisher.shutdown();
+			this.publisher.shutdown();
 		}
 	}
 
-	public static void main(String[] args) {
-
-		Orchestrator orchestrator = new Orchestrator(
-										Executors.newScheduledThreadPool(1));
-
-		try {
-
-			orchestrator.start();
-
-		} catch (Exception e) {
-
-			LOGGER.error("Exception while running service. {}", e);
-			orchestrator.shutdown();
+	public static void main(final String[] args) {
+		if(args.length==0) {
+			System.err.println("ERROR: No configuration file specified");
+			System.exit(-1);
 		}
+		final Path path=Paths.get(args[0]);
+		final File file = path.toFile();
+		if(!file.isFile()) {
+			System.err.println("ERROR: Path '"+path+"' is not a file");
+			System.exit(-2);
+		}
+		try(FileReader reader = new FileReader(file)) {
+			final Properties properties = new Properties();
+			properties.load(reader);
+			final Orchestrator orchestrator =
+				new Orchestrator(Executors.newScheduledThreadPool(1));
+			try {
+				orchestrator.start(properties);
+			} catch (final Exception e) {
+				LOGGER.error("Exception while running service. {}", e);
+				orchestrator.shutdown();
+				System.exit(-4);
+			}
+		} catch(final Exception e) {
+			LOGGER.error("Could not load configuration file {}. Full stacktrace follows",path,e);
+			System.exit(-3);
+		}
+
 	}
 }
