@@ -36,14 +36,14 @@ import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.backend.Issue.Type;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.Crawler;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.JiraCrawler;
+import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.factories.ComponentFactory;
+import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.factories.ContributorFactory;
+import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.factories.IssueFactory;
+import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.factories.ProjectFactory;
+import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.factories.VersionFactory;
 import org.smartdeveloperhub.harvesters.it.backend.exhibitor.Exhibitor;
 import org.smartdeveloperhub.harvesters.it.backend.exhibitor.ExhibitorService;
 import org.smartdeveloperhub.harvesters.it.backend.exhibitor.ITHarvesterEntityProvider;
-import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ComponentFactory;
-import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ContributorFactory;
-import org.smartdeveloperhub.harvesters.it.backend.factories.jira.IssueFactory;
-import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ProjectFactory;
-import org.smartdeveloperhub.harvesters.it.backend.factories.jira.VersionFactory;
 import org.smartdeveloperhub.harvesters.it.backend.storage.Storage;
 import org.smartdeveloperhub.harvesters.it.backend.storage.redis.RedisStorage;
 import org.smartdeveloperhub.harvesters.it.backend.utils.MappingLoader;
@@ -53,6 +53,11 @@ import org.smartdeveloperhub.harvesters.it.notification.NotificationPublisher;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -87,6 +92,7 @@ public class Orchestrator {
 	private final static String SERVLET_PORT = "servletPort";
 	private final static String SERVLET_PATH = "servletPath";
 	private final static String CRAWLER_PERIOD = "collectorPeriodicity";
+	private final static String CONTRIBUTORS_FILE = "contributorsFile";
 
 	private ExecutorService executorService;
 	private NotificationPublisher publisher;
@@ -121,6 +127,8 @@ public class Orchestrator {
 		int brokerPort = Integer.parseInt(properties.getProperty(BROKER_PORT, "5672"));
 		String virtualHost = properties.getProperty(VIRTUAL_HOST, "/");
 		String exchangeName = properties.getProperty(EXCHANGE_NAME, "itcollector");
+
+		String contributorsFile = properties.getProperty(CONTRIBUTORS_FILE, "");
 
 		// Setup of the notification publisher
 		CollectorConfiguration amqpConfig = new CollectorConfiguration();
@@ -163,9 +171,37 @@ public class Orchestrator {
 		ComponentFactory componentFactory = new ComponentFactory();
 		Storage storage = new RedisStorage(redisServer, redisPort);
 
+		/*
+		 * TODO: remove this section
+		 * Contributors pre load <PROVISIONAL>
+		 */
+
+		if (Files.exists(Paths.get(contributorsFile))) {
+
+			LOGGER.info("Loading contributors from {}.", Paths.get(contributorsFile).toAbsolutePath());
+			List<String> contributorsInfo = Files.readAllLines(Paths.get(contributorsFile), Charset.defaultCharset());
+			Map<String, Contributor> contributors = new HashMap<>();
+	
+			for (String contributorInfo : contributorsInfo) {
+	
+				String id = contributorInfo.split(" ")[0];
+				String mail = contributorInfo.split(" ")[1];
+	
+				Contributor contributor = new Contributor();
+				contributor.setId(id);
+				contributor.getEmails().add(mail);
+				contributors.put(id, contributor);
+			}
+	
+			storage.storeContriburos(contributors);
+		}
+		/*
+		 * End of provisional section 
+		 */
+
 		Exhibitor exhibitor = new Exhibitor(version, notifications, storage);
 
-		// Deploying tomcat to listen incoming CAPs
+		// Deploying tomcat
 		Tomcat tomcat = new Tomcat();
 		tomcat.setPort(servletPort);
 

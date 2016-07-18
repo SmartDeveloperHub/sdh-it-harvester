@@ -24,7 +24,7 @@
  *   Bundle      : it-backend-core-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.backend.factories.jira;
+package org.smartdeveloperhub.harvesters.it.backend.crawler.jira.factories;
 
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
 import org.smartdeveloperhub.harvesters.it.backend.Project;
@@ -43,11 +43,11 @@ public class ProjectFactory {
 	 * Method for building {@link Project} from Jira projects.
 	 * @param jiraProject for retrieve Project information.
 	 * @param topIssues of the project.
-	 * @param issues of the project.
+	 * @param childIssues of the project.
 	 * @return {@link Project}
 	 */
 	public Project createProject(com.atlassian.jira.rest.client.api.domain.Project jiraProject,
-									Set<Issue> topIssues, Set<Issue> issues) {
+									Set<Issue> topIssues, Set<Issue> childIssues) {
 
 		Project project = new Project();
 		project.setId(jiraProject.getKey());
@@ -55,8 +55,12 @@ public class ProjectFactory {
 		project.setVersions(getVersionsByIds(jiraProject));
 		project.setComponents(getComponentsByIds(jiraProject));
 
-		project.setTopIssues(getIssuesByIds(topIssues));
-		project.setIssues(getIssuesByIds(issues));
+		Set<String> topIds = getIssuesByIds(topIssues);
+		Set<String> issuesIds = getIssuesByIds(childIssues);
+		issuesIds.addAll(topIds);
+
+		project.setTopIssues(topIds);
+		project.setIssues(issuesIds);
 
 		return project;
 	}

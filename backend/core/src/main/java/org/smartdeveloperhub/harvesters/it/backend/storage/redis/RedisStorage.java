@@ -240,7 +240,7 @@ public class RedisStorage implements Storage {
 			for (String contributorId : contributorsMap.keySet()) {
 	
 				contributors.put(contributorId,
-								 Entities.unmarshallEntity(contributorsMap.get(contributorId),
+								 Entities.unmarshallEntity	(contributorsMap.get(contributorId),
 										 					Contributor.class));
 			}
 

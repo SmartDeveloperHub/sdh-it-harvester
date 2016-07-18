@@ -36,6 +36,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.smartdeveloperhub.harvesters.it.backend.Issue;
 import org.smartdeveloperhub.harvesters.it.backend.Project;
+import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.factories.ProjectFactory;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -162,9 +163,10 @@ public class ProjectFactoryTest {
 		then(project.getName()).isEqualTo(PROJECT_NAME);
 		then(project.getComponents()).isEmpty();
 		then(project.getVersions()).isEmpty();
-		then(project.getIssues()).isEmpty();
-		Set<String> issues = project.getTopIssues();
-		then(issues.iterator().next()).isEqualTo("SDH-1");
+		Set<String> issues = project.getIssues();
+		Set<String> topIssues = project.getTopIssues();
+		then(topIssues.iterator().next()).isEqualTo("SDH-1");
+		then(issues.contains(topIssues));
 	}
 
 	@Test(expected=NullPointerException.class)

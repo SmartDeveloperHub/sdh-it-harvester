@@ -24,19 +24,23 @@
  *   Bundle      : it-backend-core-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.backend.factories.jira;
+package org.smartdeveloperhub.harvesters.it.backend.crawler.jira.factories;
 
-import org.smartdeveloperhub.harvesters.it.backend.Component;
+import com.atlassian.jira.rest.client.api.domain.User;
+import com.google.common.collect.Sets;
 
-public class ComponentFactory {
+import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 
-	public Component createComponent(String projectId, com.atlassian.jira.rest.client.api.domain.BasicComponent jiraComponent) {
+public class ContributorFactory {
 
-		Component component = new Component();
-		component.setId(String.valueOf(jiraComponent.getId()));
-		component.setName(jiraComponent.getName());
-		component.setProjectId(projectId);
+	public Contributor createContributor(User jiraUser) {
 
-		return component;
+		Contributor contributor = new Contributor();
+
+		contributor.setId(jiraUser.getName());
+		contributor.setName(jiraUser.getDisplayName());
+		contributor.setEmails(Sets.newHashSet(jiraUser.getEmailAddress()));
+
+		return contributor;
 	}
 }

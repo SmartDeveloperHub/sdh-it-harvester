@@ -38,6 +38,7 @@ import com.atlassian.jira.rest.client.api.domain.User;
 import com.atlassian.jira.rest.client.api.domain.Version;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -46,11 +47,11 @@ import org.smartdeveloperhub.harvesters.it.backend.Component;
 import org.smartdeveloperhub.harvesters.it.backend.Contributor;
 import org.smartdeveloperhub.harvesters.it.backend.State;
 import org.smartdeveloperhub.harvesters.it.backend.crawler.Crawler;
-import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ComponentFactory;
-import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ContributorFactory;
-import org.smartdeveloperhub.harvesters.it.backend.factories.jira.IssueFactory;
-import org.smartdeveloperhub.harvesters.it.backend.factories.jira.ProjectFactory;
-import org.smartdeveloperhub.harvesters.it.backend.factories.jira.VersionFactory;
+import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.factories.ComponentFactory;
+import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.factories.ContributorFactory;
+import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.factories.IssueFactory;
+import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.factories.ProjectFactory;
+import org.smartdeveloperhub.harvesters.it.backend.crawler.jira.factories.VersionFactory;
 import org.smartdeveloperhub.harvesters.it.backend.storage.Storage;
 import org.smartdeveloperhub.harvesters.it.notification.NotificationPublisher;
 import org.smartdeveloperhub.harvesters.it.notification.event.ContributorCreatedEvent;
@@ -197,10 +198,10 @@ public class JiraCrawler implements Crawler {
 
 				if (oldProject != null) {
 
-					Set<String> newTop = difference(project.getTopIssues(), oldProject.getTopIssues());
-					Set<String> newIssues = difference(project.getIssues(), oldProject.getIssues());
-					Set<String> updatedTop = difference(project.getTopIssues(), newTop);
-					Set<String> updatedIssues = difference(project.getIssues(), newIssues);
+					Set<String> newTop = Sets.difference(project.getTopIssues(), oldProject.getTopIssues());
+					Set<String> newIssues = Sets.difference(project.getIssues(), oldProject.getIssues());
+					Set<String> updatedTop = Sets.difference(project.getTopIssues(), newTop);
+					Set<String> updatedIssues = Sets.difference(project.getIssues(), newIssues);
 
 					project.getTopIssues().addAll(oldProject.getTopIssues());
 					project.getIssues().addAll(oldProject.getIssues());
@@ -214,7 +215,7 @@ public class JiraCrawler implements Crawler {
 					updated.addAll(updatedIssues);
 
 					addIssueChanges(event, news, updated);
-
+					event.setProject(project.getId());
 					if (!news.isEmpty() || !updated.isEmpty()) {
 						sendNotification(event);
 					}
@@ -239,9 +240,10 @@ public class JiraCrawler implements Crawler {
 //				LOGGER.info("Storing issues and components and versions.");
 				Map<String, Component> oldComponentsMap = storage.loadComponents(jiraProject.getKey());
 
-				Set<String> newComponents = difference(componentIds, oldComponentsMap.keySet());
+				Set<String> newComponents = Sets.difference(componentIds, oldComponentsMap.keySet());
 
 				ProjectUpdatedEvent event = new ProjectUpdatedEvent();
+				event.setProject(jiraProject.getKey());
 				for (String id : newComponents) {
 					event.append(Modification.create().component(id));
 				}
@@ -258,7 +260,7 @@ public class JiraCrawler implements Crawler {
 
 				Map<String, org.smartdeveloperhub.harvesters.it.backend.Version> oldVersionsMap = storage.loadVersions(jiraProject.getKey());
 
-				Set<String> newVersions = difference(versionIds, oldVersionsMap.keySet());
+				Set<String> newVersions = Sets.difference(versionIds, oldVersionsMap.keySet());
 
 				for (String id : newVersions) {
 					event.append(Modification.create().version(id));
@@ -311,15 +313,6 @@ public class JiraCrawler implements Crawler {
 
 			event.append(Modification.update().issue(id));
 		}
-	}
-
-	private Set<String> difference(Set<String> minuend, Set<String> subtrahend) {
-
-		Set<String> difference = new HashSet<>();
-		difference.addAll(minuend);
-		difference.removeAll(subtrahend);
-
-		return difference;
 	}
 
 	/**
@@ -401,8 +394,15 @@ public class JiraCrawler implements Crawler {
 	private Contributor addContributor(Map<String, Contributor> contributors, User user) {
 
 		Contributor contributor = contributorFactory.createContributor(user);
-		Contributor oldContributor = contributors.put(contributor.getId(),
-												contributor);
+		Contributor oldContributor = contributors.get(contributor.getId());
+
+		if (oldContributor != null) {
+			// Update mails list
+			contributor.getEmails().addAll(oldContributor.getEmails());
+
+		}
+
+		contributors.put(contributor.getId(), contributor);
 
 		return oldContributor != null ? null : contributor;
 	}
