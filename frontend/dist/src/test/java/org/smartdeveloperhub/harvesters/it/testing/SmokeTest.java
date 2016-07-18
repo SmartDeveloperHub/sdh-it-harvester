@@ -66,7 +66,7 @@ public class SmokeTest {
 			return
 				baseApplicationArchive(archiveName).
 					addAsServiceProvider(BackendControllerFactory.class,LocalBackendControllerFactory.class);
-		} catch (final Exception e) {
+		} catch (final Throwable e) {
 			LOGGER.error("Could not create locally backed application archive",e);
 			throw e;
 		}
@@ -77,7 +77,7 @@ public class SmokeTest {
 			return
 				baseApplicationArchive(archiveName).
 					addAsServiceProvider(BackendControllerFactory.class,RemoteBackendControllerFactory.class);
-		} catch (final Exception e) {
+		} catch (final Throwable e) {
 			LOGGER.error("Could not create remotelly backed application archive",e);
 			throw e;
 		}
