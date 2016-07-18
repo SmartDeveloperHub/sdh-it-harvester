@@ -246,9 +246,12 @@ public class Orchestrator {
 		}
 		final Path path=Paths.get(args[0]);
 		final File file = path.toFile();
-		if(!file.isFile()) {
-			System.err.println("ERROR: Path '"+path+"' is not a file");
+		if(!file.exists()) {
+			System.err.println("ERROR: File '"+path+"' not found");
 			System.exit(-2);
+		} else if(file.isDirectory()) {
+			System.err.println("ERROR: Path '"+path+"' points to a directory");
+			System.exit(-3);
 		}
 		try(FileReader reader = new FileReader(file)) {
 			final Properties properties = new Properties();
@@ -258,13 +261,13 @@ public class Orchestrator {
 			try {
 				orchestrator.start(properties);
 			} catch (final Exception e) {
-				LOGGER.error("Exception while running service. {}", e);
+				LOGGER.error("Exception while running service. Full stacktrace follows",e);
 				orchestrator.shutdown();
-				System.exit(-4);
+				System.exit(-5);
 			}
 		} catch(final Exception e) {
-			LOGGER.error("Could not load configuration file {}. Full stacktrace follows",path,e);
-			System.exit(-3);
+			LOGGER.error("Could not load configuration file {}. Full stacktrace follows",file.getAbsolutePath(),e);
+			System.exit(-5);
 		}
 
 	}

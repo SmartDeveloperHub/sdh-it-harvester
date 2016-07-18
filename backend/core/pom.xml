@@ -243,6 +243,21 @@
 
 	</dependencies>
 
+	<build>
+		<plugins>
+			<!-- Skip specific files from license maintenance -->
+			<plugin>
+				<groupId>com.mycila</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>src/main/resources/contributors_list.txt</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 	<repositories>
 		<repository>
 			<id>atlassian-public</id>
