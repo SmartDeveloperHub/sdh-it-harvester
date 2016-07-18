@@ -31,7 +31,7 @@ import java.net.URI;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.AssigneeChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.BlockedIssuesChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ChildIssuesChangeItem;
-import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ClosedDateChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ClosedChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.CommitsChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ComponentsChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DescriptionChangeItem;
@@ -39,7 +39,7 @@ import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DueToDateChan
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.EstimatedTimeChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ItemVisitor;
-import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.OpenedDateChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.OpenedChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.PriorityChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.SeverityChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.StatusChangeItem;
@@ -69,12 +69,12 @@ public final class IT {
 		}
 
 		@Override
-		public void visitOpenedDateChange(final OpenedDateChangeItem item) {
+		public void visitOpenedDateChange(final OpenedChangeItem item) {
 			this.property=DATE_OPEN;
 		}
 
 		@Override
-		public void visitClosedDateChange(final ClosedDateChangeItem item) {
+		public void visitClosedDateChange(final ClosedChangeItem item) {
 			this.property=DATE_CLOSED;
 		}
 

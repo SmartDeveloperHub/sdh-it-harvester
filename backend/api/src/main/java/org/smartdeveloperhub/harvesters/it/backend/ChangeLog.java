@@ -66,13 +66,13 @@ public final class ChangeLog extends Entity {
 			@Type(value=AssigneeChangeItem.class,name="assignee"),
 			@Type(value=BlockedIssuesChangeItem.class,name="blockedIssues"),
 			@Type(value=ChildIssuesChangeItem.class,name="childIssues"),
-			@Type(value=ClosedDateChangeItem.class,name="closedDate"),
+			@Type(value=ClosedChangeItem.class,name="closedDate"),
 			@Type(value=CommitsChangeItem.class,name="commits"),
 			@Type(value=ComponentsChangeItem.class,name="components"),
 			@Type(value=DescriptionChangeItem.class,name="description"),
 			@Type(value=DueToDateChangeItem.class,name="dueToDate"),
 			@Type(value=EstimatedTimeChangeItem.class,name="estimatedTime"),
-			@Type(value=OpenedDateChangeItem.class,name="openedDate"),
+			@Type(value=OpenedChangeItem.class,name="openedDate"),
 			@Type(value=PriorityChangeItem.class,name="priority"),
 			@Type(value=SeverityChangeItem.class,name="severity"),
 			@Type(value=StatusChangeItem.class,name="status"),
@@ -123,11 +123,11 @@ public final class ChangeLog extends Entity {
 				}
 
 				public ItemEditorBuilder<DateTime> openedDate() {
-					return new ItemEditorBuilder<DateTime>(new OpenedDateChangeItem());
+					return new ItemEditorBuilder<DateTime>(new OpenedChangeItem());
 				}
 
 				public ItemEditorBuilder<DateTime> closedDate() {
-					return new ItemEditorBuilder<DateTime>(new ClosedDateChangeItem());
+					return new ItemEditorBuilder<DateTime>(new ClosedChangeItem());
 				}
 
 				public ItemEditorBuilder<DateTime> dueToDate() {
@@ -208,11 +208,11 @@ public final class ChangeLog extends Entity {
 				// To be overriden by subclasses
 			}
 
-			public void visitOpenedDateChange(final OpenedDateChangeItem item) {
+			public void visitOpenedDateChange(final OpenedChangeItem item) {
 				// To be overriden by subclasses
 			}
 
-			public void visitClosedDateChange(final ClosedDateChangeItem item) {
+			public void visitClosedDateChange(final ClosedChangeItem item) {
 				// To be overriden by subclasses
 			}
 
@@ -358,14 +358,14 @@ public final class ChangeLog extends Entity {
 			}
 		}
 
-		public static final class OpenedDateChangeItem extends DateTimeChangeItem {
+		public static final class OpenedChangeItem extends DateTimeChangeItem {
 			@Override
 			public void accept(final ItemVisitor visitor) {
 				visitor.visitOpenedDateChange(this);
 			}
 		}
 
-		public static final class ClosedDateChangeItem extends DateTimeChangeItem {
+		public static final class ClosedChangeItem extends DateTimeChangeItem {
 			@Override
 			public void accept(final ItemVisitor visitor) {
 				visitor.visitClosedDateChange(this);

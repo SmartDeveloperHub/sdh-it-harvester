@@ -46,13 +46,13 @@ import org.slf4j.LoggerFactory;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.AssigneeChangeItem;
-import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ClosedDateChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ClosedChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ComponentsChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DescriptionChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DueToDateChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.EstimatedTimeChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.Item;
-import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.OpenedDateChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.OpenedChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.PriorityChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.SeverityChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.StatusChangeItem;
@@ -660,7 +660,7 @@ private final class ComponentChangeInformationPoint implements ChangeInformation
 			issue.setStatus(Status.CLOSED);
 			issue.setClosed(now.toDateTime());
 
-			final ClosedDateChangeItem item = new ClosedDateChangeItem();
+			final ClosedChangeItem item = new ClosedChangeItem();
 			item.setOldValue(null);
 			item.setNewValue(issue.getClosed());
 			changes.add(item);
@@ -851,7 +851,7 @@ private final class ComponentChangeInformationPoint implements ChangeInformation
 			sChange.setNewValue(Status.CLOSED);
 			changes.add(sChange);
 
-			final ClosedDateChangeItem cdChange = new ClosedDateChangeItem();
+			final ClosedChangeItem cdChange = new ClosedChangeItem();
 			cdChange.setOldValue(null);
 			cdChange.setNewValue(issue.getClosed());
 			changes.add(cdChange);
@@ -946,7 +946,7 @@ private final class ComponentChangeInformationPoint implements ChangeInformation
 			final DateTime oldValue = issue.getOpened();
 			issue.setOpened(now.toDateTime());
 
-			final OpenedDateChangeItem item = new OpenedDateChangeItem();
+			final OpenedChangeItem item = new OpenedChangeItem();
 			item.setOldValue(oldValue);
 			item.setNewValue(issue.getOpened());
 			changes.add(item);
@@ -955,7 +955,7 @@ private final class ComponentChangeInformationPoint implements ChangeInformation
 			final DateTime oldValue = issue.getClosed();
 			issue.setClosed(null);
 
-			final ClosedDateChangeItem item = new ClosedDateChangeItem();
+			final ClosedChangeItem item = new ClosedChangeItem();
 			item.setOldValue(oldValue);
 			item.setNewValue(issue.getClosed());
 			changes.add(item);

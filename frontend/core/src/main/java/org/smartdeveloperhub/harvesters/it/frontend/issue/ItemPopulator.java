@@ -34,14 +34,14 @@ import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.AbstractItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.AssigneeChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.BlockedIssuesChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ChildIssuesChangeItem;
-import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ClosedDateChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ClosedChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.CommitsChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ComponentsChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DescriptionChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.DueToDateChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.EstimatedTimeChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.ItemVisitor;
-import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.OpenedDateChangeItem;
+import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.OpenedChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.PriorityChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.SeverityChangeItem;
 import org.smartdeveloperhub.harvesters.it.backend.ChangeLog.Entry.StatusChangeItem;
@@ -90,12 +90,12 @@ abstract class ItemPopulator extends ItemVisitor {
 	}
 
 	@Override
-	public void visitOpenedDateChange(final OpenedDateChangeItem aItem) {
+	public void visitOpenedDateChange(final OpenedChangeItem aItem) {
 		addLiteral(aItem);
 	}
 
 	@Override
-	public void visitClosedDateChange(final ClosedDateChangeItem aItem) {
+	public void visitClosedDateChange(final ClosedChangeItem aItem) {
 		addLiteral(aItem);
 	}
 
