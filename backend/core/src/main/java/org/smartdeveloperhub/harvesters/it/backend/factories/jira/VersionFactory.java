@@ -24,35 +24,27 @@
  *   Bundle      : it-backend-core-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.backend;
+package org.smartdeveloperhub.harvesters.it.backend.factories.jira;
 
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assume.assumeThat;
+import org.smartdeveloperhub.harvesters.it.backend.Version;
 
-import java.net.URI;
+import java.util.Objects;
 
-import org.junit.Test;
+/**
+ * Class to build {@link Version}s.
+ * @author imolina
+ *
+ */
+public class VersionFactory {
 
-public class ExplorerTest {
+	public Version createVersion(String projectId, com.atlassian.jira.rest.client.api.domain.Version jiraVersion) {
 
-	@Test
-	public void testNewInstance() throws Exception {
-		final String username = System.getenv("JIRA_TESTING_USERNAME");
-		assumeThat("No testing username specified (use JIRA_TESTING_USERNAME environment variable)",username,notNullValue());
-		final String password = System.getenv("JIRA_TESTING_PASSWORD");
-		assumeThat("No username password specified (use JIRA_TESTING_PASSWORD environment variable)",password,notNullValue());
-		final Explorer explorer=
-			Explorer.
-				newInstance(
-					URI.create("https://issues.sonatype.org/"),
-					username,
-					password);
-		try {
-			explorer.exploreProjects();
-			explorer.exploreIssue("OSSRH-15633");
-		} finally {
-			explorer.close();
-		}
+		Objects.requireNonNull(jiraVersion, "Jira User cannot be null.");
+
+		Version version = new Version();
+		version.setId(String.valueOf(jiraVersion.getId()));
+		version.setProjectId(projectId);
+		version.setName(jiraVersion.getName());
+		return version;
 	}
-
 }
