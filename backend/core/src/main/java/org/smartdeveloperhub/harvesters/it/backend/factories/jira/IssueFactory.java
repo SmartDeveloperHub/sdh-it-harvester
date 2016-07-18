@@ -62,6 +62,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Stack;
 
 import jersey.repackaged.com.google.common.collect.Sets;
 
@@ -127,7 +128,6 @@ public class IssueFactory {
 		issue.setCreationDate(jiraIssue.getCreationDate());
 		issue.setDescription(jiraIssue.getDescription());
 		issue.setReporter(jiraIssue.getReporter().getName());
-
 		issue.setName(jiraIssue.getSummary());
 
 		User assignee = jiraIssue.getAssignee();
@@ -136,9 +136,14 @@ public class IssueFactory {
 
 			issue.setAssignee(assignee.getName());
 		}
-		issue.setChanges(createChangeLog(jiraIssue, contributors));
-		issue.setOpened(getOpenedDate(jiraIssue, issue.getChanges()));
-		issue.setClosed(getClosedDate(jiraIssue, issue.getChanges()));
+
+		// Prepare structures to explore changes looking for open and close dates.
+		Stack<DateTime> openDate = new Stack<>(); 
+		Stack<DateTime> closeDate = new Stack<>();
+
+		issue.setChanges(createChangeLog(jiraIssue, contributors, openDate, closeDate));
+		issue.setOpened(openDate.peek());
+		issue.setClosed(closeDate.peek());
 		issue.setDueTo(jiraIssue.getDueDate());
 		TimeTracking track = jiraIssue.getTimeTracking();
 		if (track != null) {
@@ -297,10 +302,13 @@ public class IssueFactory {
 	}
 
 	private ChangeLog createChangeLog(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue,
-										Map<String, Contributor> contributors) {
-		
+										Map<String, Contributor> contributors, Stack<DateTime> openDate, Stack<DateTime> closeDate) {
+
 		ChangeLog changeLog = new ChangeLog();
 		Set<Entry> entries = new HashSet<>();
+
+		openDate.push(jiraIssue.getCreationDate());
+		closeDate.push(null);
 
 		for (com.atlassian.jira.rest.client.api.domain.ChangelogGroup group :
 													jiraIssue.getChangelog()) {
@@ -323,7 +331,7 @@ public class IssueFactory {
 
 					try {
 
-						items.addAll(buildChangeLogItem(jiraItem, contributors));
+						items.addAll(buildChangeLogItem(jiraItem, contributors, group.getCreated(), openDate, closeDate));
 
 					} catch (IllegalStateException e) {
 						LOGGER.warn("Ignoring entry because IllegalState.\n" + 
@@ -359,20 +367,50 @@ public class IssueFactory {
 		throw new IllegalArgumentException("Contributor not found.");
 	}
 
-	private Set<Item> buildChangeLogItem(ChangelogItem jiraItem, Map<String, Contributor> contributors) {
+	private Set<Item> buildChangeLogItem(ChangelogItem jiraItem,
+					Map<String, Contributor> contributors, DateTime timestamp,
+					Stack<DateTime> openDate, Stack<DateTime> closeDate) {
 
 		Set<Item> items = new HashSet<>();
 		String field = jiraItem.getField();
 		if (ChangeLogProperty.STATUS.is(field)) {
 
-			Item item = Item.builder()
-							.status()
-								.oldValue(fromMap(jiraItem.getFromString(),
-													statusMapping))
-								.newValue(fromMap(jiraItem.getToString(),
-													statusMapping))
-								.build();
-			items.add(item);
+			Status oldStatus = fromMap(jiraItem.getFromString(),
+					statusMapping);
+			Status newStatus = fromMap(jiraItem.getToString(),
+					statusMapping);
+
+			if (!oldStatus.equals(newStatus)) {
+
+				if (oldStatus.equals(Status.CLOSED)) {
+
+					items.add(Item.builder()
+									.openedDate()
+										.oldValue(openDate.pop())
+										.newValue(openDate.push(timestamp))
+										.build());
+	
+					items.add(Item.builder()
+									.closedDate()
+										.oldValue(closeDate.pop())
+										.newValue(closeDate.peek())
+										.build());
+	
+				} else if (newStatus.equals(Status.CLOSED)) {
+
+					items.add(Item.builder()
+									.closedDate()
+										.oldValue(closeDate.peek())
+										.newValue(closeDate.push(timestamp))
+										.build());
+				}
+
+				items.add(Item.builder()
+						.status()
+							.oldValue(oldStatus)
+							.newValue(newStatus)
+							.build());
+			}
 
 		} else if (ChangeLogProperty.PRIORITY.is(field)) {
 
@@ -585,24 +623,5 @@ public class IssueFactory {
 		Collections.sort(dates);
 
 		return dates.isEmpty() ? null : dates.getLast();
-	}
-
-
-	private DateTime getOpenedDate(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue,
-									ChangeLog changeLog) {
-
-		DateTime openDate = getLastStatusDate(Status.OPEN, changeLog);
-
-		return openDate != null ? openDate : jiraIssue.getCreationDate();
-	}
-
-	private DateTime getClosedDate(com.atlassian.jira.rest.client.api.domain.Issue jiraIssue,
-									ChangeLog changeLog) {
-
-		if (fromMap(jiraIssue.getStatus().getName(), statusMapping) == Status.CLOSED) {
-
-			return getLastStatusDate(Status.CLOSED, changeLog);
-		}
-		return null;
 	}
 }
