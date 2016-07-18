@@ -24,7 +24,7 @@
  *   Bundle      : it-backend-core-0.1.0-SNAPSHOT.jar
  * #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
  */
-package org.smartdeveloperhub.harvesters.it.backend.factories.jira;
+package org.smartdeveloperhub.harvesters.it.backend.crawler.jira.factories;
 
 import org.smartdeveloperhub.harvesters.it.backend.Version;
 
