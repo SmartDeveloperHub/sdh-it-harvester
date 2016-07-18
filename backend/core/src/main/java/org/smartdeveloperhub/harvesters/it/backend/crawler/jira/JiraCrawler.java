@@ -394,8 +394,15 @@ public class JiraCrawler implements Crawler {
 	private Contributor addContributor(Map<String, Contributor> contributors, User user) {
 
 		Contributor contributor = contributorFactory.createContributor(user);
-		Contributor oldContributor = contributors.put(contributor.getId(),
-												contributor);
+		Contributor oldContributor = contributors.get(contributor.getId());
+
+		if (oldContributor != null) {
+			// Update mails list
+			contributor.getEmails().addAll(oldContributor.getEmails());
+
+		}
+
+		contributors.put(contributor.getId(), contributor);
 
 		return oldContributor != null ? null : contributor;
 	}
